@@ -1,0 +1,9 @@
+[workspace]
+members = [
+  "exc-util",
+  "exc-okx",
+  "exc-mexc",
+]
+resolver = "2"
+
+[patch.crates-io]

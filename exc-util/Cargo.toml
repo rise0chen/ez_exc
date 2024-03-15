@@ -1,0 +1,17 @@
+[package]
+authors = ["rise0chen"]
+description = "MEXC exchange services"
+edition = "2021"
+keywords = ["exchange", "tower", "mexc"]
+license = "MIT"
+name = "exc-util"
+readme = "./README.md"
+repository = ""
+version = "0.7.0"
+
+[dependencies]
+anyhow = {version = "1"}
+exc-core = {version = "0.7", default-features = false, features = ["websocket", "driven", "http", "retry", "fetch-candles", "limit"]}
+http = {version = "0.2"}
+num_enum = {version = "0.7"}
+serde = {version = "1", features = ["derive"]}
