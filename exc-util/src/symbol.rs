@@ -1,4 +1,5 @@
 pub use exc_core::Asset;
+use std::fmt::Display;
 
 #[derive(Debug, Clone, Copy)]
 pub enum SymbolKind {
@@ -38,5 +39,11 @@ impl Symbol {
     }
     pub fn is_derivative(&self) -> bool {
         matches!(self.kind, SymbolKind::Derivative)
+    }
+}
+impl Display for Symbol {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let t = if self.is_spot() { "S" } else { "F" };
+        write!(f, "{}.{}-{}", t, self.base, self.quote)
     }
 }
