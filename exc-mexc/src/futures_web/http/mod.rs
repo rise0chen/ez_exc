@@ -16,7 +16,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request<Body>, any
                 .header("Authorization", token.as_str());
         }
     }
-    let mut uri = format!("{}/{}", HOST, req.path());
+    let mut uri = format!("{}{}", HOST, req.path());
     let body = match req.method() {
         Method::GET => {
             let body_str = if req.need_sign() {

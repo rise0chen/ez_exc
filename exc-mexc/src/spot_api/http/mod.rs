@@ -11,7 +11,7 @@ use hyper::Body;
 const HOST: &str = "https://api.mexc.com";
 
 pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request<Body>, anyhow::Error> {
-    let mut uri = format!("{}/{}", HOST, req.path());
+    let mut uri = format!("{}{}", HOST, req.path());
     let body_str = if req.need_sign() {
         let signature = key.sign(req, ParamsFormat::Urlencoded, ApiKind::SpotApi)?;
         serde_urlencoded::to_string(signature)?

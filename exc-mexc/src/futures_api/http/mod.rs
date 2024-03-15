@@ -13,7 +13,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request<Body>, any
         .method(req.method())
         .header("ApiKey", key.api_key.as_str())
         .header("content-type", "application/json");
-    let mut uri = format!("{}/{}", HOST, req.path());
+    let mut uri = format!("{}{}", HOST, req.path());
     let body = match req.method() {
         Method::GET => {
             let body_str = if req.need_sign() {
