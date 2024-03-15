@@ -1,16 +1,15 @@
 use super::Mexc;
+use exc_core::ExchangeError;
+use exc_util::symbol::Symbol;
 use exc_util::types::book::BidAsk;
-use exc_core::{ExchangeError, Symbol};
 use tower::ServiceExt;
 
 impl Mexc {
-    pub async fn get_bid_ask(&mut self, symbol: Symbol) -> Result<BidAsk, ExchangeError> {
-        let bid_ask = if let Some((base, quote)) = symbol.as_spot() {
+    pub async fn get_bid_ask(&mut self, symbol: &Symbol) -> Result<BidAsk, ExchangeError> {
+        let symbol_id = crate::symnol::symbol_id(symbol);
+        let bid_ask = if symbol.is_spot() {
             use crate::spot_api::http::book::GetBidAskRequest;
-            let req = GetBidAskRequest {
-                symbol: format!("{base}{quote}"),
-                limit: 1,
-            };
+            let req = GetBidAskRequest { symbol: symbol_id, limit: 1 };
             let resp = self.oneshot(req).await?;
             BidAsk {
                 bid: (resp.bids[0].0, resp.bids[0].1),
@@ -19,10 +18,7 @@ impl Mexc {
             }
         } else {
             use crate::futures_api::http::book::GetBidAskRequest;
-            let req = GetBidAskRequest {
-                symbol: symbol.as_derivative().map_or(String::new(), |(p, s)| format!("{p}{s}")),
-                limit: 1,
-            };
+            let req = GetBidAskRequest { symbol: symbol_id, limit: 1 };
             let resp = self.oneshot(req).await?;
             BidAsk {
                 bid: (resp.bids[0].0, resp.bids[0].1),

@@ -1,4 +1,4 @@
-use exc_core::Symbol;
+use crate::symbol::Symbol;
 use num_enum::{FromPrimitive, IntoPrimitive};
 use serde::{Deserialize, Serialize};
 

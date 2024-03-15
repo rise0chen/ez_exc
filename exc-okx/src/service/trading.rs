@@ -1,6 +1,7 @@
 use super::Okx;
 use crate::api::types::OrderSide;
-use exc_core::{ExchangeError, Symbol};
+use exc_core::ExchangeError;
+use exc_util::symbol::Symbol;
 use exc_util::types::order::{Order, OrderId, PlaceOrderRequest};
 use tower::ServiceExt;
 
@@ -25,12 +26,7 @@ impl Okx {
             custom_order_id: Some(custom_id.clone()),
         };
 
-        let inst_id = if let Some((base, quote)) = symbol.as_spot() {
-            format!("{base}-{quote}")
-        } else {
-            symbol.as_derivative().map_or(String::new(), |(p, s)| format!("{p}{s}"))
-        };
-
+        let inst_id = crate::symnol::symbol_id(symbol);
         let req = crate::api::http::trading::PlaceOrderRequest {
             inst_id,
             td_mode: open_type.into(),
@@ -56,11 +52,7 @@ impl Okx {
             order_id,
             custom_order_id,
         } = order_id;
-        let inst_id = if let Some((base, quote)) = symbol.as_spot() {
-            format!("{base}{quote}")
-        } else {
-            symbol.as_derivative().map_or(String::new(), |(p, s)| format!("{p}{s}"))
-        };
+        let inst_id = crate::symnol::symbol_id(&symbol);
         let req = crate::api::http::trading::GetOrderRequest {
             inst_id,
             ord_id: order_id,

@@ -9,6 +9,7 @@ pub mod interface;
 pub mod key;
 pub mod response;
 pub mod spot_api;
+pub mod symnol;
 pub mod types;
 
 cfg_if::cfg_if! {

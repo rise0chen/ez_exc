@@ -1,6 +1,7 @@
 use super::Mexc;
+use exc_core::ExchangeError;
+use exc_util::symbol::Symbol;
 use exc_util::types::order::{Order, OrderId, OrderSide, PlaceOrderRequest};
-use exc_core::{ExchangeError, Symbol};
 use tower::ServiceExt;
 
 impl Mexc {
@@ -23,10 +24,12 @@ impl Mexc {
             order_id: None,
             custom_order_id: Some(custom_id.clone()),
         };
-        let order_id = if let Some((base, quote)) = symbol.as_spot() {
+
+        let symbol_id = crate::symnol::symbol_id(symbol);
+        let order_id = if symbol.is_spot() {
             use crate::spot_api::http::trading::PlaceOrderRequest;
             let req = PlaceOrderRequest {
-                symbol: format!("{base}{quote}"),
+                symbol: symbol_id,
                 side: if size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },
                 r#type: kind,
                 quantity: size.abs(),
@@ -38,7 +41,7 @@ impl Mexc {
         } else {
             use crate::futures_web::http::trading::PlaceOrderRequest;
             let req = PlaceOrderRequest {
-                symbol: symbol.as_derivative().map_or(String::new(), |(p, s)| format!("{p}{s}")),
+                symbol: symbol_id,
                 external_oid: Some(custom_id),
                 side: if size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },
                 r#type: kind,
@@ -63,10 +66,11 @@ impl Mexc {
             order_id,
             custom_order_id,
         } = order_id;
-        let order = if let Some((base, quote)) = symbol.as_spot() {
+        let symbol_id = crate::symnol::symbol_id(&symbol);
+        let order = if symbol.is_spot() {
             use crate::spot_api::http::trading::GetOrderRequest;
             let req = GetOrderRequest {
-                symbol: format!("{base}{quote}"),
+                symbol: symbol_id,
                 order_id,
                 orig_client_order_id: custom_order_id,
             };
@@ -82,10 +86,10 @@ impl Mexc {
                 order_type: resp.r#type,
                 side: resp.side,
             }
-        } else if let Some((_prefix, symbol)) = symbol.as_derivative() {
+        } else {
             use crate::futures_api::http::trading::GetOrderRequest;
             let req = GetOrderRequest {
-                symbol: symbol.to_owned(),
+                symbol: symbol_id,
                 order_id,
                 external_oid: custom_order_id,
             };
@@ -101,8 +105,6 @@ impl Mexc {
                 order_type: resp.order_type,
                 side: resp.side,
             }
-        } else {
-            return Err(ExchangeError::OrderNotFound);
         };
         Ok(order)
     }

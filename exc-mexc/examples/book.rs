@@ -1,5 +1,5 @@
-use exc_core::{Asset, Symbol};
 use exc_mexc::service::Mexc;
+use exc_util::symbol::{Asset, Symbol};
 use std::env::var;
 
 #[tokio::main]
@@ -15,12 +15,12 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("MEXC_KEY")?)?;
     let mut mexc = Mexc::new(key);
 
-    let symbol = Symbol::spot(&Asset::try_from("MX").unwrap(), &Asset::usdt());
-    let bid_ask = mexc.get_bid_ask(symbol.clone()).await.unwrap();
+    let symbol = Symbol::spot(Asset::try_from("MX").unwrap(), Asset::usdt());
+    let bid_ask = mexc.get_bid_ask(&symbol).await.unwrap();
     tracing::info!("{:?}", bid_ask);
 
-    let symbol = Symbol::derivative("", "MX_USDT").unwrap();
-    let bid_ask = mexc.get_bid_ask(symbol.clone()).await.unwrap();
+    let symbol = Symbol::derivative(Asset::try_from("MX").unwrap(), Asset::usdt());
+    let bid_ask = mexc.get_bid_ask(&symbol).await.unwrap();
     tracing::info!("{:?}", bid_ask);
     Ok(())
 }
