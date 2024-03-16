@@ -10,7 +10,7 @@ const HOST: &str = "https://aws.okx.com";
 pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request<Body>, anyhow::Error> {
     let mut uri = format!("{}{}", HOST, req.path());
     let signature = if req.need_sign() {
-        Some(key.sign(req, ParamsFormat::Json, ApiKind::Common)?)
+        Some(key.sign(req, ParamsFormat::Common, ApiKind::Common)?)
     } else {
         None
     };

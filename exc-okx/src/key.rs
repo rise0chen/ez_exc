@@ -3,11 +3,13 @@ use exc_core::Str;
 pub use exc_util::interface::ApiKind;
 use exc_util::interface::Rest;
 use hmac::{Hmac, Mac};
+use http::Method;
 use serde::{Deserialize, Serialize};
 use sha2::Sha256;
 use time::OffsetDateTime;
 
 pub enum ParamsFormat {
+    Common,
     Json,
     Urlencoded,
 }
@@ -73,10 +75,21 @@ impl<'a, T: Rest<Response = R>, R> SigningParams<'a, T, R> {
     /// Get signed params.
     pub fn signed(self, key: &Key, format: ParamsFormat, kind: ApiKind) -> Result<SignedParams<'a, T, R>, anyhow::Error> {
         let body = match format {
-            ParamsFormat::Json => serde_json::to_string(&self)?,
-            ParamsFormat::Urlencoded => serde_urlencoded::to_string(&self)?,
+            ParamsFormat::Common => {
+                if self.params.method() == Method::GET {
+                    serde_urlencoded::to_string(self.params)?
+                } else {
+                    serde_json::to_string(self.params)?
+                }
+            }
+            ParamsFormat::Json => serde_json::to_string(self.params)?,
+            ParamsFormat::Urlencoded => serde_urlencoded::to_string(self.params)?,
         };
-        let raw = format!("{}{}{}{}", self.timestamp, self.params.method().as_str(), self.params.path(), body);
+        let raw = if self.params.method() == Method::GET {
+            format!("{}{}{}?{}", self.timestamp, self.params.method().as_str(), self.params.path(), body)
+        } else {
+            format!("{}{}{}{}", self.timestamp, self.params.method().as_str(), self.params.path(), body)
+        };
         let signature = match kind {
             ApiKind::Common => {
                 let mut mac = Hmac::<Sha256>::new_from_slice(key.secret_key.as_bytes())?;
