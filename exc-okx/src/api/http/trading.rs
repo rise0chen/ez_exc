@@ -25,7 +25,7 @@ pub struct PlaceOrderResponse {
 }
 
 impl Rest for PlaceOrderRequest {
-    type Response = PlaceOrderResponse;
+    type Response = Vec<PlaceOrderResponse>;
 
     fn api_kind(&self) -> ApiKind {
         ApiKind::Common
@@ -58,7 +58,7 @@ pub struct CancelOrderResponse {
 }
 
 impl Rest for CancelOrderRequest {
-    type Response = CancelOrderResponse;
+    type Response = Vec<CancelOrderResponse>;
 
     fn api_kind(&self) -> ApiKind {
         ApiKind::Common
@@ -90,23 +90,19 @@ pub struct GetOrderResponse {
     pub ord_id: String,
     pub cl_ord_id: Option<String>,
     pub ord_type: OrderType,
-    #[serde_as(as = "DisplayFromStr")]
-    pub px: f64,
-    #[serde_as(as = "DisplayFromStr")]
-    pub avg_px: f64,
+    pub px: String,
+    pub avg_px: String,
     #[serde_as(as = "DisplayFromStr")]
     pub sz: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub acc_fill_sz: f64,
-    #[serde_as(as = "DisplayFromStr")]
-    pub cummulative_quote_qty: f64,
     pub state: OrderStatus,
     pub td_mode: FuturesOpenType,
     pub side: OrderSide,
 }
 
 impl Rest for GetOrderRequest {
-    type Response = GetOrderResponse;
+    type Response = Vec<GetOrderResponse>;
 
     fn api_kind(&self) -> ApiKind {
         ApiKind::Common

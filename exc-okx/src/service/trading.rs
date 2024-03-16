@@ -36,11 +36,10 @@ impl Okx {
             px: price,
             cl_ord_id: Some(custom_id),
         };
-        let order_id = self.oneshot(req).await.map(|resp| resp.ord_id);
-
+        let order_id = self.oneshot(req).await.map(|mut resp| resp.pop().map(|x| x.ord_id));
         match order_id {
             Ok(id) => {
-                ret.order_id = Some(id);
+                ret.order_id = id;
                 Ok(ret)
             }
             Err(e) => Err((ret, e)),
@@ -58,17 +57,18 @@ impl Okx {
             ord_id: order_id,
             cl_ord_id: custom_order_id,
         };
-        let resp = self.oneshot(req).await?;
-        Ok(Order {
+        let resp = self.oneshot(req).await?.pop();
+        resp.map(|resp| Order {
             symbol: resp.inst_id,
             order_id: resp.ord_id,
-            price: resp.px,
+            price: resp.px.parse().unwrap_or(0.0),
             vol: resp.sz,
             deal_vol: resp.acc_fill_sz,
-            deal_avg_price: resp.avg_px,
+            deal_avg_price: resp.avg_px.parse().unwrap_or(0.0),
             state: resp.state.into(),
             order_type: resp.ord_type.into(),
             side: resp.side.into(),
         })
+        .ok_or(ExchangeError::OrderNotFound)
     }
 }
