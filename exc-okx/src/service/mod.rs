@@ -1,10 +1,10 @@
 mod trading;
 
 use crate::key::Key;
+use crate::response::FullHttpResponse;
 use exc_core::transport::http::{channel::HttpsChannel, endpoint::Endpoint as HttpsEndpoint};
 use exc_core::ExchangeError;
 use exc_util::interface::{ApiKind, Rest};
-use exc_util::response::FullHttpResponse;
 use futures::future::{ready, BoxFuture};
 use futures::{FutureExt, TryFutureExt};
 use tower::{Service, ServiceBuilder};

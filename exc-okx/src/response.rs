@@ -1,10 +1,13 @@
 use exc_core::ExchangeError;
 use serde::Deserialize;
+use serde_with::{serde_as, DisplayFromStr};
 
 /// HTTP API Response (with `code` and `msg`).
+#[serde_as]
 #[derive(Debug, Deserialize)]
 pub struct FullHttpResponse<T> {
     /// Code.
+    #[serde_as(as = "DisplayFromStr")]
     pub code: i64,
     /// Message.
     #[serde(alias = "message")]

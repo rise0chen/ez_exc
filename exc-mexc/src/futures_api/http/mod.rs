@@ -1,7 +1,7 @@
 pub mod book;
 pub mod trading;
 
-use crate::interface::{Method, Rest};
+use exc_util::interface::{Method, Rest};
 use crate::key::{ApiKind, Key, ParamsFormat};
 use http::Request;
 use hyper::Body;

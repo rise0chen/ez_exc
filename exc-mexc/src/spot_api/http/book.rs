@@ -1,4 +1,4 @@
-use crate::interface::{ApiKind, Method, Rest};
+use exc_util::interface::{ApiKind, Method, Rest};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 

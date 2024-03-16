@@ -1,5 +1,5 @@
-pub use crate::interface::ApiKind;
 use exc_core::Str;
+pub use exc_util::interface::ApiKind;
 use hmac::{Hmac, Mac};
 use md5::{Digest, Md5};
 use serde::{Deserialize, Serialize};
@@ -97,6 +97,7 @@ impl<T: Serialize> SigningParams<T> {
                 let mac_result = mac.finalize();
                 hex::encode(&*mac_result)
             }
+            _ => unreachable!(),
         };
         Ok(SignedParams { signing: self, signature })
     }

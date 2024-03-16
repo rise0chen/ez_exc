@@ -5,7 +5,6 @@ extern crate tracing;
 
 pub mod futures_api;
 pub mod futures_web;
-pub mod interface;
 pub mod key;
 pub mod response;
 pub mod spot_api;

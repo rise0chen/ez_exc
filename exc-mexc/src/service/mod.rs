@@ -1,11 +1,11 @@
 mod book;
 mod trading;
 
-use crate::interface::{ApiKind, Rest};
 use crate::key::Key;
 use crate::response::FullHttpResponse;
 use exc_core::transport::http::{channel::HttpsChannel, endpoint::Endpoint as HttpsEndpoint};
 use exc_core::ExchangeError;
+use exc_util::interface::{ApiKind, Rest};
 use futures::future::{ready, BoxFuture};
 use futures::{FutureExt, TryFutureExt};
 use tower::{Service, ServiceBuilder};
@@ -39,6 +39,7 @@ impl<Req: Rest> Service<Req> for Mexc {
             ApiKind::SpotWeb => todo!(),
             ApiKind::FuturesApi => crate::futures_api::http::req_to_http(&req, &self.key),
             ApiKind::FuturesWeb => crate::futures_web::http::req_to_http(&req, &self.key),
+            _ => unreachable!(),
         };
         match req {
             Ok(req) => self
