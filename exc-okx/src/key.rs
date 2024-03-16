@@ -44,24 +44,22 @@ impl Key {
 pub struct SigningParams<'a, T: Rest<Response = R>, R> {
     #[serde(flatten)]
     pub params: &'a T,
-    #[serde(rename = "recvWindow")]
-    pub recv_window: i64,
-    pub timestamp: i64,
+    pub timestamp: String,
 }
 
 impl<'a, T: Rest<Response = R>, R> SigningParams<'a, T, R> {
-    fn with_timestamp(params: &'a T, timestamp: i64) -> Self {
+    fn with_timestamp(params: &'a T, timestamp: String) -> Self {
         Self {
             params,
-            recv_window: 5000,
             timestamp,
         }
     }
 
     /// Sign the given params now.
     pub fn now(params: &'a T) -> Self {
-        let now = OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000;
-        Self::with_timestamp(params, now as i64)
+        use time::format_description::well_known::Rfc3339;
+        let now = OffsetDateTime::now_utc().format(&Rfc3339).unwrap();
+        Self::with_timestamp(params, now)
     }
 }
 
