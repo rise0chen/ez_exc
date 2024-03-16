@@ -49,17 +49,15 @@ pub struct SigningParams<'a, T: Rest<Response = R>, R> {
 
 impl<'a, T: Rest<Response = R>, R> SigningParams<'a, T, R> {
     fn with_timestamp(params: &'a T, timestamp: String) -> Self {
-        Self {
-            params,
-            timestamp,
-        }
+        Self { params, timestamp }
     }
 
     /// Sign the given params now.
     pub fn now(params: &'a T) -> Self {
         use time::format_description::well_known::Rfc3339;
-        let now = OffsetDateTime::now_utc().format(&Rfc3339).unwrap();
-        Self::with_timestamp(params, now)
+        let now = OffsetDateTime::now_utc();
+        let now = now.replace_millisecond(now.millisecond()).unwrap();
+        Self::with_timestamp(params, now.format(&Rfc3339).unwrap())
     }
 }
 
