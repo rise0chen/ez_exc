@@ -25,6 +25,8 @@ pub struct GetOrderResponse {
     pub vol: f64,
     pub deal_vol: f64,
     pub deal_avg_price: f64,
+    pub taker_fee: f64,
+    pub maker_fee: f64,
     #[serde_as(as = "FromInto<i8>")]
     pub state: OrderStatus,
     #[serde_as(as = "FromInto<i8>")]

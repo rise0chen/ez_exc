@@ -1,7 +1,7 @@
 pub mod trading;
 
-use exc_util::interface::{Method, Rest};
 use crate::key::{ApiKind, Key, ParamsFormat};
+use exc_util::interface::{Method, Rest};
 use http::Request;
 use hyper::Body;
 

@@ -96,6 +96,8 @@ pub struct GetOrderResponse {
     pub sz: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub acc_fill_sz: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub fee: f64,
     pub state: OrderStatus,
     pub td_mode: FuturesOpenType,
     pub side: OrderSide,
