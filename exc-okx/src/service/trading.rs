@@ -65,7 +65,7 @@ impl Okx {
             vol: resp.sz,
             deal_vol: resp.acc_fill_sz,
             deal_avg_price: resp.avg_px.parse().unwrap_or(0.0),
-            fee: resp.fee,
+            fee: -resp.fee,
             state: resp.state.into(),
             order_type: resp.ord_type.into(),
             side: resp.side.into(),

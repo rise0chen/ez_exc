@@ -43,6 +43,7 @@ pub struct Order {
     pub vol: f64,
     pub deal_vol: f64,
     pub deal_avg_price: f64,
+    /// 正数为扣费，负数返费
     pub fee: f64,
     pub state: OrderStatus,
     pub order_type: OrderType,
