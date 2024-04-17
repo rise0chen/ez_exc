@@ -8,6 +8,7 @@ pub mod futures_web;
 pub mod key;
 pub mod response;
 pub mod spot_api;
+pub mod spot_web;
 pub mod symnol;
 pub mod types;
 

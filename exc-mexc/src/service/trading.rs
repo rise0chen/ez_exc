@@ -5,6 +5,16 @@ use exc_util::types::order::{Order, OrderId, OrderSide, PlaceOrderRequest};
 use tower::ServiceExt;
 
 impl Mexc {
+    pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
+        use crate::spot_web::http::trading::GetTradeRequest;
+        let req = GetTradeRequest {
+            symbol: format!("{}_{}", symbol.base, symbol.quote),
+        };
+        let a = self.oneshot(req).await?;
+        symbol.base_id = a.cd;
+        symbol.quote_id = a.mcd;
+        Ok(())
+    }
     pub async fn place_order(&mut self, symbol: &Symbol, data: PlaceOrderRequest) -> Result<OrderId, (OrderId, ExchangeError)> {
         let PlaceOrderRequest {
             size,
@@ -27,17 +37,17 @@ impl Mexc {
 
         let symbol_id = crate::symnol::symbol_id(symbol);
         let order_id = if symbol.is_spot() {
-            use crate::spot_api::http::trading::PlaceOrderRequest;
+            use crate::spot_web::http::trading::PlaceOrderRequest;
             let req = PlaceOrderRequest {
-                symbol: symbol_id,
-                side: if size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },
-                r#type: kind,
+                currency_id: symbol.base_id.clone(),
+                market_currency_id: symbol.quote_id.clone(),
+                trade_type: if size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },
+                order_type: format!("{}_ORDER", kind),
                 quantity: size.abs(),
-                quote_order_qty: size.abs() * price * 1.05,
                 price,
-                new_client_order_id: Some(custom_id),
+                client_order_id: Some(custom_id),
             };
-            self.oneshot(req).await.map(|resp| resp.order_id)
+            self.oneshot(req).await.map(|resp| resp.0)
         } else {
             use crate::futures_web::http::trading::PlaceOrderRequest;
             let req = PlaceOrderRequest {

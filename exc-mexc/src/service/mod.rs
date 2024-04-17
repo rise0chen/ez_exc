@@ -36,7 +36,7 @@ impl<Req: Rest> Service<Req> for Mexc {
     fn call(&mut self, req: Req) -> Self::Future {
         let req = match req.api_kind() {
             ApiKind::SpotApi => crate::spot_api::http::req_to_http(&req, &self.key),
-            ApiKind::SpotWeb => todo!(),
+            ApiKind::SpotWeb => crate::spot_web::http::req_to_http(&req, &self.key),
             ApiKind::FuturesApi => crate::futures_api::http::req_to_http(&req, &self.key),
             ApiKind::FuturesWeb => crate::futures_web::http::req_to_http(&req, &self.key),
             _ => unreachable!(),

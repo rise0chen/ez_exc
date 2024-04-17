@@ -1,6 +1,7 @@
 use crate::symbol::Symbol;
 use num_enum::{FromPrimitive, IntoPrimitive};
 use serde::{Deserialize, Serialize};
+use std::fmt::{self, Display};
 
 #[derive(Debug, Clone)]
 pub struct PlaceOrderRequest {
@@ -73,6 +74,11 @@ pub enum OrderType {
     LimitMaker = 2,
     ImmediateOrCancel = 3,
     FillOrKill = 4,
+}
+impl Display for OrderType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.serialize(f)
+    }
 }
 
 #[derive(FromPrimitive, IntoPrimitive)]

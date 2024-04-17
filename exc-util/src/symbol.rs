@@ -11,7 +11,9 @@ pub enum SymbolKind {
 pub struct Symbol {
     pub kind: SymbolKind,
     pub base: Asset,
+    pub base_id: String,
     pub quote: Asset,
+    pub quote_id: String,
     pub prefix: String,
     pub suffix: String,
 }
@@ -20,7 +22,9 @@ impl Symbol {
         Self {
             kind: SymbolKind::Spot,
             base,
+            base_id: String::new(),
             quote,
+            quote_id: String::new(),
             prefix: String::new(),
             suffix: String::new(),
         }
@@ -29,7 +33,9 @@ impl Symbol {
         Self {
             kind: SymbolKind::Derivative,
             base,
+            base_id: String::new(),
             quote,
+            quote_id: String::new(),
             prefix: String::new(),
             suffix: String::new(),
         }
