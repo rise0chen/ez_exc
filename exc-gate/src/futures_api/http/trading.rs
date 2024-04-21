@@ -1,6 +1,6 @@
 use exc_util::interface::{ApiKind, Method, Rest};
 use serde::{Deserialize, Serialize};
-use serde_with::serde_as;
+use serde_with::{serde_as,DisplayFromStr};
 
 #[serde_as]
 #[derive(Debug, Serialize)]
@@ -16,7 +16,7 @@ pub struct PlaceOrderRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct PlaceOrderResponse {
-    pub id: String,
+    pub id: i64,
 }
 
 impl Rest for PlaceOrderRequest {
@@ -50,13 +50,15 @@ pub struct GetOrderRequest {
 #[serde(rename_all = "snake_case")]
 pub struct GetOrderResponse {
     pub contract: String,
-    pub id: String,
+    pub id: i64,
     pub text: Option<String>,
-    pub price: f64,
     pub size: f64,
     pub left: f64,
+    #[serde_as(as = "DisplayFromStr")]
     pub fill_price: f64,
+    #[serde_as(as = "DisplayFromStr")]
     pub tkfr: f64,
+    #[serde_as(as = "DisplayFromStr")]
     pub mkfr: f64,
     pub finish_as: String,
     pub status: String,

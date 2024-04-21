@@ -61,7 +61,6 @@ impl Okx {
         resp.map(|resp| Order {
             symbol: resp.inst_id,
             order_id: resp.ord_id,
-            price: resp.px.parse().unwrap_or(0.0),
             vol: resp.sz,
             deal_vol: resp.acc_fill_sz,
             deal_avg_price: resp.avg_px.parse().unwrap_or(0.0),

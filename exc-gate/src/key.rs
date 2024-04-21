@@ -18,16 +18,14 @@ pub enum ParamsFormat {
 pub struct Key {
     pub api_key: Str,
     pub secret_key: Str,
-    pub passphrase: Str,
 }
 
 impl Key {
     /// Create a new [`Key`].
-    pub fn new(api_key: &str, secret_key: &str, passphrase: &str) -> Self {
+    pub fn new(api_key: &str, secret_key: &str) -> Self {
         Self {
             api_key: Str::new(api_key),
             secret_key: Str::new(secret_key),
-            passphrase: Str::new(passphrase),
         }
     }
     pub fn sign<'a, T: Rest<Response = R>, R>(
@@ -45,20 +43,18 @@ impl Key {
 pub struct SigningParams<'a, T: Rest<Response = R>, R> {
     #[serde(flatten)]
     pub params: &'a T,
-    pub timestamp: String,
+    pub timestamp: i64,
 }
 
 impl<'a, T: Rest<Response = R>, R> SigningParams<'a, T, R> {
-    fn with_timestamp(params: &'a T, timestamp: String) -> Self {
+    fn with_timestamp(params: &'a T, timestamp: i64) -> Self {
         Self { params, timestamp }
     }
 
     /// Sign the given params now.
     pub fn now(params: &'a T) -> Self {
-        use time::format_description::well_known::Rfc3339;
-        let now = OffsetDateTime::now_utc();
-        let now = now.replace_millisecond(now.millisecond()).unwrap();
-        Self::with_timestamp(params, now.format(&Rfc3339).unwrap())
+        let now = OffsetDateTime::now_utc().unix_timestamp();
+        Self::with_timestamp(params, now)
     }
 }
 

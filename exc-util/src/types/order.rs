@@ -40,7 +40,6 @@ pub struct OrderId {
 pub struct Order {
     pub symbol: String,
     pub order_id: String,
-    pub price: f64,
     pub vol: f64,
     pub deal_vol: f64,
     pub deal_avg_price: f64,

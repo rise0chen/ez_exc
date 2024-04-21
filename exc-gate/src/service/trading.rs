@@ -14,9 +14,9 @@ impl Gate {
             open_type: _,
         } = data;
         let custom_id = format!(
-            "{:08x?}{:08x?}{:016x?}",
+            "t-{:08x?}{:04x?}{:016x?}",
             (price as f32).ln().to_bits(),
-            (size as f32).ln().to_bits(),
+            (size as i16).to_be(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64
         );
         let mut ret = OrderId {
@@ -41,7 +41,7 @@ impl Gate {
         };
         match order_id {
             Ok(id) => {
-                ret.order_id = Some(id);
+                ret.order_id = Some(id.to_string());
                 Ok(ret)
             }
             Err(e) => Err((ret, e)),
@@ -64,12 +64,11 @@ impl Gate {
             let resp = self.oneshot(req).await?;
             Order {
                 symbol: resp.contract,
-                order_id: resp.id,
-                price: resp.price,
+                order_id: resp.id.to_string(),
                 vol: resp.size.abs(),
                 deal_vol: (resp.size - resp.left).abs(),
                 deal_avg_price: resp.fill_price,
-                fee: resp.mkfr + resp.tkfr,
+                fee: resp.tkfr * (resp.size - resp.left).abs() * resp.fill_price,
                 state: if resp.finish_as == "filled" || resp.finish_as == "ioc" {
                     OrderStatus::Filled
                 } else {

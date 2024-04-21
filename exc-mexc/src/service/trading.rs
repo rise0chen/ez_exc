@@ -88,7 +88,6 @@ impl Mexc {
             Order {
                 symbol: resp.symbol,
                 order_id: resp.order_id,
-                price: resp.price,
                 vol: resp.orig_qty,
                 deal_vol: resp.executed_qty,
                 deal_avg_price: resp.cummulative_quote_qty / resp.executed_qty,
@@ -107,7 +106,6 @@ impl Mexc {
             Order {
                 symbol: resp.symbol,
                 order_id: resp.order_id,
-                price: resp.price,
                 vol: resp.vol,
                 deal_vol: resp.deal_vol,
                 deal_avg_price: resp.deal_avg_price,
