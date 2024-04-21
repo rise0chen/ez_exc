@@ -47,7 +47,6 @@ pub struct Order {
     /// 正数为扣费，负数返费
     pub fee: f64,
     pub state: OrderStatus,
-    pub order_type: OrderType,
     pub side: OrderSide,
 }
 
@@ -63,7 +62,7 @@ pub enum OrderSide {
 }
 
 #[derive(FromPrimitive, IntoPrimitive)]
-#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 #[repr(i8)]
 pub enum OrderType {

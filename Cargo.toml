@@ -2,6 +2,7 @@
 members = [
   "exc-util",
   "exc-okx",
+  "exc-gate",
   "exc-mexc",
 ]
 resolver = "2"

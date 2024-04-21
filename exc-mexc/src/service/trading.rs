@@ -94,7 +94,6 @@ impl Mexc {
                 deal_avg_price: resp.cummulative_quote_qty / resp.executed_qty,
                 fee: 0.0,
                 state: resp.status,
-                order_type: resp.r#type,
                 side: resp.side,
             }
         } else {
@@ -114,7 +113,6 @@ impl Mexc {
                 deal_avg_price: resp.deal_avg_price,
                 fee: resp.maker_fee + resp.taker_fee,
                 state: resp.state,
-                order_type: resp.order_type,
                 side: resp.side,
             }
         };
