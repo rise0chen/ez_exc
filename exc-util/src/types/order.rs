@@ -29,7 +29,7 @@ impl PlaceOrderRequest {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct OrderId {
     pub symbol: Symbol,
     pub order_id: Option<String>,
