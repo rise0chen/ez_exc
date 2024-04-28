@@ -43,6 +43,41 @@ impl Rest for PlaceOrderRequest {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct AmendOrderRequest {
+    pub inst_id: String,
+    pub ord_id: Option<String>,
+    pub cl_ord_id: Option<String>,
+    pub new_sz: Option<f64>,
+    pub new_px: Option<f64>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AmendOrderResponse {
+    pub inst_id: String,
+    pub ord_id: String,
+    pub cl_ord_id: Option<String>,
+}
+
+impl Rest for AmendOrderRequest {
+    type Response = Vec<AmendOrderResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::Common
+    }
+    fn method(&self) -> Method {
+        Method::POST
+    }
+    fn path(&self) -> String {
+        "/api/v5/trade/amend-order".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CancelOrderRequest {
     pub inst_id: String,
     pub ord_id: Option<String>,

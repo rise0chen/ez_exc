@@ -1,7 +1,7 @@
 use super::Gate;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{Order, OrderId, OrderSide, OrderStatus, OrderType, PlaceOrderRequest};
+use exc_util::types::order::{AmendOrder, Order, OrderId, OrderSide, OrderStatus, OrderType, PlaceOrderRequest};
 use tower::ServiceExt;
 
 impl Gate {
@@ -46,6 +46,42 @@ impl Gate {
             }
             Err(e) => Err((ret, e)),
         }
+    }
+    pub async fn amend_order(&mut self, order: AmendOrder) -> Result<OrderId, ExchangeError> {
+        let OrderId {
+            symbol,
+            order_id,
+            custom_order_id,
+        } = order.id;
+        let req = crate::futures_api::http::trading::AmendOrderRequest {
+            order_id,
+            external_oid: custom_order_id,
+            size: order.size.map(|x| x as i64),
+            price: order.price,
+        };
+        let resp = self.oneshot(req).await?;
+        Ok(OrderId {
+            symbol,
+            order_id: Some(resp.id.to_string()),
+            custom_order_id: resp.text,
+        })
+    }
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+        let OrderId {
+            symbol,
+            order_id,
+            custom_order_id,
+        } = order_id;
+        let req = crate::futures_api::http::trading::CancelOrderRequest {
+            order_id,
+            external_oid: custom_order_id,
+        };
+        let resp = self.oneshot(req).await?;
+        Ok(OrderId {
+            symbol,
+            order_id: Some(resp.id.to_string()),
+            custom_order_id: resp.text,
+        })
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {

@@ -37,6 +37,13 @@ pub struct OrderId {
 }
 
 #[derive(Debug)]
+pub struct AmendOrder {
+    pub id: OrderId,
+    pub size: Option<f64>,
+    pub price: Option<f64>,
+}
+
+#[derive(Debug)]
 pub struct Order {
     pub symbol: String,
     pub order_id: String,

@@ -77,3 +77,66 @@ impl Rest for PlaceOrderRequest {
         true
     }
 }
+
+#[serde_as]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AmendOrderRequest {
+    pub order_id: Option<String>,
+    pub quantity: Option<f64>,
+    //pub amount: Option<f64>,
+    pub price: Option<f64>,
+    pub client_order_id: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AmendOrderResponse {
+    pub new_order_id: String,
+}
+
+impl Rest for AmendOrderRequest {
+    type Response = AmendOrderResponse;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::SpotWeb
+    }
+    fn method(&self) -> Method {
+        Method::POST
+    }
+    fn path(&self) -> String {
+        "/api/platform/spot/order/modify".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
+
+#[serde_as]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CancelOrderRequest {
+    pub order_id: Option<String>,
+    pub client_order_id: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CancelOrderResponse;
+
+impl Rest for CancelOrderRequest {
+    type Response = CancelOrderResponse;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::SpotWeb
+    }
+    fn method(&self) -> Method {
+        Method::DELETE
+    }
+    fn path(&self) -> String {
+        "/api/platform/spot/order/cancel/v2".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}

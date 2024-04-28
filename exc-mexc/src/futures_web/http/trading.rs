@@ -42,3 +42,29 @@ impl Rest for PlaceOrderRequest {
         true
     }
 }
+
+#[serde_as]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CancelOrderRequest(pub Vec<String>);
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CancelOrderResponse;
+
+impl Rest for CancelOrderRequest {
+    type Response = CancelOrderResponse;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesWeb
+    }
+    fn method(&self) -> Method {
+        Method::POST
+    }
+    fn path(&self) -> String {
+        "/api/v1/private/order/cancel".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
