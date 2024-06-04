@@ -137,10 +137,10 @@ pub struct GetOrderResponse {
     pub left: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub fill_price: f64,
-    #[serde_as(as = "DisplayFromStr")]
-    pub tkfr: f64,
-    #[serde_as(as = "DisplayFromStr")]
-    pub mkfr: f64,
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    pub tkfr: Option<f64>,
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    pub mkfr: Option<f64>,
     pub finish_as: String,
     pub status: String,
 }
