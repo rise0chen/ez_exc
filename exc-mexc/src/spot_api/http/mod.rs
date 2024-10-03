@@ -4,9 +4,9 @@ pub mod ping;
 pub mod trading;
 
 use crate::key::{ApiKind, Key, ParamsFormat};
+use exc_core::transport::http::channel::{Body, Bytes};
 use exc_util::interface::{Method, Rest};
 use http::Request;
-use hyper::Body;
 
 const HOST: &str = "https://api.mexc.com";
 
@@ -22,9 +22,9 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request<Body>, any
         Method::GET => {
             uri.push('?');
             uri.push_str(&body_str);
-            hyper::Body::empty()
+            Body::new(Bytes::new())
         }
-        _ => hyper::Body::from(body_str),
+        _ => Body::new(body_str.into()),
     };
 
     let builder = Request::builder()

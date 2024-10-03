@@ -1,9 +1,9 @@
 pub mod trading;
 
 use crate::key::{ApiKind, Key, ParamsFormat};
+use exc_core::transport::http::channel::{Body, Bytes};
 use exc_util::interface::{Method, Rest};
 use http::Request;
-use hyper::Body;
 
 const HOST: &str = "https://aws.okx.com";
 
@@ -18,9 +18,9 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request<Body>, any
         Method::GET => {
             uri.push('?');
             uri.push_str(&serde_urlencoded::to_string(req)?);
-            hyper::Body::empty()
+            Body::new(Bytes::new())
         }
-        _ => hyper::Body::from(serde_json::to_string(req)?),
+        _ => Body::new(serde_json::to_string(req)?.into()),
     };
 
     let builder = Request::builder()

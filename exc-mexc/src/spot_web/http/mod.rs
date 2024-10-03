@@ -1,9 +1,9 @@
 pub mod trading;
 
 use crate::key::{ApiKind, Key, ParamsFormat};
+use exc_core::transport::http::channel::{Body, Bytes};
 use exc_util::interface::{Method, Rest};
 use http::Request;
-use hyper::Body;
 
 const HOST: &str = "https://www.mexc.com";
 
@@ -41,7 +41,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request<Body>, any
             };
             uri.push('?');
             uri.push_str(&body_str);
-            hyper::Body::empty()
+            Body::new(Bytes::new())
         }
         _ => {
             let body_str = if req.need_sign() {
@@ -53,7 +53,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request<Body>, any
             } else {
                 serde_json::to_string(req)?
             };
-            hyper::Body::from(body_str)
+            Body::new(body_str.into())
         }
     };
 

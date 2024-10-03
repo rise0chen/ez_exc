@@ -8,3 +8,4 @@ members = [
 resolver = "2"
 
 [patch.crates-io]
+exc-core = {git="https://github.com/rise0chen/exc", branch="rise"}

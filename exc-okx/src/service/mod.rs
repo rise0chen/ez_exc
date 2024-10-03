@@ -7,6 +7,7 @@ use exc_core::ExchangeError;
 use exc_util::interface::{ApiKind, Rest};
 use futures::future::{ready, BoxFuture};
 use futures::{FutureExt, TryFutureExt};
+use http_body_util::BodyExt;
 use tower::{Service, ServiceBuilder};
 
 /// Okx API.
@@ -44,7 +45,9 @@ impl<Req: Rest> Service<Req> for Okx {
                 .map_err(ExchangeError::from)
                 .and_then(|resp| {
                     trace!("http response; status: {:?}", resp.status());
-                    hyper::body::to_bytes(resp.into_body()).map_err(|err| ExchangeError::Other(err.into()))
+                    resp.into_body()
+                        .collect()
+                        .map(|x| x.map(|x| x.to_bytes()).map_err(|err| ExchangeError::Other(err.into())))
                 })
                 .and_then(|bytes| {
                     tracing::trace!(?bytes, "http response;");
