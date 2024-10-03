@@ -22,7 +22,6 @@ rustls-tls = [
 anyhow = {version = "1"}
 async-stream = {version = "0.3"}
 atomic-waker = "1.0.0"
-base64 = "0.21.5"
 cfg-if = {version = "1"}
 either = {version = "1"}
 exc-util = {path = "../exc-util"}
