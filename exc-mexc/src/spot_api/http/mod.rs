@@ -31,6 +31,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request<Body>, any
         .method(req.method())
         .uri(uri)
         .header("content-type", "application/json")
+        .header("accept-encoding", "gzip")
         .header("X-MEXC-APIKEY", &*key.api_key);
     let request = builder.body(body)?;
     Ok(request)

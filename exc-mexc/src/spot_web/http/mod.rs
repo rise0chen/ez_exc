@@ -14,6 +14,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request<Body>, any
             builder = builder
                 .header("accept", "*/*")
                 .header("accept-language", "en-US,en;q=0.9")
+                .header("accept-encoding", "gzip")
                 .header("origin", HOST)
                 .header("sec-ch-ua", r#"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"#)
                 .header("sec-fetch-mode", "cors")

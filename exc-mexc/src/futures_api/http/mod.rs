@@ -12,7 +12,8 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request<Body>, any
     let mut builder = Request::builder()
         .method(req.method())
         .header("ApiKey", key.api_key.as_str())
-        .header("content-type", "application/json");
+        .header("content-type", "application/json")
+        .header("accept-encoding", "gzip");
     let mut uri = format!("{}{}", HOST, req.path());
     let body = match req.method() {
         Method::GET => {
