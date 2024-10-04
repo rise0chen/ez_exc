@@ -10,20 +10,18 @@ use futures::future::{ready, BoxFuture};
 use futures::{FutureExt, TryFutureExt};
 use http_body_util::BodyExt;
 use tower::{Service, ServiceBuilder};
-use tower_http::compression::{Compression, CompressionLayer};
 use tower_http::decompression::{Decompression, DecompressionLayer};
 
 /// Mexc API.
 #[derive(Clone)]
 pub struct Mexc {
     key: Key,
-    http: Compression<Decompression<HttpsChannel>>,
+    http: Decompression<HttpsChannel>,
 }
 
 impl Mexc {
     pub fn new(key: Key) -> Self {
         let http = ServiceBuilder::default()
-            .layer(CompressionLayer::new().gzip(true))
             .layer(DecompressionLayer::new().gzip(true))
             .service(HttpsEndpoint::default().connect_https());
         Self { key, http }
