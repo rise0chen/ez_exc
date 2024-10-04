@@ -10,17 +10,22 @@ use futures::future::{ready, BoxFuture};
 use futures::{FutureExt, TryFutureExt};
 use http_body_util::BodyExt;
 use tower::{Service, ServiceBuilder};
+use tower_http::compression::{Compression, CompressionLayer};
+use tower_http::decompression::{Decompression, DecompressionLayer};
 
 /// Mexc API.
 #[derive(Clone)]
 pub struct Mexc {
     key: Key,
-    http: HttpsChannel,
+    http: Compression<Decompression<HttpsChannel>>,
 }
 
 impl Mexc {
     pub fn new(key: Key) -> Self {
-        let http = ServiceBuilder::default().service(HttpsEndpoint::default().connect_https());
+        let http = ServiceBuilder::default()
+            .layer(CompressionLayer::new().gzip(true))
+            .layer(DecompressionLayer::new().gzip(true))
+            .service(HttpsEndpoint::default().connect_https());
         Self { key, http }
     }
 }
@@ -51,7 +56,8 @@ impl<Req: Rest> Service<Req> for Mexc {
                     trace!("http response; status: {:?}", resp.status());
                     resp.into_body()
                         .collect()
-                        .map(|x| x.map(|x| x.to_bytes()).map_err(|err| ExchangeError::Other(err.into())))
+                        .map(|x| x.map(|x| x.to_bytes()))
+                        .map_err(|err| ExchangeError::UnexpectedResponseType(err.to_string()))
                 })
                 .and_then(|bytes| {
                     tracing::trace!(?bytes, "http response;");
