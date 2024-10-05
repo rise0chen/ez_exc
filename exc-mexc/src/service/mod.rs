@@ -48,8 +48,7 @@ impl<Req: Rest> Service<Req> for Mexc {
                 .map_err(ExchangeError::from)
                 .and_then(|resp| {
                     trace!("http response; status: {:?}", resp.status());
-                    resp.bytes()
-                        .map_err(|err| ExchangeError::UnexpectedResponseType(err.to_string()))
+                    resp.bytes().map_err(|err| ExchangeError::UnexpectedResponseType(err.to_string()))
                 })
                 .and_then(|bytes| {
                     tracing::trace!(?bytes, "http response;");

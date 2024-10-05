@@ -2,8 +2,8 @@ pub mod book;
 pub mod trading;
 
 use crate::key::{ApiKind, Key, ParamsFormat};
-use exc_util::interface::{Method, Rest};
 use exc_core::transport::http::{Body, Request};
+use exc_util::interface::{Method, Rest};
 
 const HOST: &str = "https://contract.mexc.com";
 
