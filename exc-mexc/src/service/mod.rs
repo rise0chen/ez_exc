@@ -3,27 +3,23 @@ mod trading;
 
 use crate::key::Key;
 use crate::response::FullHttpResponse;
-use exc_core::transport::http::{channel::HttpsChannel, endpoint::Endpoint as HttpsEndpoint};
+use exc_core::transport::http::Client;
 use exc_core::ExchangeError;
 use exc_util::interface::{ApiKind, Rest};
 use futures::future::{ready, BoxFuture};
 use futures::{FutureExt, TryFutureExt};
-use http_body_util::BodyExt;
 use tower::{Service, ServiceBuilder};
-use tower_http::decompression::{Decompression, DecompressionLayer};
 
 /// Mexc API.
 #[derive(Clone)]
 pub struct Mexc {
     key: Key,
-    http: Decompression<HttpsChannel>,
+    http: Client,
 }
 
 impl Mexc {
     pub fn new(key: Key) -> Self {
-        let http = ServiceBuilder::default()
-            .layer(DecompressionLayer::new().gzip(true))
-            .service(HttpsEndpoint::default().connect_https());
+        let http = ServiceBuilder::default().service(Client::new());
         Self { key, http }
     }
 }
@@ -52,9 +48,7 @@ impl<Req: Rest> Service<Req> for Mexc {
                 .map_err(ExchangeError::from)
                 .and_then(|resp| {
                     trace!("http response; status: {:?}", resp.status());
-                    resp.into_body()
-                        .collect()
-                        .map(|x| x.map(|x| x.to_bytes()))
+                    resp.bytes()
                         .map_err(|err| ExchangeError::UnexpectedResponseType(err.to_string()))
                 })
                 .and_then(|bytes| {
