@@ -1,7 +1,7 @@
 pub mod trading;
 
 use crate::key::{ApiKind, Key, ParamsFormat};
-use exc_core::transport::http::{Request,Body};
+use exc_core::transport::http::{Body, Request};
 use exc_util::interface::{Method, Rest};
 
 const HOST: &str = "https://www.mexc.com";
@@ -10,7 +10,10 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
     let mut request = Request::new(req.method(), HOST.parse()?);
     let header = request.headers_mut();
     header.insert("content-type", "application/json".try_into()?);
-    header.insert("accept-encoding", "gzip".try_into()?);
+    header.insert(
+        "user-agent",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36".try_into()?,
+    );
     if req.need_sign() {
         if let Some(token) = &key.web_key {
             header.insert("cookie", format!("uc_token={}; u_id={}", token, token).try_into()?);

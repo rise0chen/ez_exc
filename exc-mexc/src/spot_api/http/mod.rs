@@ -13,7 +13,6 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
     let mut request = Request::new(req.method(), HOST.parse()?);
     let header = request.headers_mut();
     header.insert("content-type", "application/json".try_into()?);
-    header.insert("accept-encoding", "gzip".try_into()?);
     header.insert("X-MEXC-APIKEY", key.api_key.as_str().try_into()?);
     let mut uri = format!("{}{}", HOST, req.path());
     let body_str = if req.need_sign() {
