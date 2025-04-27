@@ -1,3 +1,4 @@
+pub mod book;
 pub mod trading;
 
 use crate::key::{ApiKind, Key, ParamsFormat};

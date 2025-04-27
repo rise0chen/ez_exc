@@ -1,8 +1,17 @@
 #[derive(Debug)]
-pub struct BidAsk {
-    /// (price, size)
-    pub bid: (f64, f64),
-    /// (price, size)
-    pub ask: (f64, f64),
+pub struct Order {
+    pub price: f64,
+    pub size: f64,
+}
+impl Order {
+    pub fn new(price: f64, size: f64) -> Self {
+        Self { price, size }
+    }
+}
+
+#[derive(Debug)]
+pub struct Depth {
+    pub bid: Vec<Order>,
+    pub ask: Vec<Order>,
     pub version: u64,
 }

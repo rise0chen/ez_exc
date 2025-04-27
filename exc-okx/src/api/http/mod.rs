@@ -1,10 +1,11 @@
+pub mod book;
 pub mod trading;
 
 use crate::key::{ApiKind, Key, ParamsFormat};
 use exc_core::transport::http::{Body, Request};
 use exc_util::interface::{Method, Rest};
 
-const HOST: &str = "https://aws.okx.com";
+const HOST: &str = "https://www.okx.com";
 
 pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::Error> {
     let mut request = Request::new(req.method(), HOST.parse()?);

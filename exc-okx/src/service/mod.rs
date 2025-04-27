@@ -1,3 +1,4 @@
+mod book;
 mod trading;
 
 use crate::key::Key;
