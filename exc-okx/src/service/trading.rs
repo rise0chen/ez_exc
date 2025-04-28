@@ -31,6 +31,7 @@ impl Okx {
             inst_id,
             td_mode: open_type.into(),
             side: if size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },
+            pos_side: String::from("net"),
             ord_type: kind.into(),
             sz: size.abs(),
             px: price,

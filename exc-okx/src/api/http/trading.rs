@@ -11,6 +11,7 @@ pub struct PlaceOrderRequest {
     pub td_mode: FuturesOpenType,
     /// buy：买， sell：卖
     pub side: OrderSide,
+    pub pos_side: String,
     /// market：市价单 limit：限价单 post_only：只做maker单 fok：全部成交或立即取消 ioc：立即成交并取消剩余 optimal_limit_ioc：市价委托立即成交并取消剩余（仅适用交割、永续）
     pub ord_type: OrderType,
     pub sz: f64,
