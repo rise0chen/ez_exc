@@ -105,7 +105,7 @@ impl Gate {
                 deal_vol: (resp.size - resp.left).abs(),
                 deal_avg_price: resp.fill_price,
                 fee: resp.tkfr.unwrap_or(0.0) * (resp.size - resp.left).abs() * resp.fill_price,
-                state: if resp.finish_as == "filled" || resp.finish_as == "ioc" {
+                state: if resp.finish_as.as_deref() == Some("filled") || resp.finish_as.as_deref() == Some("ioc") {
                     OrderStatus::Filled
                 } else {
                     OrderStatus::Unknown

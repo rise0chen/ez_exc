@@ -141,7 +141,7 @@ pub struct GetOrderResponse {
     pub tkfr: Option<f64>,
     #[serde_as(as = "Option<DisplayFromStr>")]
     pub mkfr: Option<f64>,
-    pub finish_as: String,
+    pub finish_as: Option<String>,
     pub status: String,
 }
 
