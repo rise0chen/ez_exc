@@ -16,6 +16,7 @@ pub struct GetFundingRateResponse {
     #[serde_as(as = "DisplayFromStr")]
     pub funding_rate: f64,
     pub funding_next_apply: u64,
+    pub funding_interval: u64,
 }
 
 impl Rest for GetFundingRateRequest {

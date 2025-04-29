@@ -16,6 +16,7 @@ impl Gate {
             FundingRate {
                 rate: resp.funding_rate,
                 time: resp.funding_next_apply * 1000,
+                interval: resp.funding_interval * 1000,
             }
         };
         Ok(info)

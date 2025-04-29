@@ -13,6 +13,7 @@ pub struct GetFundingRateRequest {
 pub struct GetFundingRateResponse {
     pub funding_rate: f64,
     pub next_settle_time: u64,
+    pub collect_cycle: u64,
 }
 
 impl Rest for GetFundingRateRequest {

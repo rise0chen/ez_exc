@@ -16,6 +16,7 @@ impl Mexc {
             FundingRate {
                 rate: resp.funding_rate,
                 time: resp.next_settle_time,
+                interval: resp.collect_cycle * 60 * 60 * 1000,
             }
         };
         Ok(info)

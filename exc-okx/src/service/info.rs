@@ -13,6 +13,7 @@ impl Okx {
         resp.map(|resp| FundingRate {
             rate: resp.funding_rate,
             time: resp.funding_time,
+            interval: resp.next_funding_time - resp.funding_time,
         })
         .ok_or(ExchangeError::OrderNotFound)
     }
