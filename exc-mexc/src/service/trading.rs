@@ -1,7 +1,7 @@
 use super::Mexc;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{AmendOrder, Order, OrderId, OrderSide, PlaceOrderRequest};
+use exc_util::types::order::{AmendOrder, Order, OrderId, OrderSide, OrderType, PlaceOrderRequest};
 use tower::ServiceExt;
 
 impl Mexc {
@@ -42,7 +42,11 @@ impl Mexc {
                 currency_id: symbol.base_id.clone(),
                 market_currency_id: symbol.quote_id.clone(),
                 trade_type: if size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },
-                order_type: format!("{}_ORDER", kind),
+                order_type: match kind {
+                    OrderType::Unknown => unreachable!(),
+                    OrderType::Limit | OrderType::LimitMaker => String::from("LIMIT_ORDER"),
+                    OrderType::Market | OrderType::ImmediateOrCancel | OrderType::FillOrKill => String::from("MARKET_ORDER"),
+                },
                 quantity: size.abs(),
                 price,
                 client_order_id: Some(custom_id),
