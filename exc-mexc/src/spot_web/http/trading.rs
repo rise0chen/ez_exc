@@ -71,7 +71,7 @@ impl Rest for PlaceOrderRequest {
         Method::POST
     }
     fn path(&self) -> String {
-        "/api/platform/spot/v4/order/place".to_string()
+        "/api/platform/spot/order/place".to_string()
     }
     fn need_sign(&self) -> bool {
         true
@@ -116,7 +116,9 @@ impl Rest for AmendOrderRequest {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CancelOrderRequest {
+    #[serde(skip)]
     pub order_id: Option<String>,
+    #[serde(skip)]
     pub client_order_id: Option<String>,
 }
 
@@ -134,7 +136,13 @@ impl Rest for CancelOrderRequest {
         Method::DELETE
     }
     fn path(&self) -> String {
-        "/api/platform/spot/order/cancel/v2".to_string()
+        if let Some(id) = &self.order_id {
+            format!("/api/platform/spot/order/cancel/v2?orderId={}", id)
+        } else if let Some(id) = &self.client_order_id {
+            format!("/api/platform/spot/order/cancel/v2?clientOrderId={}", id)
+        } else {
+            "/api/platform/spot/order/cancel/v2".to_string()
+        }
     }
     fn need_sign(&self) -> bool {
         true
