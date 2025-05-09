@@ -71,7 +71,11 @@ impl Rest for PlaceOrderRequest {
         Method::POST
     }
     fn path(&self) -> String {
-        "/api/platform/spot/order/place".to_string()
+        if self.order_type == "MARKET_ORDER" {
+            "/api/platform/spot/v4/order/place".to_string()
+        } else {
+            "/api/platform/spot/order/place".to_string()
+        }
     }
     fn need_sign(&self) -> bool {
         true

@@ -15,7 +15,7 @@ pub struct FullHttpResponse<T> {
 impl<T> From<FullHttpResponse<T>> for Result<T, ExchangeError> {
     fn from(value: FullHttpResponse<T>) -> Self {
         if value.code == 0 || value.code == 200 {
-            value.data.ok_or(ExchangeError::UnexpectedResponseType(String::new()))
+            value.data.ok_or(ExchangeError::UnexpectedResponseType(String::from("None")))
         } else {
             Err(ExchangeError::Api(anyhow::anyhow!("[{}]: {}", value.code, value.msg.unwrap_or_default())))
         }
