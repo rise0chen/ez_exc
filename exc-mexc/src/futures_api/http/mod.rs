@@ -20,7 +20,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
                 let signature = key.sign(req, ParamsFormat::Urlencoded, ApiKind::FuturesApi)?;
                 header.insert("Request-Time", signature.signing.timestamp.into());
                 header.insert("Signature", signature.signature.try_into()?);
-                serde_urlencoded::to_string(signature.signing)?
+                serde_urlencoded::to_string(signature.signing.params)?
             } else {
                 serde_urlencoded::to_string(req)?
             };
@@ -33,7 +33,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
                 let signature = key.sign(req, ParamsFormat::Json, ApiKind::FuturesApi)?;
                 header.insert("Request-Time", signature.signing.timestamp.into());
                 header.insert("Signature", signature.signature.try_into()?);
-                serde_json::to_string(&signature.signing)?
+                serde_json::to_string(&signature.signing.params)?
             } else {
                 serde_json::to_string(req)?
             };

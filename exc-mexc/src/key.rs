@@ -59,6 +59,26 @@ impl<T> SigningParams<T> {
     }
 }
 
+pub enum Body<'a, T> {
+    Full(&'a SigningParams<T>),
+    Params(&'a T),
+}
+impl<T: Serialize> Body<'_, T> {
+    pub fn format(self, format: ParamsFormat) -> Result<String, anyhow::Error> {
+        let raw = match self {
+            Body::Full(d) => match format {
+                ParamsFormat::Json => serde_json::to_string(d)?,
+                ParamsFormat::Urlencoded => serde_urlencoded::to_string(d)?,
+            },
+            Body::Params(d) => match format {
+                ParamsFormat::Json => serde_json::to_string(d)?,
+                ParamsFormat::Urlencoded => serde_urlencoded::to_string(d)?,
+            },
+        };
+        Ok(raw)
+    }
+}
+
 /// Signed params.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct SignedParams<T> {
@@ -70,10 +90,11 @@ pub struct SignedParams<T> {
 impl<T: Serialize> SigningParams<T> {
     /// Get signed params.
     pub fn signed(self, key: &Key, format: ParamsFormat, kind: ApiKind) -> Result<SignedParams<T>, anyhow::Error> {
-        let raw = match format {
-            ParamsFormat::Json => serde_json::to_string(&self)?,
-            ParamsFormat::Urlencoded => serde_urlencoded::to_string(&self)?,
+        let params: Body<T> = match kind {
+            ApiKind::SpotApi => Body::Full(&self),
+            _ => Body::Params(&self.params),
         };
+        let raw = params.format(format)?;
         let signature = match kind {
             ApiKind::SpotApi => {
                 let mut mac = Hmac::<Sha256>::new_from_slice(key.secret_key.as_bytes())?;
