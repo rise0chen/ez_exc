@@ -17,6 +17,11 @@ pub trait Rest: Serialize {
     /// Get request method.
     fn method(&self) -> Method;
 
+    /// Whether amend host.
+    fn host(&self) -> Option<&'static str> {
+        None
+    }
+
     /// Get request path.
     fn path(&self) -> String;
 
