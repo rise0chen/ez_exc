@@ -22,7 +22,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
     }
     let mut uri = format!("{}{}", HOST, req.path());
     let body = match req.method() {
-        Method::GET => {
+        Method::GET | Method::DELETE => {
             let body_str = if req.need_sign() {
                 let signature = key.sign(req, ParamsFormat::Urlencoded, ApiKind::SpotWeb)?;
                 header.insert("x-mxc-nonce", signature.signing.timestamp.into());

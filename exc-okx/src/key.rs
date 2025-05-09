@@ -76,7 +76,7 @@ impl<'a, T: Rest<Response = R>, R> SigningParams<'a, T, R> {
     pub fn signed(self, key: &Key, format: ParamsFormat, kind: ApiKind) -> Result<SignedParams<'a, T, R>, anyhow::Error> {
         let body = match format {
             ParamsFormat::Common => {
-                if self.params.method() == Method::GET {
+                if matches!(self.params.method(), Method::GET | Method::DELETE) {
                     serde_urlencoded::to_string(self.params)?
                 } else {
                     serde_json::to_string(self.params)?
@@ -85,7 +85,7 @@ impl<'a, T: Rest<Response = R>, R> SigningParams<'a, T, R> {
             ParamsFormat::Json => serde_json::to_string(self.params)?,
             ParamsFormat::Urlencoded => serde_urlencoded::to_string(self.params)?,
         };
-        let raw = if self.params.method() == Method::GET {
+        let raw = if matches!(self.params.method(), Method::GET | Method::DELETE) {
             format!("{}{}{}?{}", self.timestamp, self.params.method().as_str(), self.params.path(), body)
         } else {
             format!("{}{}{}{}", self.timestamp, self.params.method().as_str(), self.params.path(), body)

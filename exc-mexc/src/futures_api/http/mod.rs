@@ -15,7 +15,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
     header.insert("content-type", "application/json".try_into()?);
     let mut uri = format!("{}{}", HOST, req.path());
     let body = match req.method() {
-        Method::GET => {
+        Method::GET | Method::DELETE => {
             let body_str = if req.need_sign() {
                 let signature = key.sign(req, ParamsFormat::Urlencoded, ApiKind::FuturesApi)?;
                 header.insert("Request-Time", signature.signing.timestamp.into());

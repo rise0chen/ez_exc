@@ -23,7 +23,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
         header.insert("OK-ACCESS-PASSPHRASE", key.passphrase.as_str().try_into()?);
     }
     let body = match req.method() {
-        Method::GET => {
+        Method::GET | Method::DELETE => {
             uri.push('?');
             uri.push_str(&serde_urlencoded::to_string(req)?);
             Body::wrap(String::new())

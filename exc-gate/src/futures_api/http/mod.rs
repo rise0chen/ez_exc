@@ -21,7 +21,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
         header.insert("SIGN", signature.signature.try_into()?);
     }
     let body = match req.method() {
-        Method::GET => {
+        Method::GET | Method::DELETE => {
             let body_str = serde_urlencoded::to_string(req)?;
             uri.push('?');
             uri.push_str(&body_str);

@@ -22,7 +22,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
         serde_urlencoded::to_string(req)?
     };
     let body = match req.method() {
-        Method::GET => {
+        Method::GET | Method::DELETE => {
             uri.push('?');
             uri.push_str(&body_str);
             Body::wrap(String::new())
