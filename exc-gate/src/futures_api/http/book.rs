@@ -37,11 +37,8 @@ impl Rest for GetDepthRequest {
     fn method(&self) -> Method {
         Method::GET
     }
-    fn host(&self) -> Option<&'static str> {
-        Some("https://www.gate.io")
-    }
     fn path(&self) -> String {
-        "/apiw/v2/futures/usdt/order_book".to_string()
+        "/api/v4/futures/usdt/order_book".to_string()
     }
     fn need_sign(&self) -> bool {
         false
