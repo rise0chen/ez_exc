@@ -105,10 +105,11 @@ impl Gate {
                 deal_vol: (resp.size - resp.left).abs(),
                 deal_avg_price: resp.fill_price,
                 fee: resp.tkfr.unwrap_or(0.0) * (resp.size - resp.left).abs() * resp.fill_price,
-                state: if resp.finish_as.as_deref() == Some("filled") || resp.finish_as.as_deref() == Some("ioc") {
-                    OrderStatus::Filled
-                } else {
-                    OrderStatus::Unknown
+                state: match resp.finish_as.as_deref() {
+                    None => OrderStatus::New,
+                    Some("filled") | Some("ioc") => OrderStatus::Filled,
+                    Some("cancelled") => OrderStatus::Canceled,
+                    Some(_) => OrderStatus::Unknown,
                 },
                 side: if resp.size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },
             }
