@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "exc-util",
+  "exc-custom",
   "exc-okx",
   "exc-gate",
   "exc-mexc",

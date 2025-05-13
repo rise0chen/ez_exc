@@ -35,6 +35,15 @@ pub struct OrderId {
     pub order_id: Option<String>,
     pub custom_order_id: Option<String>,
 }
+impl OrderId {
+    pub fn new(symbol: Symbol) -> Self {
+        Self {
+            symbol,
+            order_id: None,
+            custom_order_id: None,
+        }
+    }
+}
 
 #[derive(Debug)]
 pub struct AmendOrder {
