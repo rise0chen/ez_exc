@@ -1,6 +1,6 @@
 pub use exc_core::Asset;
-use std::fmt::Display;
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -8,9 +8,9 @@ pub enum SymbolKind {
     /// 现货
     Spot,
     /// 正向永续
-    Linear, 
+    Linear,
     /// 反向永续
-    Inverse, 
+    Inverse,
     /// 交割期权
     Option,
 }

@@ -102,10 +102,15 @@ impl Display for OrderType {
 pub enum OrderStatus {
     #[num_enum(default)]
     Unknown = 0,
+    /// 新订单
     New = 1,
+    /// 全部完成
     Filled = 3,
+    /// 部分完成
     PartiallyFilled = 2,
+    /// 已取消
     Canceled = 4,
+    /// 部分完成且已取消
     PartiallyCanceled = 5,
 }
 

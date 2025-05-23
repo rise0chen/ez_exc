@@ -31,6 +31,7 @@ impl Bybit {
             category: symbol.kind,
             symbol: symbol_id,
             order_type: kind.into(),
+            time_in_force: kind.into(),
             side: if size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },
             qty: size.abs(),
             market_unit: "baseCoin".into(),

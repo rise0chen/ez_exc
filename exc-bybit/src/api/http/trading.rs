@@ -1,4 +1,4 @@
-use super::super::types::{OrderSide, OrderStatus, OrderType};
+use super::super::types::{OrderSide, OrderStatus, OrderType, TimeInForce};
 use crate::response::List;
 use exc_util::interface::{ApiKind, Method, Rest};
 use exc_util::symbol::SymbolKind;
@@ -13,6 +13,7 @@ pub struct PlaceOrderRequest {
     /// buy：买， sell：卖
     pub side: OrderSide,
     pub order_type: OrderType,
+    pub time_in_force: TimeInForce,
     pub qty: f64,
     pub market_unit: String,
     pub price: f64,
@@ -129,7 +130,6 @@ pub struct GetOrderResponse {
     pub order_link_id: Option<String>,
     /// buy：买， sell：卖
     pub side: OrderSide,
-    /// market：市价单 limit：限价单 post_only：只做maker单 fok：全部成交或立即取消 ioc：立即成交并取消剩余 optimal_limit_ioc：市价委托立即成交并取消剩余（仅适用交割、永续）
     pub order_type: OrderType,
     #[serde_as(as = "DisplayFromStr")]
     pub qty: f64,
