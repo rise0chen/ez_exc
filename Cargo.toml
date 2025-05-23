@@ -3,6 +3,7 @@ members = [
   "exc-util",
   "exc-custom",
   "exc-okx",
+  "exc-bybit",
   "exc-gate",
   "exc-mexc",
 ]

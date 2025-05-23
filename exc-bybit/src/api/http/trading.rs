@@ -1,0 +1,163 @@
+use super::super::types::{OrderSide, OrderStatus, OrderType};
+use crate::response::List;
+use exc_util::interface::{ApiKind, Method, Rest};
+use exc_util::symbol::SymbolKind;
+use serde::{Deserialize, Serialize};
+use serde_with::{serde_as, DisplayFromStr};
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PlaceOrderRequest {
+    pub category: SymbolKind,
+    pub symbol: String,
+    /// buy：买， sell：卖
+    pub side: OrderSide,
+    pub order_type: OrderType,
+    pub qty: f64,
+    pub market_unit: String,
+    pub price: f64,
+    pub order_link_id: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PlaceOrderResponse {
+    pub order_id: String,
+    pub order_link_id: Option<String>,
+}
+
+impl Rest for PlaceOrderRequest {
+    type Response = PlaceOrderResponse;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::Common
+    }
+    fn method(&self) -> Method {
+        Method::POST
+    }
+    fn path(&self) -> String {
+        "/v5/order/create".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AmendOrderRequest {
+    pub category: SymbolKind,
+    pub symbol: String,
+    pub order_id: Option<String>,
+    pub order_link_id: Option<String>,
+    pub qty: Option<f64>,
+    pub price: Option<f64>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AmendOrderResponse {
+    pub order_id: String,
+    pub order_link_id: Option<String>,
+}
+
+impl Rest for AmendOrderRequest {
+    type Response = AmendOrderResponse;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::Common
+    }
+    fn method(&self) -> Method {
+        Method::POST
+    }
+    fn path(&self) -> String {
+        "/v5/order/amend".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CancelOrderRequest {
+    pub category: SymbolKind,
+    pub symbol: String,
+    pub order_id: Option<String>,
+    pub order_link_id: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CancelOrderResponse {
+    pub order_id: String,
+    pub order_link_id: Option<String>,
+}
+
+impl Rest for CancelOrderRequest {
+    type Response = CancelOrderResponse;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::Common
+    }
+    fn method(&self) -> Method {
+        Method::POST
+    }
+    fn path(&self) -> String {
+        "/v5/order/cancel".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetOrderRequest {
+    pub category: SymbolKind,
+    pub symbol: String,
+    pub order_id: Option<String>,
+    pub order_link_id: Option<String>,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetOrderResponse {
+    pub symbol: String,
+    pub order_id: String,
+    pub order_link_id: Option<String>,
+    /// buy：买， sell：卖
+    pub side: OrderSide,
+    /// market：市价单 limit：限价单 post_only：只做maker单 fok：全部成交或立即取消 ioc：立即成交并取消剩余 optimal_limit_ioc：市价委托立即成交并取消剩余（仅适用交割、永续）
+    pub order_type: OrderType,
+    #[serde_as(as = "DisplayFromStr")]
+    pub qty: f64,
+    pub market_unit: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub price: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub cum_exec_qty: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub cum_exec_value: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub cum_exec_fee: f64,
+    pub order_status: OrderStatus,
+}
+
+impl Rest for GetOrderRequest {
+    type Response = List<GetOrderResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::Common
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/v5/order/realtime".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}

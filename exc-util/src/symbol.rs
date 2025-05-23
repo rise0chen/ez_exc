@@ -1,10 +1,18 @@
 pub use exc_core::Asset;
 use std::fmt::Display;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum SymbolKind {
+    /// 现货
     Spot,
-    Derivative,
+    /// 正向永续
+    Linear, 
+    /// 反向永续
+    Inverse, 
+    /// 交割期权
+    Option,
 }
 
 #[derive(Debug, Clone)]
@@ -31,7 +39,7 @@ impl Symbol {
     }
     pub fn derivative(base: Asset, quote: Asset) -> Self {
         Self {
-            kind: SymbolKind::Derivative,
+            kind: SymbolKind::Linear,
             base,
             base_id: String::new(),
             quote,
@@ -44,7 +52,7 @@ impl Symbol {
         matches!(self.kind, SymbolKind::Spot)
     }
     pub fn is_derivative(&self) -> bool {
-        matches!(self.kind, SymbolKind::Derivative)
+        matches!(self.kind, SymbolKind::Linear)
     }
 }
 impl Display for Symbol {
