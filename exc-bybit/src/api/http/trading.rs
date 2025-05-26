@@ -5,6 +5,7 @@ use exc_util::symbol::SymbolKind;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
+#[serde_as]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PlaceOrderRequest {
@@ -14,8 +15,10 @@ pub struct PlaceOrderRequest {
     pub side: OrderSide,
     pub order_type: OrderType,
     pub time_in_force: TimeInForce,
+    #[serde_as(as = "DisplayFromStr")]
     pub qty: f64,
     pub market_unit: String,
+    #[serde_as(as = "DisplayFromStr")]
     pub price: f64,
     pub order_link_id: Option<String>,
 }
