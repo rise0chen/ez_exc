@@ -52,13 +52,17 @@ impl<Req: Rest> Service<Req> for Mexc {
                     resp.bytes().map_err(|err| ExchangeError::UnexpectedResponseType(err.to_string()))
                 })
                 .and_then(|bytes| {
-                    tracing::trace!(?bytes, "http response;");
                     let resp = match serde_json::from_slice::<FullHttpResponse<Req::Response>>(&bytes) {
                         Ok(res) => res.into(),
                         Err(_) => serde_json::from_slice::<Req::Response>(&bytes)
                             .map_err(|_| ExchangeError::UnexpectedResponseType(String::from_utf8_lossy(&bytes).into_owned())),
                         //.map_err(|e| ExchangeError::Other(e.into())),
                     };
+                    if resp.is_err() {
+                        tracing::error!(?bytes, "http response;");
+                    } else {
+                        tracing::trace!(?bytes, "http response;");
+                    }
                     ready(resp)
                 })
                 .boxed(),
