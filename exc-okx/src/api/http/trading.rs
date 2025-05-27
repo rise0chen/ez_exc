@@ -3,6 +3,7 @@ use exc_util::interface::{ApiKind, Method, Rest};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
+#[serde_as]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PlaceOrderRequest {
@@ -14,7 +15,9 @@ pub struct PlaceOrderRequest {
     pub side: OrderSide,
     /// market：市价单 limit：限价单 post_only：只做maker单 fok：全部成交或立即取消 ioc：立即成交并取消剩余 optimal_limit_ioc：市价委托立即成交并取消剩余（仅适用交割、永续）
     pub ord_type: OrderType,
+    #[serde_as(as = "DisplayFromStr")]
     pub sz: f64,
+    #[serde_as(as = "DisplayFromStr")]
     pub px: f64,
     pub cl_ord_id: Option<String>,
 }
