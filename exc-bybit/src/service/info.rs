@@ -6,6 +6,9 @@ use tower::ServiceExt;
 
 impl Bybit {
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {
+        if symbol.is_spot() {
+            return Ok(FundingRate::default());
+        }
         let symbol_id = crate::symnol::symbol_id(symbol);
         use crate::api::http::info::GetFundingRateRequest;
         let req = GetFundingRateRequest {
