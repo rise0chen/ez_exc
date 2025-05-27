@@ -29,9 +29,9 @@ impl Okx {
         let inst_id = crate::symnol::symbol_id(symbol);
         let req = crate::api::http::trading::PlaceOrderRequest {
             inst_id,
+            ccy: "USDT",
             td_mode: open_type.into(),
             side: if size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },
-            pos_side: String::from("net"),
             ord_type: kind.into(),
             sz: size.abs(),
             px: price,
