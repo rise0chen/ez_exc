@@ -53,10 +53,12 @@ pub struct CancelOrderRequest(pub Vec<String>);
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CancelOrderResponse;
+pub struct CancelOrderResponse {
+    pub order_id: String,
+}
 
 impl Rest for CancelOrderRequest {
-    type Response = CancelOrderResponse;
+    type Response = Vec<CancelOrderResponse>;
 
     fn api_kind(&self) -> ApiKind {
         ApiKind::FuturesWeb
