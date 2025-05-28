@@ -8,7 +8,9 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct PlaceOrderRequest {
     pub contract: String,
     pub text: Option<String>,
+    #[serde_as(as = "DisplayFromStr")]
     pub size: i64,
+    #[serde_as(as = "DisplayFromStr")]
     pub price: f64,
     pub tif: String,
 }

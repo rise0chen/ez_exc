@@ -3,14 +3,18 @@ use exc_util::types::order::{OrderSide, OrderStatus, OrderType};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
+#[serde_as]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PlaceOrderRequest {
     pub symbol: String,
     pub side: OrderSide,
     pub r#type: OrderType,
+    #[serde_as(as = "DisplayFromStr")]
     pub quantity: f64,
+    #[serde_as(as = "DisplayFromStr")]
     pub quote_order_qty: f64,
+    #[serde_as(as = "DisplayFromStr")]
     pub price: f64,
     pub new_client_order_id: Option<String>,
 }

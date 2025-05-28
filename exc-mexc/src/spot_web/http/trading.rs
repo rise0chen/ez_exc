@@ -53,6 +53,7 @@ pub struct PlaceOrderRequest {
     #[serde_as(as = "DisplayFromStr")]
     pub quantity: f64,
     //pub amount: Option<f64>,
+    #[serde_as(as = "DisplayFromStr")]
     pub price: f64,
     pub client_order_id: Option<String>,
 }

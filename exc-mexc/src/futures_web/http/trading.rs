@@ -1,7 +1,7 @@
 use exc_util::interface::{ApiKind, Method, Rest};
 use exc_util::types::order::{FuturesOpenType, OrderSide, OrderType};
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, FromInto};
+use serde_with::{serde_as, DisplayFromStr, FromInto};
 
 #[serde_as]
 #[derive(Debug, Serialize)]
@@ -15,8 +15,11 @@ pub struct PlaceOrderRequest {
     pub open_type: FuturesOpenType,
     #[serde_as(as = "FromInto<i8>")]
     pub r#type: OrderType,
+    #[serde_as(as = "DisplayFromStr")]
     pub vol: f64,
+    #[serde_as(as = "DisplayFromStr")]
     pub leverage: f64,
+    #[serde_as(as = "DisplayFromStr")]
     pub price: f64,
 }
 
