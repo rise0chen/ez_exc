@@ -10,6 +10,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
     let mut request = Request::new(req.method(), HOST.parse()?);
     let header = request.headers_mut();
     header.insert("content-type", "application/json".try_into()?);
+    header.insert("Accept-Encoding", "gzip".parse()?);
     header.insert(
         "user-agent",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36 Edg/129.0.0.0".try_into()?,

@@ -53,10 +53,11 @@ impl<Req: Rest> Service<Req> for Mexc {
                     resp.bytes().map_err(|err| ExchangeError::UnexpectedResponseType(err.to_string()))
                 })
                 .and_then(|bytes| {
-                    let resp = match serde_json::from_slice::<FullHttpResponse<Req::Response>>(&bytes) {
-                        Ok(res) => res.into(),
-                        Err(_) => serde_json::from_slice::<Req::Response>(&bytes)
-                            .map_err(|_| ExchangeError::UnexpectedResponseType(String::from_utf8_lossy(&bytes).into_owned())),
+                    let resp = match serde_json::from_slice::<Req::Response>(&bytes) {
+                        Ok(res) => Ok(res),
+                        Err(_) => serde_json::from_slice::<FullHttpResponse<Req::Response>>(&bytes)
+                            .map_err(|_| ExchangeError::UnexpectedResponseType(String::from_utf8_lossy(&bytes).into_owned()))
+                            .and_then(|x| x.into()),
                         //.map_err(|e| ExchangeError::Other(e.into())),
                     };
                     if resp.is_err() {

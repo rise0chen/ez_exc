@@ -17,7 +17,8 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("MEXC_KEY")?)?;
     let mut mexc = Mexc::new(key);
 
-    let symbol = Symbol::spot(Asset::try_from("APE").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::spot(Asset::try_from("APE").unwrap(), Asset::usdt());
+    mexc.perfect_symbol(&mut symbol).await.unwrap();
     let order_req = PlaceOrderRequest::new(20.0, 0.3, OrderType::Limit);
     let order_id = mexc.place_order(&symbol, order_req).await.unwrap();
     tokio::time::sleep(Duration::from_secs(2)).await;

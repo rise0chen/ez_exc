@@ -41,7 +41,6 @@ sha2 = {version = "0.10"}
 thiserror = {version = "1"}
 tokio-tower = {version = "0.6"}
 tracing = {version = "0.1"}
-reqwest = {version = "=0.12.8", default-features = false, features = ["rustls-tls", "gzip"]}
 
 [dependencies.serde]
 features = ["derive"]
@@ -55,6 +54,10 @@ version = "0.7"
 [dependencies.tower]
 features = ["util", "reconnect", "buffer", "timeout", "retry", "ready-cache"]
 version = "0.4"
+
+[dependencies.tower-http]
+features = ["decompression-gzip"]
+version = "0.5"
 
 [dependencies.tokio-tungstenite]
 version = "0.24"

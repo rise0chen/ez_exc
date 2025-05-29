@@ -53,9 +53,7 @@ pub struct CancelOrderRequest(pub Vec<String>);
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CancelOrderResponse {
-    pub order_id: String,
-}
+pub struct CancelOrderResponse {}
 
 impl Rest for CancelOrderRequest {
     type Response = Vec<CancelOrderResponse>;
