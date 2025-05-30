@@ -47,7 +47,24 @@ impl<Req: Rest> Service<Req> for Gate {
                 .call(req)
                 .map_err(ExchangeError::from)
                 .and_then(|resp| {
-                    trace!("http response; status: {:?}", resp.status());
+                    let t_start = resp
+                        .headers()
+                        .get("X-In-Time")
+                        .and_then(|x| x.to_str().ok())
+                        .and_then(|x| x.parse::<u64>().ok())
+                        .unwrap_or(0);
+                    let t_end = resp
+                        .headers()
+                        .get("X-Out-Time")
+                        .and_then(|x| x.to_str().ok())
+                        .and_then(|x| x.parse::<u64>().ok())
+                        .unwrap_or(0);
+                    let t_used = (t_end - t_start) / 1000;
+                    if t_used > 500 {
+                        tracing::info!("http response; status: {:?}, used time: {}ms", resp.status(), t_used);
+                    } else {
+                        tracing::trace!("http response; status: {:?}, used time: {}ms", resp.status(), t_used);
+                    }
                     resp.bytes().map_err(|err| ExchangeError::Other(err.into()))
                 })
                 .and_then(|bytes| {
