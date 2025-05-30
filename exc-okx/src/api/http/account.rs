@@ -11,18 +11,9 @@ pub struct GetBalanceRequest {
 #[serde_as]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Balance {
-    #[serde_as(as = "DisplayFromStr")]
-    pub trading: f64,
-}
-
-#[serde_as]
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct GetBalanceResponse {
     #[serde_as(as = "DisplayFromStr")]
-    pub total_bal: f64,
-    pub details: Balance,
+    pub adj_eq: f64,
 }
 
 impl Rest for GetBalanceRequest {
@@ -35,7 +26,7 @@ impl Rest for GetBalanceRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/api/v5/asset/asset-valuation".to_string()
+        "/api/v5/account/balance".to_string()
     }
     fn need_sign(&self) -> bool {
         true

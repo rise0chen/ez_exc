@@ -7,6 +7,6 @@ impl Okx {
         use crate::api::http::account::GetBalanceRequest;
         let req = GetBalanceRequest { ccy: "USDT" };
         let resp = self.oneshot(req).await?.pop();
-        resp.map(|resp| resp.details.trading).ok_or(ExchangeError::OrderNotFound)
+        resp.map(|resp| resp.adj_eq).ok_or(ExchangeError::OrderNotFound)
     }
 }
