@@ -8,7 +8,17 @@ impl Gate {
     pub async fn get_depth(&mut self, symbol: &Symbol, limit: u16) -> Result<Depth, ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
         let bid_ask = if symbol.is_spot() {
-            todo!()
+            use crate::spot_api::http::book::GetDepthRequest;
+            let req = GetDepthRequest {
+                currency_pair: symbol_id,
+                limit,
+            };
+            let resp = self.oneshot(req).await?;
+            Depth {
+                bid: resp.bids.iter().map(|x| Order::new(x.0, x.1)).collect(),
+                ask: resp.asks.iter().map(|x| Order::new(x.0, x.1)).collect(),
+                version: resp.update,
+            }
         } else {
             use crate::futures_api::http::book::GetDepthRequest;
             let req = GetDepthRequest { contract: symbol_id, limit };

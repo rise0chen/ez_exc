@@ -7,6 +7,7 @@ pub mod futures_api;
 pub mod futures_web;
 pub mod key;
 pub mod response;
+pub mod spot_api;
 pub mod symnol;
 
 cfg_if::cfg_if! {
