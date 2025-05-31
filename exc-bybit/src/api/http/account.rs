@@ -14,14 +14,14 @@ pub struct GetBalanceRequest {
 #[serde(rename_all = "camelCase")]
 pub struct Balance {
     #[serde_as(as = "DisplayFromStr")]
-    pub wallet_balance: f64,
+    pub total_available_balance: f64,
 }
 
 #[serde_as]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GetBalanceResponse {
-    pub balance: Balance,
+    pub list: Vec<Balance>,
 }
 
 impl Rest for GetBalanceRequest {
@@ -34,7 +34,7 @@ impl Rest for GetBalanceRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/v5/asset/transfer/query-account-coin-balance".to_string()
+        "/v5/account/wallet-balance".to_string()
     }
     fn need_sign(&self) -> bool {
         true

@@ -9,7 +9,7 @@ impl Bybit {
             account_type: "UNIFIED",
             coin: "USDT",
         };
-        let resp = self.oneshot(req).await?;
-        Ok(resp.balance.wallet_balance)
+        let resp = self.oneshot(req).await?.list.pop();
+        resp.map(|resp| resp.total_available_balance).ok_or(ExchangeError::OrderNotFound)
     }
 }
