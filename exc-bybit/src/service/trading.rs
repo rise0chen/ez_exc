@@ -11,7 +11,7 @@ impl Bybit {
             size,
             price,
             kind,
-            leverage: _,
+            leverage,
             open_type: _,
         } = data;
         let custom_id = format!(
@@ -30,6 +30,7 @@ impl Bybit {
         let req = crate::api::http::trading::PlaceOrderRequest {
             category: symbol.kind,
             symbol: symbol_id,
+            is_leverage: if leverage == 1.0 { 0 } else { 1 },
             order_type: kind.into(),
             time_in_force: kind.into(),
             side: if size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },

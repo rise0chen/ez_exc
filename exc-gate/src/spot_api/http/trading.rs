@@ -16,6 +16,8 @@ pub struct PlaceOrderRequest {
     pub amount: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub price: f64,
+    pub auto_borrow: bool,
+    pub auto_repay: bool,
 }
 
 #[derive(Debug, Deserialize)]

@@ -11,6 +11,7 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct PlaceOrderRequest {
     pub category: SymbolKind,
     pub symbol: String,
+    pub is_leverage: u8,
     /// buy：买， sell：卖
     pub side: OrderSide,
     pub order_type: OrderType,

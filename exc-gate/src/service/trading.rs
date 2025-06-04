@@ -11,7 +11,7 @@ impl Gate {
             size,
             price,
             kind,
-            leverage: _,
+            leverage,
             open_type: _,
         } = data;
         let custom_id = format!(
@@ -45,6 +45,8 @@ impl Gate {
                 } else {
                     price
                 },
+                auto_borrow: leverage != 1.0,
+                auto_repay: leverage != 1.0,
             };
             self.oneshot(req).await.map(|resp| resp.id)
         } else {
