@@ -110,7 +110,7 @@ impl Bybit {
             vol: resp.qty,
             deal_vol: resp.cum_exec_qty,
             deal_avg_price: resp.cum_exec_value / resp.cum_exec_qty,
-            fee: -resp.cum_exec_fee,
+            fee: resp.cum_exec_fee,
             state: resp.order_status.into(),
             side: resp.side.into(),
         })

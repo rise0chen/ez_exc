@@ -151,7 +151,7 @@ impl Mexc {
                 vol: resp.orig_qty,
                 deal_vol: resp.executed_qty,
                 deal_avg_price: resp.cummulative_quote_qty / resp.executed_qty,
-                fee: 0.0,
+                fee: 0.0005 * resp.cummulative_quote_qty,
                 state: resp.status,
                 side: resp.side,
             }
