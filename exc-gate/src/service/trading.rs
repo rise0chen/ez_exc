@@ -2,7 +2,7 @@ use super::Gate;
 use crate::spot_api::types::OrderSide;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{AmendOrder, Order, OrderId, OrderStatus, OrderType, PlaceOrderRequest};
+use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderStatus, OrderType, PlaceOrderRequest};
 use tower::ServiceExt;
 
 impl Gate {
@@ -155,13 +155,22 @@ impl Gate {
                 currency_pair: symbol_id,
             };
             let resp = self.oneshot(req).await?;
+            let fee = if resp.point_fee != 0.0 {
+                Fee::Quote(resp.point_fee)
+            } else if resp.gt_fee != 0.0 {
+                Fee::Quote(resp.gt_taker_fee.unwrap_or(0.0) * resp.filled_total)
+            } else if resp.fee_currency.contains("USD") {
+                Fee::Quote(resp.fee)
+            } else {
+                Fee::Base(resp.fee)
+            };
             Order {
                 symbol: resp.currency_pair,
                 order_id: resp.id.to_string(),
                 vol: resp.amount.abs(),
                 deal_vol: (resp.filled_amount).abs(),
                 deal_avg_price: resp.filled_total / resp.filled_amount,
-                fee: resp.gt_taker_fee.unwrap_or(0.0) * resp.filled_total,
+                fee,
                 state: resp.status.into(),
                 side: resp.side.into(),
             }
@@ -172,13 +181,15 @@ impl Gate {
                 external_oid: custom_order_id,
             };
             let resp = self.oneshot(req).await?;
+            let deal_vol = (resp.size - resp.left).abs();
+            let fee = (resp.tkfr.unwrap_or(0.0) + resp.mkfr.unwrap_or(0.0)) * deal_vol * resp.fill_price;
             Order {
                 symbol: resp.contract,
                 order_id: resp.id.to_string(),
                 vol: resp.size.abs(),
-                deal_vol: (resp.size - resp.left).abs(),
+                deal_vol,
                 deal_avg_price: resp.fill_price,
-                fee: resp.tkfr.unwrap_or(0.0) * (resp.size - resp.left).abs() * resp.fill_price,
+                fee: Fee::Quote(fee),
                 state: match resp.finish_as.as_deref() {
                     None => OrderStatus::New,
                     Some("filled") | Some("ioc") => OrderStatus::Filled,

@@ -53,6 +53,14 @@ pub struct AmendOrder {
 }
 
 #[derive(Debug)]
+pub enum Fee {
+    /// 交易货币
+    Base(f64),
+    /// 计价货币 如USDT
+    Quote(f64),
+}
+
+#[derive(Debug)]
 pub struct Order {
     pub symbol: String,
     pub order_id: String,
@@ -60,9 +68,23 @@ pub struct Order {
     pub deal_vol: f64,
     pub deal_avg_price: f64,
     /// 正数为扣费，负数返费
-    pub fee: f64,
+    pub fee: Fee,
     pub state: OrderStatus,
     pub side: OrderSide,
+}
+impl Order {
+    pub fn fee_base(&self) -> f64 {
+        match self.fee {
+            Fee::Base(s) => s,
+            Fee::Quote(_) => 0.0,
+        }
+    }
+    pub fn fee_quote(&self) -> f64 {
+        match self.fee {
+            Fee::Base(s) => s * self.deal_avg_price,
+            Fee::Quote(s) => s,
+        }
+    }
 }
 
 #[derive(FromPrimitive, IntoPrimitive)]

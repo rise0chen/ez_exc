@@ -2,7 +2,7 @@ use super::Bybit;
 use crate::api::types::OrderSide;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{AmendOrder, Order, OrderId, PlaceOrderRequest};
+use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
 use tower::ServiceExt;
 
 impl Bybit {
@@ -110,7 +110,11 @@ impl Bybit {
             vol: resp.qty,
             deal_vol: resp.cum_exec_qty,
             deal_avg_price: resp.cum_exec_value / resp.cum_exec_qty,
-            fee: resp.cum_exec_fee,
+            fee: if symbol.is_spot() && matches!(resp.side, OrderSide::Buy) {
+                Fee::Base(resp.cum_exec_fee)
+            } else {
+                Fee::Quote(resp.cum_exec_fee)
+            },
             state: resp.order_status.into(),
             side: resp.side.into(),
         })

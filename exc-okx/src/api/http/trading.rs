@@ -136,6 +136,7 @@ pub struct GetOrderResponse {
     #[serde_as(as = "DisplayFromStr")]
     /// 正数代表平台返佣 ，负数代表平台扣除
     pub fee: f64,
+    pub fee_ccy: String,
     pub state: OrderStatus,
     pub td_mode: FuturesOpenType,
     pub side: OrderSide,

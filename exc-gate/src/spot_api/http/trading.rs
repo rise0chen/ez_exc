@@ -152,6 +152,13 @@ pub struct GetOrderResponse {
     pub filled_amount: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub filled_total: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub fee: f64,
+    pub fee_currency: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub point_fee: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub gt_fee: f64,
     #[serde_as(as = "Option<DisplayFromStr>")]
     pub gt_maker_fee: Option<f64>,
     #[serde_as(as = "Option<DisplayFromStr>")]

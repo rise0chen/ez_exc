@@ -1,11 +1,14 @@
 use super::Mexc;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{AmendOrder, Order, OrderId, OrderSide, OrderType, PlaceOrderRequest};
+use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderSide, OrderType, PlaceOrderRequest};
 use tower::ServiceExt;
 
 impl Mexc {
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
+        if !symbol.is_spot() {
+            return Ok(());
+        }
         use crate::spot_web::http::trading::GetTradeRequest;
         let req = GetTradeRequest {
             symbol: format!("{}_{}", symbol.base, symbol.quote),
@@ -151,7 +154,7 @@ impl Mexc {
                 vol: resp.orig_qty,
                 deal_vol: resp.executed_qty,
                 deal_avg_price: resp.cummulative_quote_qty / resp.executed_qty,
-                fee: 0.00025 * resp.cummulative_quote_qty,
+                fee: Fee::Quote(0.00025 * resp.cummulative_quote_qty),
                 state: resp.status,
                 side: resp.side,
             }
@@ -169,7 +172,7 @@ impl Mexc {
                 vol: resp.vol,
                 deal_vol: resp.deal_vol,
                 deal_avg_price: resp.deal_avg_price,
-                fee: resp.maker_fee + resp.taker_fee,
+                fee: Fee::Quote(resp.maker_fee + resp.taker_fee),
                 state: resp.state,
                 side: resp.side,
             }

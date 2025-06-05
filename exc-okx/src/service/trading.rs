@@ -2,7 +2,7 @@ use super::Okx;
 use crate::api::types::OrderSide;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{AmendOrder, Order, OrderId, PlaceOrderRequest};
+use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
 use tower::ServiceExt;
 
 impl Okx {
@@ -107,7 +107,11 @@ impl Okx {
             vol: resp.sz,
             deal_vol: resp.acc_fill_sz,
             deal_avg_price: resp.avg_px.parse().unwrap_or(0.0),
-            fee: -resp.fee,
+            fee: if resp.fee_ccy.contains("USD") {
+                Fee::Quote(-resp.fee)
+            } else {
+                Fee::Base(-resp.fee)
+            },
             state: resp.state.into(),
             side: resp.side.into(),
         })
