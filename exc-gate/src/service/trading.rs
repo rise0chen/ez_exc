@@ -169,7 +169,11 @@ impl Gate {
                 order_id: resp.id.to_string(),
                 vol: resp.amount.abs(),
                 deal_vol: (resp.filled_amount).abs(),
-                deal_avg_price: resp.filled_total / resp.filled_amount,
+                deal_avg_price: if resp.filled_amount == 0.0 {
+                    0.0
+                } else {
+                    resp.filled_total / resp.filled_amount
+                },
                 fee,
                 state: resp.status.into(),
                 side: resp.side.into(),

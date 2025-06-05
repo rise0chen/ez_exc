@@ -109,7 +109,11 @@ impl Bybit {
             order_id: resp.order_id,
             vol: resp.qty,
             deal_vol: resp.cum_exec_qty,
-            deal_avg_price: resp.cum_exec_value / resp.cum_exec_qty,
+            deal_avg_price: if resp.cum_exec_qty == 0.0 {
+                0.0
+            } else {
+                resp.cum_exec_value / resp.cum_exec_qty
+            },
             fee: if symbol.is_spot() && matches!(resp.side, OrderSide::Buy) {
                 Fee::Base(resp.cum_exec_fee)
             } else {

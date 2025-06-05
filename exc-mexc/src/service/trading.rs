@@ -153,7 +153,11 @@ impl Mexc {
                 order_id: resp.order_id,
                 vol: resp.orig_qty,
                 deal_vol: resp.executed_qty,
-                deal_avg_price: resp.cummulative_quote_qty / resp.executed_qty,
+                deal_avg_price: if resp.executed_qty == 0.0 {
+                    0.0
+                } else {
+                    resp.cummulative_quote_qty / resp.executed_qty
+                },
                 fee: Fee::Quote(0.00025 * resp.cummulative_quote_qty),
                 state: resp.status,
                 side: resp.side,
