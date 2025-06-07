@@ -24,6 +24,8 @@ pub struct Symbol {
     pub quote_id: String,
     pub prefix: String,
     pub suffix: String,
+    /// 一张合约代表多少Token
+    pub multi_size: f64,
 }
 impl Symbol {
     pub fn spot(base: Asset, quote: Asset) -> Self {
@@ -35,6 +37,7 @@ impl Symbol {
             quote_id: String::new(),
             prefix: String::new(),
             suffix: String::new(),
+            multi_size: 1.0,
         }
     }
     pub fn derivative(base: Asset, quote: Asset) -> Self {
@@ -46,6 +49,7 @@ impl Symbol {
             quote_id: String::new(),
             prefix: String::new(),
             suffix: String::new(),
+            multi_size: 1.0,
         }
     }
     pub fn is_spot(&self) -> bool {

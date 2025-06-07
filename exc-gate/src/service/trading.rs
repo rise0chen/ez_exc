@@ -186,7 +186,7 @@ impl Gate {
             };
             let resp = self.oneshot(req).await?;
             let deal_vol = (resp.size - resp.left).abs();
-            let fee = (resp.tkfr.unwrap_or(0.0) + resp.mkfr.unwrap_or(0.0)) * deal_vol * resp.fill_price;
+            let fee = resp.tkfr.unwrap_or(0.0) * deal_vol * symbol.multi_size * resp.fill_price;
             Order {
                 symbol: resp.contract,
                 order_id: resp.id.to_string(),
