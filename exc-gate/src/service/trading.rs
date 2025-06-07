@@ -14,7 +14,10 @@ impl Gate {
         use crate::futures_api::http::trading::GetTradeRequest;
         let req = GetTradeRequest { contract: symbol_id };
         let a = self.oneshot(req).await?;
-        symbol.multi_size = a.quanto_multiplier;
+        if symbol.multi_size != a.quanto_multiplier {
+            tracing::info!("gate contract multi_size from {} to {}", symbol.multi_size, a.quanto_multiplier);
+            symbol.multi_size = a.quanto_multiplier;
+        }
         Ok(())
     }
     pub async fn place_order(&mut self, symbol: &Symbol, data: PlaceOrderRequest) -> Result<OrderId, (OrderId, ExchangeError)> {
