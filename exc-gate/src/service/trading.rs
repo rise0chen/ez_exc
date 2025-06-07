@@ -6,6 +6,17 @@ use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderStatus, Order
 use tower::ServiceExt;
 
 impl Gate {
+    pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
+        if !symbol.is_spot() {
+            return Ok(());
+        }
+        let symbol_id = crate::symnol::symbol_id(symbol);
+        use crate::futures_api::http::trading::GetTradeRequest;
+        let req = GetTradeRequest { contract: symbol_id };
+        let a = self.oneshot(req).await?;
+        symbol.multi_size = a.quanto_multiplier;
+        Ok(())
+    }
     pub async fn place_order(&mut self, symbol: &Symbol, data: PlaceOrderRequest) -> Result<OrderId, (OrderId, ExchangeError)> {
         let PlaceOrderRequest {
             size,
@@ -186,7 +197,7 @@ impl Gate {
             };
             let resp = self.oneshot(req).await?;
             let deal_vol = (resp.size - resp.left).abs();
-            let fee = resp.tkfr.unwrap_or(0.0) * deal_vol * symbol.multi_size * resp.fill_price;
+            let fee = 0.0005 * deal_vol * symbol.multi_size * resp.fill_price;
             Order {
                 symbol: resp.contract,
                 order_id: resp.id.to_string(),
