@@ -7,7 +7,7 @@ use tower::ServiceExt;
 
 impl Gate {
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
-        if !symbol.is_spot() {
+        if symbol.is_spot() {
             return Ok(());
         }
         let symbol_id = crate::symnol::symbol_id(symbol);
