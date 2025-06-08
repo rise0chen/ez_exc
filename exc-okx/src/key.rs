@@ -86,7 +86,11 @@ impl<'a, T: Rest<Response = R>, R> SigningParams<'a, T, R> {
             ParamsFormat::Urlencoded => serde_urlencoded::to_string(self.params)?,
         };
         let raw = if matches!(self.params.method(), Method::GET | Method::DELETE) {
-            format!("{}{}{}?{}", self.timestamp, self.params.method().as_str(), self.params.path(), body)
+            if body.is_empty() {
+                format!("{}{}{}", self.timestamp, self.params.method().as_str(), self.params.path())
+            } else {
+                format!("{}{}{}?{}", self.timestamp, self.params.method().as_str(), self.params.path(), body)
+            }
         } else {
             format!("{}{}{}{}", self.timestamp, self.params.method().as_str(), self.params.path(), body)
         };

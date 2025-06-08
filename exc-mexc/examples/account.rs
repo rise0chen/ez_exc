@@ -1,4 +1,6 @@
+use exc_core::Asset;
 use exc_mexc::service::Mexc;
+use exc_util::symbol::Symbol;
 use std::env::var;
 
 #[tokio::main]
@@ -16,5 +18,13 @@ async fn main() -> anyhow::Result<()> {
 
     let balance = mexc.get_balance().await.unwrap();
     tracing::info!("{:?}", balance);
+
+    let symbol = Symbol::spot(Asset::try_from("DOGE").unwrap(), Asset::usdt());
+    let balance = mexc.get_position(&symbol).await.unwrap();
+    tracing::info!("{}: {:?}", symbol, balance);
+
+    let symbol = Symbol::derivative(Asset::try_from("DOGE").unwrap(), Asset::usdt());
+    let balance = mexc.get_position(&symbol).await.unwrap();
+    tracing::info!("{}: {:?}", symbol, balance);
     Ok(())
 }

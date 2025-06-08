@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 #[repr(i8)]
 pub enum OrderSide {
     #[num_enum(default)]
+    #[serde(alias = "")]
     Unknown = 0,
     Buy = 1,
     Sell = 3,

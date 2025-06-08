@@ -29,3 +29,38 @@ impl Rest for GetBalanceRequest {
         true
     }
 }
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetPositionRequest {
+    pub symbol: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Asset {
+    pub hold_vol: f64,
+    ///  1多 2空
+    pub position_type: u8,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetPositionResponse(pub Vec<Asset>);
+
+impl Rest for GetPositionRequest {
+    type Response = GetPositionResponse;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/api/v1/private/position/open_positions".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}

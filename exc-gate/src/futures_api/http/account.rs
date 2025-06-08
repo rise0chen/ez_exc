@@ -30,3 +30,33 @@ impl Rest for GetBalanceRequest {
         true
     }
 }
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub struct GetPositionRequest {
+    pub contract: String,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct GetPositionResponse {
+    pub size: Option<f64>,
+}
+
+impl Rest for GetPositionRequest {
+    type Response = GetPositionResponse;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        format!("/api/v4/futures/usdt/positions/{}", self.contract)
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
