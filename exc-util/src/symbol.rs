@@ -5,6 +5,8 @@ use std::fmt::Display;
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SymbolKind {
+    /// 未知
+    Unknown,
     /// 现货
     Spot,
     /// 正向永续
@@ -28,6 +30,18 @@ pub struct Symbol {
     pub multi_size: f64,
 }
 impl Symbol {
+    pub fn unknown(base: Asset, quote: Asset) -> Self {
+        Self {
+            kind: SymbolKind::Unknown,
+            base,
+            base_id: String::new(),
+            quote,
+            quote_id: String::new(),
+            prefix: String::new(),
+            suffix: String::new(),
+            multi_size: 1.0,
+        }
+    }
     pub fn spot(base: Asset, quote: Asset) -> Self {
         Self {
             kind: SymbolKind::Spot,
@@ -61,7 +75,13 @@ impl Symbol {
 }
 impl Display for Symbol {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let t = if self.is_spot() { "S" } else { "F" };
+        let t = match &self.kind {
+            SymbolKind::Unknown => "U",
+            SymbolKind::Spot => "S",
+            SymbolKind::Linear => "F",
+            SymbolKind::Inverse => "-F",
+            SymbolKind::Option => "Q",
+        };
         write!(f, "{}.{}-{}", t, self.base, self.quote)
     }
 }
