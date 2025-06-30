@@ -28,6 +28,8 @@ pub struct Asset {
 pub struct Balance {
     #[serde_as(as = "DisplayFromStr")]
     pub total_available_balance: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub total_margin_balance: f64,
     pub coin: Vec<Asset>,
 }
 

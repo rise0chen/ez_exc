@@ -13,7 +13,7 @@ impl Bybit {
             coin: Some("USDT".to_string()),
         };
         let resp = self.oneshot(req).await?.list.pop();
-        resp.map(|resp| resp.total_available_balance).ok_or(ExchangeError::OrderNotFound)
+        resp.map(|resp| resp.total_margin_balance).ok_or(ExchangeError::OrderNotFound)
     }
     pub async fn get_position(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
