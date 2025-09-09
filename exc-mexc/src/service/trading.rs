@@ -47,8 +47,8 @@ impl Mexc {
                 trade_type: if size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },
                 order_type: match kind {
                     OrderType::Unknown => unreachable!(),
-                    OrderType::Limit | OrderType::LimitMaker => String::from("LIMIT_ORDER"),
-                    OrderType::Market | OrderType::ImmediateOrCancel | OrderType::FillOrKill => String::from("MARKET_ORDER"),
+                    OrderType::Limit | OrderType::LimitMaker | OrderType::ImmediateOrCancel => String::from("LIMIT_ORDER"),
+                    OrderType::Market | OrderType::FillOrKill => String::from("MARKET_ORDER"),
                 },
                 quantity: size.abs(),
                 price,
