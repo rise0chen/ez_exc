@@ -95,7 +95,9 @@ pub enum OrderSide {
     #[num_enum(default)]
     Unknown = 0,
     Buy = 1,
+    CloseSell = 2,
     Sell = 3,
+    CloseBuy = 4,
 }
 
 #[derive(FromPrimitive, IntoPrimitive)]

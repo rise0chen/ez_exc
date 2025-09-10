@@ -60,7 +60,7 @@ impl Mexc {
             let req = PlaceOrderRequest {
                 symbol: symbol_id,
                 external_oid: Some(custom_id),
-                side: if size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },
+                side: if size > 0.0 { OrderSide::CloseSell } else { OrderSide::CloseBuy },
                 r#type: kind,
                 vol: size.abs(),
                 price,
