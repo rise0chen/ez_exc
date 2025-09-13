@@ -1,5 +1,6 @@
 mod account;
 mod book;
+mod earn;
 mod info;
 mod trading;
 
