@@ -16,7 +16,7 @@ impl Mexc {
         let hold_time = (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64 - resp.last_epoch_update_time;
         let hold_reward = resp.apy / 365.0 * (hold_time as f64 / (24 * 60 * 60 * 1000) as f64);
         let withdraw = resp.fee + resp.apy / 365.0 * resp.redeem_period;
-        let rate = resp.convert_rate * (1.0 + hold_reward) * (1.0 - withdraw);
+        let rate = resp.convert_rate * (1.0 + hold_reward) * (1.0 - 0.33 * withdraw);
         Ok(rate)
     }
 }

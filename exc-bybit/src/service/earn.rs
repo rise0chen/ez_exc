@@ -18,8 +18,9 @@ impl Bybit {
             return Err(ExchangeError::OrderNotFound);
         };
         let apy: f64 = resp.estimate_apr[..resp.estimate_apr.len() - 1].parse().unwrap_or(0.0) / 100.0;
-        let withdraw = 0.5 * apy / 365.0 * (resp.redeem_processing_minute / 60.0 / 24.0);
-        let rate = (resp.redeem_exchange_rate + 1.0 / resp.stake_exchange_rate) / 2.0 * (1.0 - withdraw);
+        let fee = (1.0 / resp.stake_exchange_rate) / resp.redeem_exchange_rate - 1.0;
+        let withdraw = fee + apy / 365.0 * (resp.redeem_processing_minute / 60.0 / 24.0);
+        let rate = (1.0 / resp.stake_exchange_rate) * (1.0 - 0.33 * withdraw);
         Ok(rate)
     }
 }
