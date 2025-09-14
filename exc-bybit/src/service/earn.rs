@@ -1,10 +1,11 @@
 use super::Bybit;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
+use exc_util::types::earn::StRate;
 use tower::ServiceExt;
 
 impl Bybit {
-    pub async fn get_st_rate(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
+    pub async fn get_st_rate(&mut self, symbol: &Symbol) -> Result<StRate, ExchangeError> {
         use crate::api::http::earn::GetStRateRequest;
         let coin: String = match symbol.base.as_str() {
             "BBSOL" => "BBSOL".into(),
@@ -21,6 +22,10 @@ impl Bybit {
         let fee = (1.0 / resp.stake_exchange_rate) / resp.redeem_exchange_rate - 1.0;
         let withdraw = fee + apy / 365.0 * (resp.redeem_processing_minute / 60.0 / 24.0);
         let rate = (1.0 / resp.stake_exchange_rate) * (1.0 - 0.1 * withdraw);
-        Ok(rate)
+        Ok(StRate {
+            rate,
+            start_time: u64::MAX,
+            apy,
+        })
     }
 }
