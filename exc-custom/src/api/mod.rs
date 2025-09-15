@@ -2,6 +2,7 @@ pub mod book;
 pub mod info;
 pub mod trading;
 
+#[derive(Debug)]
 pub enum Request {
     GetDepth(book::GetDepthRequest),
     GetFundingRate(info::GetFundingRateRequest),

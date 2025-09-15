@@ -3,6 +3,7 @@ use exc_util::symbol::Symbol;
 use exc_util::types::book::Depth;
 use tokio::sync::oneshot::Sender;
 
+#[derive(Debug)]
 pub struct GetDepthRequest {
     pub symbol: Symbol,
     pub limit: u16,
