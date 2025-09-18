@@ -16,7 +16,7 @@ impl Mexc {
         let apy = resp.apy;
         let fee = resp.fee;
         let withdraw = fee + apy / 365.0 * resp.redeem_period;
-        let rate = resp.convert_rate * (1.0 - 0.1 * withdraw);
+        let rate = resp.convert_rate * (1.0 - 0.2 * withdraw);
         Ok(StRate {
             rate,
             start_time: resp.last_epoch_update_time,
