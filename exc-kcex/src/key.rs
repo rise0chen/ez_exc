@@ -1,0 +1,103 @@
+use exc_core::Str;
+pub use exc_util::interface::ApiKind;
+use md5::{Digest, Md5};
+use serde::{Deserialize, Serialize};
+use time::OffsetDateTime;
+
+pub enum ParamsFormat {
+    Json,
+    Urlencoded,
+}
+
+/// The APIKey definition of KCEX.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Key {
+    pub web_key: Str,
+}
+
+impl Key {
+    /// Create a new [`Key`].
+    pub fn new(web_key: &str) -> Self {
+        Self { web_key: Str::new(web_key) }
+    }
+    pub fn sign<T: Serialize>(&self, params: T, format: ParamsFormat, kind: ApiKind) -> Result<SignedParams<T>, anyhow::Error> {
+        SigningParams::now(params).signed(self, format, kind)
+    }
+}
+
+/// Signing params.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct SigningParams<T> {
+    #[serde(flatten)]
+    pub params: T,
+    #[serde(rename = "recvWindow")]
+    pub recv_window: i64,
+    pub timestamp: i64,
+}
+
+impl<T> SigningParams<T> {
+    fn with_timestamp(params: T, timestamp: i64) -> Self {
+        Self {
+            params,
+            recv_window: 5000,
+            timestamp,
+        }
+    }
+
+    /// Sign the given params now.
+    pub fn now(params: T) -> Self {
+        let now = OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000;
+        Self::with_timestamp(params, now as i64)
+    }
+}
+
+pub enum Body<'a, T> {
+    Full(&'a SigningParams<T>),
+    Params(&'a T),
+}
+impl<T: Serialize> Body<'_, T> {
+    pub fn format(self, format: ParamsFormat) -> Result<String, anyhow::Error> {
+        let raw = match self {
+            Body::Full(d) => match format {
+                ParamsFormat::Json => serde_json::to_string(d)?,
+                ParamsFormat::Urlencoded => serde_urlencoded::to_string(d)?,
+            },
+            Body::Params(d) => match format {
+                ParamsFormat::Json => serde_json::to_string(d)?,
+                ParamsFormat::Urlencoded => serde_urlencoded::to_string(d)?,
+            },
+        };
+        Ok(raw)
+    }
+}
+
+/// Signed params.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct SignedParams<T> {
+    #[serde(flatten)]
+    pub signing: SigningParams<T>,
+    pub signature: String,
+}
+
+impl<T: Serialize> SigningParams<T> {
+    /// Get signed params.
+    pub fn signed(self, key: &Key, format: ParamsFormat, kind: ApiKind) -> Result<SignedParams<T>, anyhow::Error> {
+        let params: Body<T> = match kind {
+            ApiKind::SpotApi => Body::Full(&self),
+            _ => Body::Params(&self.params),
+        };
+        let raw = params.format(format)?;
+        let signature = match kind {
+            ApiKind::SpotWeb | ApiKind::FuturesWeb => {
+                let token = &key.web_key;
+                let sign = &hex::encode(&*Md5::new().chain_update(format!("{}{}", token, self.timestamp)).finalize())[7..];
+                let mut mac = Md5::new();
+                mac.update(format!("{}{}{}", self.timestamp, raw, sign));
+                let mac_result = mac.finalize();
+                hex::encode(&*mac_result)
+            }
+            _ => unreachable!(),
+        };
+        Ok(SignedParams { signing: self, signature })
+    }
+}

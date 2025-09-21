@@ -6,6 +6,7 @@ members = [
   "exc-bybit",
   "exc-gate",
   "exc-mexc",
+  "exc-kcex",
 ]
 resolver = "2"
 
