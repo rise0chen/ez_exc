@@ -24,9 +24,8 @@ impl Mexc {
         } else {
             use crate::futures_api::http::account::GetPositionRequest;
             let req = GetPositionRequest { symbol: symbol_id };
-            let resp = self.oneshot(req).await?.0.pop();
-            resp.map(|resp| if resp.position_type == 2 { -resp.hold_vol } else { resp.hold_vol })
-                .unwrap_or(0.0)
+            let resp = self.oneshot(req).await?.0;
+            resp.iter().map(|x| if x.position_type == 2 { -x.hold_vol } else { x.hold_vol }).sum()
         };
         Ok(position)
     }
