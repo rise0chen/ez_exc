@@ -32,8 +32,8 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
         Method::GET | Method::DELETE => {
             let body_str = if req.need_sign() {
                 let signature = key.sign(req, ParamsFormat::Urlencoded, ApiKind::FuturesWeb)?;
-                header.insert("x-mxc-nonce", signature.signing.timestamp.into());
-                header.insert("x-mxc-sign", signature.signature.try_into()?);
+                header.insert("content-time", signature.signing.timestamp.into());
+                header.insert("content-sign", signature.signature.try_into()?);
                 serde_urlencoded::to_string(signature.signing.params)?
             } else {
                 serde_urlencoded::to_string(req)?
@@ -45,8 +45,8 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
         _ => {
             let body_str = if req.need_sign() {
                 let signature = key.sign(req, ParamsFormat::Json, ApiKind::FuturesWeb)?;
-                header.insert("x-mxc-nonce", signature.signing.timestamp.into());
-                header.insert("x-mxc-sign", signature.signature.try_into()?);
+                header.insert("content-time", signature.signing.timestamp.into());
+                header.insert("content-sign", signature.signature.try_into()?);
                 serde_json::to_string(&signature.signing.params)?
             } else {
                 serde_json::to_string(req)?

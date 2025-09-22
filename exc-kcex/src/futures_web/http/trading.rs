@@ -46,10 +46,10 @@ impl Rest for GetOrderRequest {
     }
     fn path(&self) -> String {
         if let Some(id) = &self.order_id {
-            return format!("/api/v1/private/order/get/{}", id);
+            return format!("/fapi/v1/private/order/get/{}", id);
         }
         if let Some(id) = &self.external_oid {
-            return format!("/api/v1/private/order/external/{}/{}", self.symbol, id);
+            return format!("/fapi/v1/private/order/external/{}/{}", self.symbol, id);
         }
         String::new()
     }
