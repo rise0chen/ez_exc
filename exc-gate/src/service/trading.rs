@@ -70,7 +70,7 @@ impl Gate {
                 text: Some(custom_id),
                 size: size.round() as i64,
                 price: if kind == OrderType::Market { 0.0 } else { price },
-                tif: String::from(if kind == OrderType::Market { "ioc" } else { "" }),
+                tif: kind.into(),
             };
             self.oneshot(req).await.map(|resp| resp.id.to_string())
         };

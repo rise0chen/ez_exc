@@ -1,3 +1,4 @@
+use crate::futures_api::types::TimeInForce;
 use exc_util::interface::{ApiKind, Method, Rest};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
@@ -43,7 +44,7 @@ pub struct PlaceOrderRequest {
     pub size: i64,
     #[serde_as(as = "DisplayFromStr")]
     pub price: f64,
-    pub tif: String,
+    pub tif: TimeInForce,
 }
 
 #[derive(Debug, Deserialize)]
