@@ -99,7 +99,6 @@ impl Dex {
         let Some(tx) = self.rpc.get_transaction_receipt(tx).await.map_err(|e| map_err(e.into()))? else {
             return Err(ExchangeError::OrderNotFound);
         };
-        tracing::warn!("{:?}", tx);
         let Some(event) = tx.decoded_log::<Cex::Swap>() else {
             return Err(ExchangeError::OrderNotFound);
         };
