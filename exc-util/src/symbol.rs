@@ -26,6 +26,8 @@ pub struct Symbol {
     pub quote_id: String,
     pub prefix: String,
     pub suffix: String,
+    /// 一张合约价格代表多少Token
+    pub multi_price: f64,
     /// 一张合约代表多少Token
     pub multi_size: f64,
     /// 数量精度
@@ -41,6 +43,7 @@ impl Symbol {
             quote_id: String::new(),
             prefix: String::new(),
             suffix: String::new(),
+            multi_price: 1.0,
             multi_size: 1.0,
             precision: 0,
         }
@@ -54,6 +57,7 @@ impl Symbol {
             quote_id: String::new(),
             prefix: String::new(),
             suffix: String::new(),
+            multi_price: 1.0,
             multi_size: 1.0,
             precision: 0,
         }
@@ -67,6 +71,7 @@ impl Symbol {
             quote_id: String::new(),
             prefix: String::new(),
             suffix: String::new(),
+            multi_price: 1.0,
             multi_size: 1.0,
             precision: 0,
         }

@@ -18,14 +18,18 @@ impl Dex {
         let base_decimals = base.decimals().call().await.map_err(map_err)? as i8;
         let quote_decimals = quote.decimals().call().await.map_err(map_err)? as i8;
         let convert_decimals = quote_decimals - base_decimals;
-        let multi_size = 10.0f64.powi(convert_decimals as i32);
+        let multi_price = 10.0f64.powi(convert_decimals as i32);
         if symbol.precision != base_decimals {
             tracing::info!("dex precision from {} to {}", symbol.precision, base_decimals);
             symbol.precision = base_decimals;
         }
-        if symbol.multi_size != multi_size {
-            tracing::info!("dex multi_size from {} to {}", symbol.multi_size, multi_size);
-            symbol.multi_size = multi_size;
+        if symbol.multi_price != multi_price {
+            tracing::info!("dex multi_price from {} to {}", symbol.multi_price, multi_price);
+            symbol.multi_price = multi_price;
+        }
+        if symbol.multi_size != 1.0 {
+            tracing::info!("dex multi_size from {} to {}", symbol.multi_size, 1.0);
+            symbol.multi_size = 1.0;
         }
         Ok(())
     }
@@ -37,7 +41,7 @@ impl Dex {
             leverage: _,
             open_type: _,
         } = data;
-        let price = price * symbol.multi_size;
+        let price = price * symbol.multi_price;
         let mut ret = OrderId {
             symbol: symbol.clone(),
             order_id: None,
@@ -118,11 +122,11 @@ impl Dex {
             deal_avg_price: if self.key.pool_cfg.base_is_0 {
                 let quote = format_units(event.data.amount1, symbol.precision as u8).unwrap();
                 let size = format_units(event.data.amount0, symbol.precision as u8).unwrap();
-                quote.parse::<f64>().unwrap().abs() / size.parse::<f64>().unwrap().abs() / symbol.multi_size
+                quote.parse::<f64>().unwrap().abs() / size.parse::<f64>().unwrap().abs() / symbol.multi_price
             } else {
                 let quote = format_units(event.data.amount0, symbol.precision as u8).unwrap();
                 let size = format_units(event.data.amount1, symbol.precision as u8).unwrap();
-                quote.parse::<f64>().unwrap().abs() / size.parse::<f64>().unwrap().abs() / symbol.multi_size
+                quote.parse::<f64>().unwrap().abs() / size.parse::<f64>().unwrap().abs() / symbol.multi_price
             },
             fee: Fee::Quote(0.0),
             state: OrderStatus::Filled,

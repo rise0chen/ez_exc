@@ -22,7 +22,7 @@ impl Dex {
                     } else {
                         let price = 1.0 / ((x.price.to::<u128>() as f64 / 2.0f64.powi(96)).powi(2));
                         let size = format_units(x.amount1, symbol.precision as u8).unwrap();
-                        Order::new(price / symbol.multi_size, size.parse().unwrap())
+                        Order::new(price / symbol.multi_price, size.parse().unwrap())
                     }
                 })
                 .collect(),
@@ -37,7 +37,7 @@ impl Dex {
                     } else {
                         let price = 1.0 / ((x.price.to::<u128>() as f64 / 2.0f64.powi(96)).powi(2));
                         let size = format_units(x.amount1, symbol.precision as u8).unwrap();
-                        Order::new(price / symbol.multi_size, size.parse().unwrap())
+                        Order::new(price / symbol.multi_price, size.parse().unwrap())
                     }
                 })
                 .collect(),
