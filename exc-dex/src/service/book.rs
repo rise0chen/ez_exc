@@ -6,41 +6,33 @@ use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::book::{Depth, Order};
 
+fn map_order0(x: &Cex::Order, symbol: &Symbol) -> Order {
+    let price = (x.price.to::<u128>() as f64 / 2.0f64.powi(96)).powi(2);
+    let size = format_units(x.amount0, symbol.precision as u8).unwrap();
+    Order::new(price, size.parse().unwrap())
+}
+fn map_order1(x: &Cex::Order, symbol: &Symbol) -> Order {
+    let price = 1.0 / ((x.price.to::<u128>() as f64 / 2.0f64.powi(96)).powi(2));
+    let size = format_units(x.amount1, symbol.precision as u8).unwrap();
+    Order::new(price / symbol.multi_price, size.parse().unwrap())
+}
+
 impl Dex {
     pub async fn get_depth(&mut self, symbol: &Symbol, limit: u16) -> Result<Depth, ExchangeError> {
         let cex = Cex::new(self.cex, &self.rpc);
         let depth = cex.getDepth(self.pool.clone(), limit).call().await.map_err(map_err)?;
+        let (bid, ask) = if self.key.pool_cfg.base_is_0 {
+            let bid = depth.bids.iter().map(|x| map_order0(x, symbol)).collect();
+            let ask = depth.asks.iter().map(|x| map_order0(x, symbol)).collect();
+            (bid, ask)
+        } else {
+            let bid = depth.asks.iter().map(|x| map_order1(x, symbol)).collect();
+            let ask = depth.bids.iter().map(|x| map_order1(x, symbol)).collect();
+            (bid, ask)
+        };
         let bid_ask = Depth {
-            bid: depth
-                .bids
-                .iter()
-                .map(|x| {
-                    if self.key.pool_cfg.base_is_0 {
-                        let price = (x.price.to::<u128>() as f64 / 2.0f64.powi(96)).powi(2);
-                        let size = format_units(x.amount0, symbol.precision as u8).unwrap();
-                        Order::new(price, size.parse().unwrap())
-                    } else {
-                        let price = 1.0 / ((x.price.to::<u128>() as f64 / 2.0f64.powi(96)).powi(2));
-                        let size = format_units(x.amount1, symbol.precision as u8).unwrap();
-                        Order::new(price / symbol.multi_price, size.parse().unwrap())
-                    }
-                })
-                .collect(),
-            ask: depth
-                .asks
-                .iter()
-                .map(|x| {
-                    if self.key.pool_cfg.base_is_0 {
-                        let price = (x.price.to::<u128>() as f64 / 2.0f64.powi(96)).powi(2);
-                        let size = format_units(x.amount0, symbol.precision as u8).unwrap();
-                        Order::new(price, size.parse().unwrap())
-                    } else {
-                        let price = 1.0 / ((x.price.to::<u128>() as f64 / 2.0f64.powi(96)).powi(2));
-                        let size = format_units(x.amount1, symbol.precision as u8).unwrap();
-                        Order::new(price / symbol.multi_price, size.parse().unwrap())
-                    }
-                })
-                .collect(),
+            bid,
+            ask,
             version: depth.timestamp.to::<u64>(),
         };
         Ok(bid_ask)
