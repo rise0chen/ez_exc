@@ -47,6 +47,11 @@ impl Dex {
             order_id: None,
             custom_order_id: Some(String::new()),
         };
+        let price_limit = if self.key.pool_cfg.base_is_0 {
+            Uint::from((price * 2.0f64.powi(128)).sqrt() as u128).saturating_shl(32)
+        } else {
+            Uint::from(((1.0 / price) * 2.0f64.powi(128)).sqrt() as u128).saturating_shl(32)
+        };
 
         let cex = Cex::new(self.cex, &self.rpc);
         let tx = cex
@@ -54,14 +59,10 @@ impl Dex {
                 pool: self.pool.clone(),
                 zeroForOne: if self.key.pool_cfg.base_is_0 { size < 0.0 } else { size > 0.0 },
                 amountSpecified: parse_units(&(-size).to_string(), symbol.precision as u8).unwrap().into(),
-                sqrtPriceLimitX96: if self.key.pool_cfg.base_is_0 {
-                    Uint::from((price * 2.0f64.powi(32)).sqrt() as u64).checked_shl(80).unwrap()
-                } else {
-                    Uint::from(((1.0 / price) * 2.0f64.powi(32)).sqrt() as u64).checked_shl(80).unwrap()
-                },
+                sqrtPriceLimitX96: price_limit,
             })
-            .gas(1_000_000)
-            .gas_price(1_000_000_000)
+            .gas(self.key.gas_limit)
+            .gas_price(self.key.gas_price as u128)
             .send()
             .await;
         let tx = match tx {

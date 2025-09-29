@@ -25,20 +25,9 @@ impl From<&PoolCfg> for Pool {
 pub struct Key {
     pub url: Str,
     pub private_key: Str,
+    pub gas_limit: u64,
+    pub gas_price: u64,
     pub cex_addr: Str,
     pub quote_addr: Str,
     pub pool_cfg: PoolCfg,
-}
-
-impl Key {
-    /// Create a new [`Key`].
-    pub fn new(url: &str, private_key: &str, cex: &str, quote: &str, pool_cfg: PoolCfg) -> Self {
-        Self {
-            url: Str::new(url),
-            private_key: Str::new(private_key),
-            cex_addr: Str::new(cex),
-            quote_addr: Str::new(quote),
-            pool_cfg,
-        }
-    }
 }

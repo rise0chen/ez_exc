@@ -7,12 +7,13 @@ use exc_util::symbol::Symbol;
 use exc_util::types::book::{Depth, Order};
 
 fn map_order0(x: &Cex::Order, symbol: &Symbol) -> Order {
-    let price = (x.price.to::<u128>() as f64 / 2.0f64.powi(96)).powi(2);
+    let price = (x.price.arithmetic_shr(32).to::<u128>() as f64 / 2.0f64.powi(64)).powi(2);
     let size = format_units(x.amount0, symbol.precision as u8).unwrap();
     Order::new(price, size.parse().unwrap())
 }
 fn map_order1(x: &Cex::Order, symbol: &Symbol) -> Order {
-    let price = 1.0 / ((x.price.to::<u128>() as f64 / 2.0f64.powi(96)).powi(2));
+    let price = (x.price.arithmetic_shr(32).to::<u128>() as f64 / 2.0f64.powi(64)).powi(2);
+    let price = 1.0 / price;
     let size = format_units(x.amount1, symbol.precision as u8).unwrap();
     Order::new(price / symbol.multi_price, size.parse().unwrap())
 }
