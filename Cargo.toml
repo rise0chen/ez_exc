@@ -2,6 +2,7 @@
 members = [
   "exc-util",
   "exc-custom",
+  "exc-dex",
   "exc-okx",
   "exc-bybit",
   "exc-gate",

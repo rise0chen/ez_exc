@@ -1,0 +1,358 @@
+[
+	{
+		"inputs": [],
+		"stateMutability": "payable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "UnauthorizedAccount",
+		"type": "error"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "int256",
+				"name": "amount0",
+				"type": "int256"
+			},
+			{
+				"indexed": false,
+				"internalType": "int256",
+				"name": "amount1",
+				"type": "int256"
+			}
+		],
+		"name": "Swap",
+		"type": "event"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "fallback"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "target",
+				"type": "address"
+			},
+			{
+				"internalType": "bytes",
+				"name": "data",
+				"type": "bytes"
+			},
+			{
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "call",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			},
+			{
+				"internalType": "bytes",
+				"name": "ret",
+				"type": "bytes"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"components": [
+					{
+						"internalType": "address",
+						"name": "addr",
+						"type": "address"
+					},
+					{
+						"internalType": "enum PoolType",
+						"name": "ptype",
+						"type": "uint8"
+					},
+					{
+						"internalType": "uint16",
+						"name": "fee",
+						"type": "uint16"
+					}
+				],
+				"internalType": "struct Pool",
+				"name": "pool",
+				"type": "tuple"
+			},
+			{
+				"internalType": "uint16",
+				"name": "limit",
+				"type": "uint16"
+			}
+		],
+		"name": "getDepth",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint160",
+						"name": "price",
+						"type": "uint160"
+					},
+					{
+						"components": [
+							{
+								"internalType": "uint160",
+								"name": "price",
+								"type": "uint160"
+							},
+							{
+								"internalType": "uint256",
+								"name": "amount0",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "amount1",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct Order[]",
+						"name": "asks",
+						"type": "tuple[]"
+					},
+					{
+						"components": [
+							{
+								"internalType": "uint160",
+								"name": "price",
+								"type": "uint160"
+							},
+							{
+								"internalType": "uint256",
+								"name": "amount0",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "amount1",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct Order[]",
+						"name": "bids",
+						"type": "tuple[]"
+					}
+				],
+				"internalType": "struct Depth",
+				"name": "depth",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "isSwapping",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address[]",
+				"name": "tokens",
+				"type": "address[]"
+			}
+		],
+		"name": "rescueTokens",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "setUser",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "target",
+				"type": "address"
+			},
+			{
+				"internalType": "bytes",
+				"name": "data",
+				"type": "bytes"
+			}
+		],
+		"name": "staticcall",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			},
+			{
+				"internalType": "bytes",
+				"name": "ret",
+				"type": "bytes"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"components": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "addr",
+								"type": "address"
+							},
+							{
+								"internalType": "enum PoolType",
+								"name": "ptype",
+								"type": "uint8"
+							},
+							{
+								"internalType": "uint16",
+								"name": "fee",
+								"type": "uint16"
+							}
+						],
+						"internalType": "struct Pool",
+						"name": "pool",
+						"type": "tuple"
+					},
+					{
+						"internalType": "bool",
+						"name": "zeroForOne",
+						"type": "bool"
+					},
+					{
+						"internalType": "int256",
+						"name": "amountSpecified",
+						"type": "int256"
+					},
+					{
+						"internalType": "uint160",
+						"name": "sqrtPriceLimitX96",
+						"type": "uint160"
+					}
+				],
+				"internalType": "struct Route",
+				"name": "route",
+				"type": "tuple"
+			}
+		],
+		"name": "swap",
+		"outputs": [
+			{
+				"internalType": "int256",
+				"name": "amount0",
+				"type": "int256"
+			},
+			{
+				"internalType": "int256",
+				"name": "amount1",
+				"type": "int256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "uniswapV2Call",
+		"outputs": [],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "int256",
+				"name": "amount0Delta",
+				"type": "int256"
+			},
+			{
+				"internalType": "int256",
+				"name": "amount1Delta",
+				"type": "int256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "data",
+				"type": "bytes"
+			}
+		],
+		"name": "uniswapV3SwapCallback",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	}
+]

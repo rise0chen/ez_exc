@@ -28,6 +28,8 @@ pub struct Symbol {
     pub suffix: String,
     /// 一张合约代表多少Token
     pub multi_size: f64,
+    /// 数量精度
+    pub precision: i8,
 }
 impl Symbol {
     pub fn unknown(base: Asset, quote: Asset) -> Self {
@@ -40,6 +42,7 @@ impl Symbol {
             prefix: String::new(),
             suffix: String::new(),
             multi_size: 1.0,
+            precision: 0,
         }
     }
     pub fn spot(base: Asset, quote: Asset) -> Self {
@@ -52,6 +55,7 @@ impl Symbol {
             prefix: String::new(),
             suffix: String::new(),
             multi_size: 1.0,
+            precision: 0,
         }
     }
     pub fn derivative(base: Asset, quote: Asset) -> Self {
@@ -64,6 +68,7 @@ impl Symbol {
             prefix: String::new(),
             suffix: String::new(),
             multi_size: 1.0,
+            precision: 0,
         }
     }
     pub fn is_spot(&self) -> bool {
