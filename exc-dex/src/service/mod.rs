@@ -30,7 +30,7 @@ impl Dex {
         let signer: PrivateKeySigner = key.private_key.parse().unwrap();
         let url = key.url.parse().unwrap();
 
-        let rpc = ProviderBuilder::new().wallet(signer).connect_http(url);
+        let rpc = ProviderBuilder::new().with_cached_nonce_management().wallet(signer).connect_http(url);
         Self {
             key,
             rpc: rpc.erased(),

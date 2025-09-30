@@ -10,6 +10,10 @@ use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderSide, OrderSt
 
 impl Dex {
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
+        if self.key.gas_price == 0 {
+            self.key.gas_price = self.rpc.get_gas_price().await.map_err(|e| map_err(e.into()))? as u64;
+            tracing::info!("dex precision from 0 to {}", self.key.gas_price);
+        }
         let base = ERC20::new(symbol.base_id.parse().unwrap(), &self.rpc);
         if symbol.quote_id.is_empty() {
             symbol.quote_id = self.quote.to_string();
@@ -101,7 +105,7 @@ impl Dex {
             return Err(ExchangeError::OrderNotFound);
         };
         let Some(event) = tx.decoded_log::<Cex::Swap>() else {
-            return Err(ExchangeError::OrderNotFound);
+            return Err(ExchangeError::Other(anyhow::anyhow!("failed swap")));
         };
         let order = Order {
             symbol: String::new(),
