@@ -54,11 +54,12 @@ impl Dex {
         };
 
         let cex = Cex::new(self.cex, &self.rpc);
+        let amount = parse_units(&(-size).to_string(), symbol.precision as u8).unwrap().get_signed();
         let tx = cex
             .swap(Cex::Route {
                 pool: self.pool.clone(),
                 zeroForOne: if self.key.pool_cfg.base_is_0 { size < 0.0 } else { size > 0.0 },
-                amountSpecified: parse_units(&(-size).to_string(), symbol.precision as u8).unwrap().into(),
+                amountSpecified: amount.try_into().unwrap(),
                 sqrtPriceLimitX96: price_limit,
             })
             .gas(self.key.gas_limit)
