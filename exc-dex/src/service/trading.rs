@@ -102,7 +102,16 @@ impl Dex {
             return Err(ExchangeError::OrderNotFound);
         };
         let Some(tx) = self.rpc.get_transaction_receipt(tx).await.map_err(|e| map_err(e.into()))? else {
-            return Err(ExchangeError::OrderNotFound);
+            return Ok(Order {
+                symbol: String::new(),
+                order_id: tx_hash,
+                vol: 0.0,
+                deal_vol: 0.0,
+                deal_avg_price: 0.0,
+                fee: Fee::Quote(0.0),
+                state: OrderStatus::New,
+                side: OrderSide::Unknown,
+            });
         };
         let Some(event) = tx.decoded_log::<Cex::Swap>() else {
             return Err(ExchangeError::Other(anyhow::anyhow!("failed swap")));
