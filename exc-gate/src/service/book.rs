@@ -17,6 +17,7 @@ impl Gate {
             Depth {
                 bid: resp.bids.iter().map(|x| Order::new(x.0, x.1)).collect(),
                 ask: resp.asks.iter().map(|x| Order::new(x.0, x.1)).collect(),
+                price: (resp.asks[0].0 + resp.bids[0].0) / 2.0,
                 version: resp.update,
             }
         } else {
@@ -26,6 +27,7 @@ impl Gate {
             Depth {
                 bid: resp.bids.iter().map(|x| Order::new(x.p, x.s)).collect(),
                 ask: resp.asks.iter().map(|x| Order::new(x.p, x.s)).collect(),
+                price: (resp.asks[0].p + resp.bids[0].p) / 2.0,
                 version: (resp.update * 1000.0) as u64,
             }
         };

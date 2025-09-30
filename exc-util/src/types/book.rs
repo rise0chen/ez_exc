@@ -13,5 +13,6 @@ impl Order {
 pub struct Depth {
     pub bid: Vec<Order>,
     pub ask: Vec<Order>,
+    pub price: f64,
     pub version: u64,
 }
