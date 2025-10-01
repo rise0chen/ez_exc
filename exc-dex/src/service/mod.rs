@@ -7,7 +7,7 @@ mod trading;
 use crate::abi::Cex::Pool;
 use crate::key::Key;
 use alloy::primitives::Address;
-use alloy::providers::{DynProvider, Provider, ProviderBuilder};
+use alloy::providers::{DynProvider, Provider, ProviderBuilder, WsConnect};
 use alloy::signers::local::PrivateKeySigner;
 
 /// Dex API.
@@ -22,15 +22,21 @@ pub struct Dex {
 }
 
 impl Dex {
-    pub fn new(key: Key) -> Self {
+    pub async fn new(key: Key) -> Self {
         let cex = key.cex_addr.parse().unwrap();
         let quote = key.quote_addr.parse().unwrap();
         let pool = Pool::from(&key.pool_cfg);
 
         let signer: PrivateKeySigner = key.private_key.parse().unwrap();
-        let url = key.url.parse().unwrap();
-
-        let rpc = ProviderBuilder::new().with_simple_nonce_management().wallet(signer).connect_http(url);
+        let rpc = ProviderBuilder::new().with_simple_nonce_management().wallet(signer);
+        let rpc = if key.url.starts_with("http") {
+            rpc.connect_http(key.url.parse().unwrap())
+        } else if key.url.starts_with("ws") {
+            let ws = WsConnect::new(key.url.as_str());
+            rpc.connect_ws(ws).await.unwrap()
+        } else {
+            panic!("Unknown rpc url: {}", key.url);
+        };
         Self {
             key,
             rpc: rpc.erased(),

@@ -15,7 +15,7 @@ native-tls = ["exc-core/native-tls"]
 rustls-tls = ["exc-core/rustls-tls"]
 
 [dependencies]
-alloy = {version = "1"}
+alloy = {version = "1", features = ["provider-ws"]}
 anyhow = {version = "1"}
 cfg-if = {version = "1"}
 either = {version = "1"}

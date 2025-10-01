@@ -15,7 +15,7 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let key = serde_json::from_str(&var("DEX_KEY")?)?;
-    let mut dex = Dex::new(key);
+    let mut dex = Dex::new(key).await;
 
     let mut symbol = Symbol::spot(Asset::try_from("ETH").unwrap(), Asset::usdt());
     symbol.base_id = "0x0872C997B2CB959Baf6F422a856AB91d261E5FDb".into();

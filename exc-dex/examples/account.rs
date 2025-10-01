@@ -14,7 +14,7 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let key = serde_json::from_str(&var("DEX_KEY").unwrap_or_default()).unwrap();
-    let mut dex = Dex::new(key);
+    let mut dex = Dex::new(key).await;
 
     let balance = dex.get_balance().await.unwrap();
     tracing::info!("{:?}", balance);
