@@ -59,7 +59,7 @@ impl Dex {
 
         let cex = Cex::new(self.cex, &self.rpc);
         let amount = parse_units(&(-size).to_string(), symbol.precision as u8).unwrap().get_signed();
-        let tx = cex
+        let mut call = cex
             .swap(Cex::Route {
                 pool: self.pool.clone(),
                 zeroForOne: if self.key.pool_cfg.base_is_0 { size < 0.0 } else { size > 0.0 },
@@ -67,17 +67,20 @@ impl Dex {
                 sqrtPriceLimitX96: price_limit,
             })
             .gas(self.key.gas_limit)
-            .gas_price(self.key.gas_price as u128)
-            .send()
-            .await;
+            .gas_price(self.key.gas_price as u128);
+        match self.rpc.estimate_gas(call.as_ref().clone()).await {
+            Ok(gas) => call = call.gas(gas),
+            Err(e) => return Err((ret, map_err(e.into()))),
+        }
+        let tx = call.send().await;
         let tx = match tx {
             Ok(tx) => tx,
             Err(e) => return Err((ret, map_err(e))),
         };
-        let tx = tx.register().await;
+        let tx = tx.get_receipt().await;
         match tx {
             Ok(tx) => {
-                let tx_hash = tx.tx_hash().to_string();
+                let tx_hash = tx.transaction_hash.to_string();
                 ret.order_id = Some(tx_hash.clone());
                 ret.custom_order_id = Some(tx_hash);
                 Ok(ret)
