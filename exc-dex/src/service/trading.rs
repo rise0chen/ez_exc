@@ -69,7 +69,7 @@ impl Dex {
             .gas(self.key.gas_limit)
             .gas_price(self.key.gas_price as u128);
         match self.rpc.estimate_gas(call.as_ref().clone()).await {
-            Ok(gas) => call = call.gas(gas),
+            Ok(gas) => call = call.gas(gas * 3 / 2),
             Err(e) => return Err((ret, map_err(e.into()))),
         }
         let tx = call.send().await;
