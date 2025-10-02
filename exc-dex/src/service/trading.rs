@@ -104,63 +104,60 @@ impl Dex {
         let Ok(tx) = tx_hash.parse() else {
             return Err(ExchangeError::OrderNotFound);
         };
-        let Some(tx) = self.rpc.get_transaction_receipt(tx).await.map_err(|e| map_err(e.into()))? else {
-            return Ok(Order {
-                symbol: String::new(),
-                order_id: tx_hash,
-                vol: 0.0,
-                deal_vol: 0.0,
-                deal_avg_price: 0.0,
-                fee: Fee::Quote(0.0),
-                state: OrderStatus::New,
-                side: OrderSide::Unknown,
-            });
-        };
-        let Some(event) = tx.decoded_log::<Cex::Swap>() else {
-            return Err(ExchangeError::Other(anyhow::anyhow!("failed swap")));
-        };
-        let order = Order {
+        let mut order = Order {
             symbol: String::new(),
             order_id: tx_hash,
-            vol: if self.key.pool_cfg.base_is_0 {
-                let size = format_units(event.data.amount0, symbol.precision as u8).unwrap();
-                size.parse::<f64>().unwrap().abs()
+            vol: 0.0,
+            deal_vol: 0.0,
+            deal_avg_price: 0.0,
+            fee: Fee::Quote(0.013),
+            state: OrderStatus::New,
+            side: OrderSide::Unknown,
+        };
+        let Some(tx) = self.rpc.get_transaction_receipt(tx).await.map_err(|e| map_err(e.into()))? else {
+            return Ok(order);
+        };
+        let Some(event) = tx.decoded_log::<Cex::Swap>() else {
+            order.state = OrderStatus::Filled;
+            return Ok(order);
+        };
+        order.vol = if self.key.pool_cfg.base_is_0 {
+            let size = format_units(event.data.amount0, symbol.precision as u8).unwrap();
+            size.parse::<f64>().unwrap().abs()
+        } else {
+            let size = format_units(event.data.amount1, symbol.precision as u8).unwrap();
+            size.parse::<f64>().unwrap().abs()
+        };
+        order.deal_vol = if self.key.pool_cfg.base_is_0 {
+            let size = format_units(event.data.amount0, symbol.precision as u8).unwrap();
+            size.parse::<f64>().unwrap().abs()
+        } else {
+            let size = format_units(event.data.amount1, symbol.precision as u8).unwrap();
+            size.parse::<f64>().unwrap().abs()
+        };
+        order.deal_avg_price = if self.key.pool_cfg.base_is_0 {
+            let quote = format_units(event.data.amount1, symbol.precision as u8).unwrap();
+            let size = format_units(event.data.amount0, symbol.precision as u8).unwrap();
+            quote.parse::<f64>().unwrap().abs() / size.parse::<f64>().unwrap().abs() / symbol.multi_price
+        } else {
+            let quote = format_units(event.data.amount0, symbol.precision as u8).unwrap();
+            let size = format_units(event.data.amount1, symbol.precision as u8).unwrap();
+            quote.parse::<f64>().unwrap().abs() / size.parse::<f64>().unwrap().abs() / symbol.multi_price
+        };
+        order.state = OrderStatus::Filled;
+        order.side = if self.key.pool_cfg.base_is_0 {
+            if event.data.amount0.is_positive() {
+                OrderSide::Sell
             } else {
-                let size = format_units(event.data.amount1, symbol.precision as u8).unwrap();
-                size.parse::<f64>().unwrap().abs()
-            },
-            deal_vol: if self.key.pool_cfg.base_is_0 {
-                let size = format_units(event.data.amount0, symbol.precision as u8).unwrap();
-                size.parse::<f64>().unwrap().abs()
+                OrderSide::Buy
+            }
+        } else {
+            //
+            if event.data.amount1.is_positive() {
+                OrderSide::Sell
             } else {
-                let size = format_units(event.data.amount1, symbol.precision as u8).unwrap();
-                size.parse::<f64>().unwrap().abs()
-            },
-            deal_avg_price: if self.key.pool_cfg.base_is_0 {
-                let quote = format_units(event.data.amount1, symbol.precision as u8).unwrap();
-                let size = format_units(event.data.amount0, symbol.precision as u8).unwrap();
-                quote.parse::<f64>().unwrap().abs() / size.parse::<f64>().unwrap().abs() / symbol.multi_price
-            } else {
-                let quote = format_units(event.data.amount0, symbol.precision as u8).unwrap();
-                let size = format_units(event.data.amount1, symbol.precision as u8).unwrap();
-                quote.parse::<f64>().unwrap().abs() / size.parse::<f64>().unwrap().abs() / symbol.multi_price
-            },
-            fee: Fee::Quote(0.0),
-            state: OrderStatus::Filled,
-            side: if self.key.pool_cfg.base_is_0 {
-                if event.data.amount0.is_positive() {
-                    OrderSide::Sell
-                } else {
-                    OrderSide::Buy
-                }
-            } else {
-                //
-                if event.data.amount1.is_positive() {
-                    OrderSide::Sell
-                } else {
-                    OrderSide::Buy
-                }
-            },
+                OrderSide::Buy
+            }
         };
         Ok(order)
     }
