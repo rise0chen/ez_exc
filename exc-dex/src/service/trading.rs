@@ -1,6 +1,9 @@
 use super::Dex;
 use crate::abi::{Cex, ERC20};
 use crate::error::map_err;
+use alloy::consensus::Transaction;
+use alloy::eips::BlockNumberOrTag;
+use alloy::network::TransactionResponse;
 use alloy::primitives::utils::{format_units, parse_units};
 use alloy::primitives::Uint;
 use alloy::providers::Provider;
@@ -57,6 +60,29 @@ impl Dex {
             Uint::from(((1.0 / price) * 2.0f64.powi(128)).sqrt() as u128).saturating_shl(32)
         };
 
+        let gas_price = if let Ok(Some(block)) = self.rpc.get_block_by_number(BlockNumberOrTag::Pending).full().await {
+            let txs = block.transactions.as_transactions().unwrap();
+            let mut max_gas = self.key.gas_price as u128;
+            let pool = &self.key.pool_cfg.addr.to_lowercase()[2..];
+            let base_id = &symbol.base_id.to_lowercase()[2..];
+            let quote_id = &symbol.quote_id.to_lowercase()[2..];
+            for tx in txs {
+                let Some(gas) = Transaction::gas_price(tx) else {
+                    continue;
+                };
+                let data = tx.input().to_string();
+                if data.contains(pool) || data.contains(base_id) || data.contains(quote_id) {
+                    tracing::info!("find order: {}", tx.tx_hash());
+                    if gas > max_gas {
+                        tracing::info!("set gas to: {} Gwei", gas as f64 / 1e9);
+                        max_gas = gas;
+                    }
+                }
+            }
+            max_gas + 1
+        } else {
+            self.key.gas_price as u128
+        };
         let cex = Cex::new(self.cex, &self.rpc);
         let amount = parse_units(&(-size).to_string(), symbol.precision as u8).unwrap().get_signed();
         let mut call = cex
@@ -67,9 +93,14 @@ impl Dex {
                 sqrtPriceLimitX96: price_limit,
             })
             .gas(self.key.gas_limit)
-            .gas_price(self.key.gas_price as u128);
+            .gas_price(gas_price);
         match self.rpc.estimate_gas(call.as_ref().clone()).await {
-            Ok(gas) => call = call.gas(gas * 3 / 2),
+            Ok(gas) => {
+                if gas > self.key.gas_limit {
+                    return Err((ret, ExchangeError::Other(anyhow::anyhow!("gas too much!"))));
+                }
+                call = call.gas(gas * 3 / 2);
+            }
             Err(e) => return Err((ret, map_err(e.into()))),
         }
         let tx = call.send().await;
