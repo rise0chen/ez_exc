@@ -66,22 +66,37 @@ impl Dex {
             let pool = &self.key.pool_cfg.addr.to_lowercase()[2..];
             let base_id = &symbol.base_id.to_lowercase()[2..];
             let quote_id = &symbol.quote_id.to_lowercase()[2..];
+            let mut gas_sums = 0;
+            let mut gas_nums = 0;
             for tx in txs {
                 let Some(gas) = Transaction::gas_price(tx) else {
                     continue;
                 };
+                if gas > 2 * self.key.gas_price as u128 {
+                    continue;
+                }
+                gas_sums += gas;
+                gas_nums += 1;
                 let data = tx.input().to_string();
                 if data.contains(pool) || data.contains(base_id) || data.contains(quote_id) {
                     tracing::info!("find order: {}", tx.tx_hash());
                     if gas > max_gas {
                         tracing::info!("set gas to: {} Gwei", gas as f64 / 1e9);
-                        if gas < 2 * self.key.gas_price as u128 {
-                            max_gas = gas;
-                        }
+                        max_gas = gas;
                     }
                 }
             }
-            max_gas + 1
+            if max_gas == self.key.gas_price as u128 {
+                if gas_nums == 0 {
+                    max_gas
+                } else {
+                    let gas = gas_sums / gas_nums;
+                    tracing::info!("set gas to avg: {} Gwei", gas as f64 / 1e9);
+                    gas
+                }
+            } else {
+                max_gas + 1
+            }
         } else {
             self.key.gas_price as u128
         };
@@ -95,7 +110,9 @@ impl Dex {
                 sqrtPriceLimitX96: price_limit,
             })
             .gas(self.key.gas_limit)
-            .gas_price(gas_price);
+            .gas_price(gas_price)
+            .max_fee_per_gas(2 * self.key.gas_price as u128)
+            .max_priority_fee_per_gas(111);
         match self.rpc.estimate_gas(call.as_ref().clone()).await {
             Ok(gas) => {
                 if gas > self.key.gas_limit {
