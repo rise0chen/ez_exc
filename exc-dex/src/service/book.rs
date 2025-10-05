@@ -1,6 +1,7 @@
 use super::Dex;
 use crate::abi::Cex;
 use crate::error::map_err;
+use alloy::eips::BlockId;
 use alloy::primitives::utils::format_units;
 use alloy::primitives::U160;
 use exc_core::ExchangeError;
@@ -24,7 +25,8 @@ fn map_order1(x: &Cex::Order, symbol: &Symbol) -> Order {
 impl Dex {
     pub async fn get_depth(&mut self, symbol: &Symbol, limit: u16) -> Result<Depth, ExchangeError> {
         let cex = Cex::new(self.cex, &self.rpc);
-        let depth = cex.getDepth(self.pool.clone(), limit).call().await.map_err(map_err)?;
+        let depth = cex.getDepth(self.pool.clone(), limit);
+        let depth = depth.block(BlockId::pending()).call().await.map_err(map_err)?;
         let (bid, ask) = if self.key.pool_cfg.base_is_0 {
             let bid = depth.bids.iter().map(|x| map_order0(x, symbol)).collect();
             let ask = depth.asks.iter().map(|x| map_order0(x, symbol)).collect();
