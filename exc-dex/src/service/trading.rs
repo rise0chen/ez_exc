@@ -75,7 +75,9 @@ impl Dex {
                     tracing::info!("find order: {}", tx.tx_hash());
                     if gas > max_gas {
                         tracing::info!("set gas to: {} Gwei", gas as f64 / 1e9);
-                        max_gas = gas;
+                        if gas < 2 * self.key.gas_price as u128 {
+                            max_gas = gas;
+                        }
                     }
                 }
             }
