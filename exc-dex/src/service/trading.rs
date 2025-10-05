@@ -60,7 +60,7 @@ impl Dex {
             Uint::from(((1.0 / price) * 2.0f64.powi(128)).sqrt() as u128).saturating_shl(32)
         };
 
-        let _gas_price = if let Ok(Some(block)) = self.rpc.get_block_by_number(BlockNumberOrTag::Pending).full().await {
+        let gas_price = if let Ok(Some(block)) = self.rpc.get_block_by_number(BlockNumberOrTag::Pending).full().await {
             let txs = block.transactions.as_transactions().unwrap();
             let mut max_gas = self.key.gas_price as u128;
             let pool = &self.key.pool_cfg.addr.to_lowercase()[2..];
@@ -72,7 +72,7 @@ impl Dex {
                 let Some(gas) = Transaction::gas_price(tx) else {
                     continue;
                 };
-                if gas > 2 * self.key.gas_price as u128 {
+                if gas > 2 * self.key.gas_price as u128 || gas < self.key.gas_price as u128 {
                     continue;
                 }
                 gas_sums += gas;
@@ -110,8 +110,7 @@ impl Dex {
                 sqrtPriceLimitX96: price_limit,
             })
             .gas(self.key.gas_limit)
-            .max_fee_per_gas(2 * self.key.gas_price as u128)
-            .max_priority_fee_per_gas(111);
+            .gas_price(gas_price);
         match self.rpc.estimate_gas(call.as_ref().clone()).block(BlockId::pending()).await {
             Ok(gas) => {
                 if gas > self.key.gas_limit {
