@@ -99,6 +99,7 @@ impl Dex {
                 max_gas + 1
             }
         } else {
+            tracing::info!("failed to get txpool_content");
             self.key.gas_price as u128
         };
         let cex = Cex::new(self.cex, &self.rpc);
