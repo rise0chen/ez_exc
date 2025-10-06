@@ -62,7 +62,7 @@ impl Dex {
         };
 
         let gas_price = if let Ok(block) = self.rpc.txpool_content().await {
-            let txs = block.queued_transactions();
+            let txs = block.pending_transactions().chain(block.queued_transactions());
             let mut max_gas = self.key.gas_price as u128;
             let pool = &self.key.pool_cfg.addr.to_lowercase()[2..];
             let base_id = &symbol.base_id.to_lowercase()[2..];
