@@ -2,10 +2,11 @@ use super::Dex;
 use crate::abi::{Cex, ERC20};
 use crate::error::map_err;
 use alloy::consensus::Transaction;
-use alloy::eips::{BlockId, BlockNumberOrTag};
+use alloy::eips::BlockId;
 use alloy::network::TransactionResponse;
 use alloy::primitives::utils::{format_units, parse_units};
 use alloy::primitives::Uint;
+use alloy::providers::ext::TxPoolApi;
 use alloy::providers::Provider;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
@@ -60,8 +61,8 @@ impl Dex {
             Uint::from(((1.0 / price) * 2.0f64.powi(128)).sqrt() as u128).saturating_shl(32)
         };
 
-        let gas_price = if let Ok(Some(block)) = self.rpc.get_block_by_number(BlockNumberOrTag::Pending).full().await {
-            let txs = block.transactions.as_transactions().unwrap();
+        let gas_price = if let Ok(block) = self.rpc.txpool_content().await {
+            let txs = block.queued_transactions();
             let mut max_gas = self.key.gas_price as u128;
             let pool = &self.key.pool_cfg.addr.to_lowercase()[2..];
             let base_id = &symbol.base_id.to_lowercase()[2..];
