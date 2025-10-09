@@ -27,13 +27,13 @@ impl Rest for GetDepthRequest {
     type Response = GetDepthResponse;
 
     fn api_kind(&self) -> ApiKind {
-        ApiKind::FuturesApi
+        ApiKind::FuturesWeb
     }
     fn method(&self) -> Method {
         Method::GET
     }
     fn path(&self) -> String {
-        format!("/api/v1/contract/depth/{}", self.symbol)
+        format!("/api/v1/contract/depth_step/{}", self.symbol)
     }
     fn need_sign(&self) -> bool {
         false

@@ -10,7 +10,7 @@ impl Mexc {
         let info = if symbol.is_spot() {
             FundingRate::default()
         } else {
-            use crate::futures_api::http::info::GetFundingRateRequest;
+            use crate::futures_web::http::info::GetFundingRateRequest;
             let req = GetFundingRateRequest { symbol: symbol_id };
             let resp = self.oneshot(req).await?;
             FundingRate {

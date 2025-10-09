@@ -178,7 +178,7 @@ impl Mexc {
                 side: resp.side,
             }
         } else {
-            use crate::futures_api::http::trading::GetOrderRequest;
+            use crate::futures_web::http::trading::GetOrderRequest;
             let req = GetOrderRequest {
                 symbol: symbol_id,
                 order_id,

@@ -18,7 +18,7 @@ impl Mexc {
                 version: resp.last_update_id,
             }
         } else {
-            use crate::futures_api::http::book::GetDepthRequest;
+            use crate::futures_web::http::book::GetDepthRequest;
             let req = GetDepthRequest { symbol: symbol_id, limit };
             let resp = self.oneshot(req).await?;
             Depth {

@@ -20,7 +20,7 @@ impl Rest for GetFundingRateRequest {
     type Response = GetFundingRateResponse;
 
     fn api_kind(&self) -> ApiKind {
-        ApiKind::FuturesApi
+        ApiKind::FuturesWeb
     }
     fn method(&self) -> Method {
         Method::GET

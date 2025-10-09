@@ -17,7 +17,7 @@ impl Rest for GetBalanceRequest {
     type Response = GetBalanceResponse;
 
     fn api_kind(&self) -> ApiKind {
-        ApiKind::FuturesApi
+        ApiKind::FuturesWeb
     }
     fn method(&self) -> Method {
         Method::GET
@@ -52,7 +52,7 @@ impl Rest for GetPositionRequest {
     type Response = GetPositionResponse;
 
     fn api_kind(&self) -> ApiKind {
-        ApiKind::FuturesApi
+        ApiKind::FuturesWeb
     }
     fn method(&self) -> Method {
         Method::GET
