@@ -151,9 +151,6 @@ impl Dex {
             custom_order_id,
         } = order_id;
         let tx_hash = order_id.or(custom_order_id).unwrap_or_default();
-        let Ok(tx) = tx_hash.parse() else {
-            return Err(ExchangeError::OrderNotFound);
-        };
         let mut order = Order {
             symbol: String::new(),
             order_id: tx_hash,
@@ -163,6 +160,11 @@ impl Dex {
             fee: Fee::Quote(0.013),
             state: OrderStatus::New,
             side: OrderSide::Unknown,
+        };
+        let Ok(tx) = order.order_id.parse() else {
+            order.fee = Fee::Quote(0.0);
+            order.state = OrderStatus::Canceled;
+            return Ok(order);
         };
         let Some(tx) = self.rpc.get_transaction_receipt(tx).await.map_err(|e| map_err(e.into()))? else {
             return Ok(order);
