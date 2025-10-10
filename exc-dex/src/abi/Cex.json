@@ -88,14 +88,14 @@
 			{
 				"components": [
 					{
-						"internalType": "address",
-						"name": "addr",
-						"type": "address"
-					},
-					{
 						"internalType": "enum PoolType",
 						"name": "ptype",
 						"type": "uint8"
+					},
+					{
+						"internalType": "address",
+						"name": "addr",
+						"type": "address"
 					},
 					{
 						"internalType": "uint16",
@@ -202,19 +202,6 @@
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "user",
-				"type": "address"
-			}
-		],
-		"name": "setUser",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
 				"name": "target",
 				"type": "address"
 			},
@@ -247,14 +234,14 @@
 					{
 						"components": [
 							{
-								"internalType": "address",
-								"name": "addr",
-								"type": "address"
-							},
-							{
 								"internalType": "enum PoolType",
 								"name": "ptype",
 								"type": "uint8"
+							},
+							{
+								"internalType": "address",
+								"name": "addr",
+								"type": "address"
 							},
 							{
 								"internalType": "uint16",

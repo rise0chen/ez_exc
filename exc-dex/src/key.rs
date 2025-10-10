@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct PoolCfg {
-    pub addr: Str,
     pub ptype: u8,
+    pub addr: Str,
     pub base_is_0: bool,
     /// fee: 9970/10000
     pub fee: u16,
@@ -13,8 +13,8 @@ pub struct PoolCfg {
 impl From<&PoolCfg> for Pool {
     fn from(v: &PoolCfg) -> Self {
         Self {
-            addr: v.addr.parse().unwrap(),
             ptype: v.ptype,
+            addr: v.addr.parse().unwrap(),
             fee: v.fee,
         }
     }
