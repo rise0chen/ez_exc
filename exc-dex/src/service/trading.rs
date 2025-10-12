@@ -112,7 +112,7 @@ impl Dex {
                 sqrtPriceLimitX96: price_limit,
             })
             .gas(self.key.gas_limit)
-            .max_fee_per_gas(2 * gas_price)
+            .max_fee_per_gas(5 * gas_price)
             .max_priority_fee_per_gas(gas_price);
         match self.rpc.estimate_gas(call.as_ref().clone()).block(BlockId::pending()).await {
             Ok(gas) => {
