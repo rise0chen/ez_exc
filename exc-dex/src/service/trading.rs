@@ -1,12 +1,9 @@
 use super::Dex;
 use crate::abi::{Cex, ERC20};
 use crate::error::map_err;
-use alloy::consensus::Transaction;
 use alloy::eips::BlockId;
-use alloy::network::TransactionResponse;
 use alloy::primitives::utils::{format_units, parse_units};
 use alloy::primitives::Uint;
-use alloy::providers::ext::TxPoolApi;
 use alloy::providers::Provider;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
@@ -61,47 +58,7 @@ impl Dex {
             Uint::from(((1.0 / price) * 2.0f64.powi(128)).sqrt() as u128).saturating_shl(32)
         };
 
-        let gas_price = if let Ok(block) = self.rpc.txpool_content().await {
-            let txs = block.pending_transactions().chain(block.queued_transactions());
-            let mut max_gas = self.key.gas_price as u128;
-            let pool = &self.key.pool_cfg.addr.to_lowercase()[2..];
-            let base_id = &symbol.base_id.to_lowercase()[2..];
-            let quote_id = &symbol.quote_id.to_lowercase()[2..];
-            let mut gas_sums = 0;
-            let mut gas_nums = 0;
-            for tx in txs {
-                let Some(gas) = Transaction::gas_price(tx) else {
-                    continue;
-                };
-                if gas > 2 * self.key.gas_price as u128 || gas < self.key.gas_price as u128 {
-                    continue;
-                }
-                gas_sums += gas;
-                gas_nums += 1;
-                let data = tx.input().to_string();
-                if data.contains(pool) || data.contains(base_id) || data.contains(quote_id) {
-                    tracing::info!("find order: {}", tx.tx_hash());
-                    if gas > max_gas {
-                        tracing::info!("set gas to: {} Gwei", gas as f64 / 1e9);
-                        max_gas = gas;
-                    }
-                }
-            }
-            if max_gas == self.key.gas_price as u128 {
-                if gas_nums == 0 {
-                    max_gas
-                } else {
-                    let gas = gas_sums / gas_nums;
-                    tracing::info!("set gas to avg: {} Gwei", gas as f64 / 1e9);
-                    gas
-                }
-            } else {
-                max_gas + 1
-            }
-        } else {
-            tracing::info!("failed to get txpool_content");
-            self.key.gas_price as u128
-        };
+        let gas_price = self.key.gas_price as u128;
         let cex = Cex::new(self.cex, &self.rpc);
         let amount = parse_units(&(-size).to_string(), symbol.precision as u8).unwrap().get_signed();
         let mut call = cex
