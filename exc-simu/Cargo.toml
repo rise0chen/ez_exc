@@ -1,0 +1,38 @@
+[package]
+authors = ["rise0chen"]
+description = "Simu exchange services"
+edition = "2021"
+keywords = ["exchange"]
+license = "MIT"
+name = "exc-simu"
+readme = "./README.md"
+repository = ""
+version = "0.7.0"
+
+[features]
+
+[dependencies]
+exc-util = {path = "../exc-util"}
+futures = {version = "0.3"}
+tracing = {version = "0.1"}
+
+[dependencies.exc-core]
+default-features = false
+features = ["websocket", "driven", "http", "retry", "fetch-candles", "limit"]
+version = "0.7"
+
+[dependencies.tokio]
+features = ["sync", "rt-multi-thread", "time", "macros"]
+version = "1"
+
+[dependencies.tower]
+features = ["util", "reconnect", "buffer", "timeout", "retry", "ready-cache"]
+version = "0.4"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[dev-dependencies]
+dotenvy = {version = "0.15"}
+tracing-subscriber = {version = "0.3.16", features = ["env-filter", "json"]}
