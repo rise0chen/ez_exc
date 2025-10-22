@@ -51,7 +51,8 @@ impl<Req: Rest> Service<Req> for Binance {
                 .and_then(|bytes| {
                     let resp = match serde_json::from_slice::<FullHttpResponse<Req::Response>>(&bytes) {
                         Ok(res) => res.into(),
-                        Err(_) => Err(ExchangeError::UnexpectedResponseType(String::from_utf8_lossy(&bytes).into_owned())),
+                        Err(_) => serde_json::from_slice::<Req::Response>(&bytes)
+                            .map_err(|_| ExchangeError::UnexpectedResponseType(String::from_utf8_lossy(&bytes).into_owned())),
                         //.map_err(|e| ExchangeError::Other(e.into())),
                     };
                     if resp.is_err() {

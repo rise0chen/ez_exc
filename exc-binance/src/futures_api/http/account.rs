@@ -11,7 +11,7 @@ pub struct GetBalanceRequest {}
 #[serde(rename_all = "camelCase")]
 pub struct GetBalanceResponse {
     #[serde_as(as = "DisplayFromStr")]
-    pub total_margin_balance: f64,
+    pub account_equity: f64,
 }
 
 impl Rest for GetBalanceRequest {
@@ -24,7 +24,7 @@ impl Rest for GetBalanceRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/fapi/v3/account".to_string()
+        "/papi/v1/account".to_string()
     }
     fn need_sign(&self) -> bool {
         true
@@ -57,7 +57,7 @@ impl Rest for GetPositionRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/fapi/v3/positionRisk".to_string()
+        "/papi/v1/um/positionRisk".to_string()
     }
     fn need_sign(&self) -> bool {
         true

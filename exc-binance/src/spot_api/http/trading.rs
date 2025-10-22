@@ -22,13 +22,16 @@ pub struct PlaceOrderRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PlaceOrderResponse {
-    pub order_id: String,
+    pub order_id: u64,
     pub client_order_id: Option<String>,
 }
 
 impl Rest for PlaceOrderRequest {
     type Response = PlaceOrderResponse;
 
+    fn host(&self) -> Option<&'static str> {
+        Some("https://papi.binance.com")
+    }
     fn api_kind(&self) -> ApiKind {
         ApiKind::SpotApi
     }
@@ -36,7 +39,7 @@ impl Rest for PlaceOrderRequest {
         Method::POST
     }
     fn path(&self) -> String {
-        "/sapi/v1/margin/order".to_string()
+        "/papi/v1/margin/order".to_string()
     }
     fn need_sign(&self) -> bool {
         true
@@ -55,13 +58,16 @@ pub struct CancelOrderRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CancelOrderResponse {
-    pub order_id: String,
+    pub order_id: u64,
     pub orig_client_order_id: Option<String>,
 }
 
 impl Rest for CancelOrderRequest {
     type Response = CancelOrderResponse;
 
+    fn host(&self) -> Option<&'static str> {
+        Some("https://papi.binance.com")
+    }
     fn api_kind(&self) -> ApiKind {
         ApiKind::SpotApi
     }
@@ -69,7 +75,7 @@ impl Rest for CancelOrderRequest {
         Method::DELETE
     }
     fn path(&self) -> String {
-        "/sapi/v1/margin/order".to_string()
+        "/papi/v1/margin/order".to_string()
     }
     fn need_sign(&self) -> bool {
         true
@@ -88,7 +94,7 @@ pub struct GetOrderRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GetOrderResponse {
-    pub order_id: String,
+    pub order_id: u64,
     pub orig_client_order_id: Option<String>,
     pub symbol: String,
     pub side: OrderSide,
@@ -104,6 +110,9 @@ pub struct GetOrderResponse {
 impl Rest for GetOrderRequest {
     type Response = GetOrderResponse;
 
+    fn host(&self) -> Option<&'static str> {
+        Some("https://papi.binance.com")
+    }
     fn api_kind(&self) -> ApiKind {
         ApiKind::SpotApi
     }
@@ -111,7 +120,7 @@ impl Rest for GetOrderRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/sapi/v1/margin/order".to_string()
+        "/papi/v1/margin/order".to_string()
     }
     fn need_sign(&self) -> bool {
         true

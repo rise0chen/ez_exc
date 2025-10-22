@@ -1,5 +1,5 @@
-use exc_core::Asset;
 use exc_binance::service::Binance;
+use exc_core::Asset;
 use exc_util::symbol::Symbol;
 use std::env::var;
 

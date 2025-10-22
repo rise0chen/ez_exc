@@ -27,7 +27,7 @@ impl Rest for GetFundingRateRequest {
         Method::GET
     }
     fn path(&self) -> String {
-       "/fapi/v1/premiumIndex".to_string()
+        "/fapi/v1/premiumIndex".to_string()
     }
     fn need_sign(&self) -> bool {
         false

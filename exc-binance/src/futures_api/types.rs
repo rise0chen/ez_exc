@@ -26,7 +26,7 @@ pub enum TimeInForce {
     Gtc,
     Ioc,
     Fok,
-    Gtx
+    Gtx,
 }
 impl From<exc_util::types::order::OrderType> for TimeInForce {
     fn from(value: exc_util::types::order::OrderType) -> Self {

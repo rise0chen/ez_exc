@@ -1,6 +1,6 @@
 use super::super::types::{OrderType, TimeInForce};
 use exc_util::interface::{ApiKind, Method, Rest};
-use exc_util::types::order::{OrderStatus,OrderSide};
+use exc_util::types::order::{OrderSide, OrderStatus};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
@@ -22,7 +22,7 @@ pub struct PlaceOrderRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PlaceOrderResponse {
-    pub order_id: String,
+    pub order_id: u64,
     pub client_order_id: Option<String>,
 }
 
@@ -30,13 +30,13 @@ impl Rest for PlaceOrderRequest {
     type Response = PlaceOrderResponse;
 
     fn api_kind(&self) -> ApiKind {
-        ApiKind::SpotApi
+        ApiKind::FuturesApi
     }
     fn method(&self) -> Method {
         Method::POST
     }
     fn path(&self) -> String {
-        "/fapi/v1/order".to_string()
+        "/papi/v1/um/order".to_string()
     }
     fn need_sign(&self) -> bool {
         true
@@ -55,7 +55,7 @@ pub struct CancelOrderRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CancelOrderResponse {
-    pub order_id: String,
+    pub order_id: u64,
     pub client_order_id: Option<String>,
 }
 
@@ -63,13 +63,13 @@ impl Rest for CancelOrderRequest {
     type Response = CancelOrderResponse;
 
     fn api_kind(&self) -> ApiKind {
-        ApiKind::SpotApi
+        ApiKind::FuturesApi
     }
     fn method(&self) -> Method {
         Method::DELETE
     }
     fn path(&self) -> String {
-        "/fapi/v1/order".to_string()
+        "/papi/v1/um/order".to_string()
     }
     fn need_sign(&self) -> bool {
         true
@@ -88,7 +88,7 @@ pub struct GetOrderRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GetOrderResponse {
-    pub order_id: String,
+    pub order_id: u64,
     pub client_order_id: Option<String>,
     pub symbol: String,
     pub side: OrderSide,
@@ -105,13 +105,13 @@ impl Rest for GetOrderRequest {
     type Response = GetOrderResponse;
 
     fn api_kind(&self) -> ApiKind {
-        ApiKind::SpotApi
+        ApiKind::FuturesApi
     }
     fn method(&self) -> Method {
         Method::GET
     }
     fn path(&self) -> String {
-        "/fapi/v1/order".to_string()
+        "/papi/v1/um/order".to_string()
     }
     fn need_sign(&self) -> bool {
         true

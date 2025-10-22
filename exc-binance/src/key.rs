@@ -27,12 +27,7 @@ impl Key {
             secret_key: Str::new(secret_key),
         }
     }
-    pub fn sign<'a, T: Rest>(
-        &self,
-        params: &'a T,
-        format: ParamsFormat,
-        kind: ApiKind,
-    ) -> Result<SignedParams<'a, T>, anyhow::Error> {
+    pub fn sign<'a, T: Rest>(&self, params: &'a T, format: ParamsFormat, kind: ApiKind) -> Result<SignedParams<'a, T>, anyhow::Error> {
         SigningParams::now(params).signed(self, format, kind)
     }
 }
@@ -52,8 +47,8 @@ impl<'a, T: Rest> SigningParams<'a, T> {
 
     /// Sign the given params now.
     pub fn now(params: &'a T) -> Self {
-        let now = OffsetDateTime::now_utc().unix_timestamp();
-        Self::with_timestamp(params, now)
+        let now = OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000;
+        Self::with_timestamp(params, now as i64)
     }
 }
 

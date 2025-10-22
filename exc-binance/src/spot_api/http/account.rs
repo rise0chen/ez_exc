@@ -4,27 +4,25 @@ use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct GetBalanceRequest {}
+pub struct GetBalanceRequest {
+    pub asset: String,
+}
 
 #[serde_as]
 #[derive(Debug, Deserialize)]
-pub struct Asset {
-    pub asset: String,
-    #[serde_as(as = "DisplayFromStr")]
-    pub free: f64,
-    #[serde_as(as = "DisplayFromStr")]
-    pub locked: f64,
-}
-
-#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GetBalanceResponse {
-    pub user_assets: Vec<Asset>,
+    pub asset: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub cross_margin_asset: f64,
 }
 
 impl Rest for GetBalanceRequest {
     type Response = GetBalanceResponse;
 
+    fn host(&self) -> Option<&'static str> {
+        Some("https://papi.binance.com")
+    }
     fn api_kind(&self) -> ApiKind {
         ApiKind::SpotApi
     }
@@ -32,7 +30,7 @@ impl Rest for GetBalanceRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/sapi/v1/margin/account".to_string()
+        "/papi/v1/balance".to_string()
     }
     fn need_sign(&self) -> bool {
         true

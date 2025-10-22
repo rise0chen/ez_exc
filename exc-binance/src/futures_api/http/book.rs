@@ -15,7 +15,6 @@ pub struct GetDepthRequest {
 /// price, size
 pub struct Order(#[serde_as(as = "DisplayFromStr")] pub f64, #[serde_as(as = "DisplayFromStr")] pub f64);
 
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GetDepthResponse {

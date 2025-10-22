@@ -72,7 +72,7 @@ impl Binance {
         };
         match order_id {
             Ok(id) => {
-                ret.order_id = Some(id);
+                ret.order_id = Some(id.to_string());
                 Ok(ret)
             }
             Err(e) => Err((ret, e)),

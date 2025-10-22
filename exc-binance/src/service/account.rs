@@ -8,19 +8,17 @@ impl Binance {
         use crate::futures_api::http::account::GetBalanceRequest;
         let req = GetBalanceRequest {};
         let resp = self.oneshot(req).await?;
-        Ok(resp.total_margin_balance)
+        Ok(resp.account_equity)
     }
     pub async fn get_position(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
         let position = if symbol.is_spot() {
             use crate::spot_api::http::account::GetBalanceRequest;
-            let req = GetBalanceRequest {};
+            let req = GetBalanceRequest {
+                asset: symbol.base.as_str().to_string(),
+            };
             let resp = self.oneshot(req).await?;
-            resp.user_assets
-                .iter()
-                .find(|x| x.asset == symbol.base.as_str())
-                .map(|x| x.free)
-                .unwrap_or(0.0)
+            resp.cross_margin_asset
         } else {
             use crate::futures_api::http::account::GetPositionRequest;
             let req = GetPositionRequest { symbol: symbol_id };
