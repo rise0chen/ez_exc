@@ -6,32 +6,28 @@ use crate::key::{ApiKind, Key, ParamsFormat};
 use exc_core::transport::http::{Body, Request};
 use exc_util::interface::{Method, Rest};
 
-const HOST: &str = "https://api.gateio.ws";
+const HOST: &str = "https://api.binance.com";
 
 pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::Error> {
     let host = req.host().unwrap_or(HOST);
     let mut request = Request::new(req.method(), host.parse()?);
     let header = request.headers_mut();
-    header.insert("KEY", key.api_key.as_str().parse()?);
-    header.insert("content-type", "application/json".parse()?);
+    header.insert("X-MBX-APIKEY", key.api_key.as_str().parse()?);
+    header.insert("content-type", "application/x-www-form-urlencoded".parse()?);
     let mut uri = format!("{}{}", host, req.path());
-    if req.need_sign() {
+    let body_str = if req.need_sign() {
         let signature = key.sign(req, ParamsFormat::Common, ApiKind::SpotApi)?;
-
-        header.insert("Timestamp", signature.signing.timestamp.into());
-        header.insert("SIGN", signature.signature.try_into()?);
-    }
+        serde_urlencoded::to_string(signature)?
+    } else {
+        serde_urlencoded::to_string(req)?
+    };
     let body = match req.method() {
         Method::GET | Method::DELETE => {
-            let body_str = serde_urlencoded::to_string(req)?;
             uri.push('?');
             uri.push_str(&body_str);
             Body::wrap(String::new())
         }
-        _ => {
-            let body_str = serde_json::to_string(req)?;
-            Body::wrap(body_str)
-        }
+        _ => Body::wrap(body_str),
     };
 
     *request.url_mut() = uri.parse()?;

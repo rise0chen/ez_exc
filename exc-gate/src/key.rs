@@ -28,25 +28,25 @@ impl Key {
             secret_key: Str::new(secret_key),
         }
     }
-    pub fn sign<'a, T: Rest<Response = R>, R>(
+    pub fn sign<'a, T: Rest>(
         &self,
         params: &'a T,
         format: ParamsFormat,
         kind: ApiKind,
-    ) -> Result<SignedParams<'a, T, R>, anyhow::Error> {
+    ) -> Result<SignedParams<'a, T>, anyhow::Error> {
         SigningParams::now(params).signed(self, format, kind)
     }
 }
 
 /// Signing params.
 #[derive(Debug, Clone, Serialize)]
-pub struct SigningParams<'a, T: Rest<Response = R>, R> {
+pub struct SigningParams<'a, T: Rest> {
     #[serde(flatten)]
     pub params: &'a T,
     pub timestamp: i64,
 }
 
-impl<'a, T: Rest<Response = R>, R> SigningParams<'a, T, R> {
+impl<'a, T: Rest> SigningParams<'a, T> {
     fn with_timestamp(params: &'a T, timestamp: i64) -> Self {
         Self { params, timestamp }
     }
@@ -60,15 +60,15 @@ impl<'a, T: Rest<Response = R>, R> SigningParams<'a, T, R> {
 
 /// Signed params.
 #[derive(Debug, Clone, Serialize)]
-pub struct SignedParams<'a, T: Rest<Response = R>, R> {
+pub struct SignedParams<'a, T: Rest> {
     #[serde(flatten)]
-    pub signing: SigningParams<'a, T, R>,
+    pub signing: SigningParams<'a, T>,
     pub signature: String,
 }
 
-impl<'a, T: Rest<Response = R>, R> SigningParams<'a, T, R> {
+impl<'a, T: Rest> SigningParams<'a, T> {
     /// Get signed params.
-    pub fn signed(self, key: &Key, format: ParamsFormat, kind: ApiKind) -> Result<SignedParams<'a, T, R>, anyhow::Error> {
+    pub fn signed(self, key: &Key, format: ParamsFormat, kind: ApiKind) -> Result<SignedParams<'a, T>, anyhow::Error> {
         let raw = match format {
             ParamsFormat::Common => {
                 if matches!(self.params.method(), Method::GET | Method::DELETE) {
