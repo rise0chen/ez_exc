@@ -6,7 +6,7 @@ mod trading;
 
 use crate::abi::Cex::Pool;
 use crate::key::Key;
-use alloy::primitives::Address;
+use alloy::primitives::{Address, Uint, U160};
 use alloy::providers::{DynProvider, Provider, ProviderBuilder, WsConnect};
 use alloy::signers::local::PrivateKeySigner;
 
@@ -17,6 +17,7 @@ pub struct Dex {
     rpc: DynProvider,
 
     pub cex: Address,
+    pub vault: Address,
     pub quote: Address,
     pub pool: Pool,
 }
@@ -37,10 +38,12 @@ impl Dex {
         } else {
             panic!("Unknown rpc url: {}", key.url);
         };
+        let vault = rpc.get_storage_at(cex, Uint::from(0)).await.unwrap();
         Self {
             key,
             rpc: rpc.erased(),
             cex,
+            vault: Address::from(U160::from(vault)),
             quote,
             pool,
         }
