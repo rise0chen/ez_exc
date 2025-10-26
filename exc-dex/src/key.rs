@@ -12,11 +12,7 @@ pub struct PoolCfg {
 }
 impl From<&PoolCfg> for Pool {
     fn from(v: &PoolCfg) -> Self {
-        Self {
-            ptype: v.ptype,
-            addr: v.addr.parse().unwrap(),
-            fee: v.fee,
-        }
+        Self::new(v.ptype, v.addr.parse().unwrap(), v.fee)
     }
 }
 

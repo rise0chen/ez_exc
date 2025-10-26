@@ -1,4 +1,5 @@
 use super::Dex;
+use crate::abi::Cex::Place;
 use crate::abi::{Cex, ERC20};
 use crate::error::map_err;
 use alloy::eips::BlockId;
@@ -61,13 +62,13 @@ impl Dex {
         let gas_price = self.key.gas_price as u128;
         let cex = Cex::new(self.cex, &self.rpc);
         let amount = parse_units(&(-size).to_string(), symbol.precision as u8).unwrap().get_signed();
+        let pool = self
+            .pool
+            .clone()
+            .zero_for_one(if self.key.pool_cfg.base_is_0 { size < 0.0 } else { size > 0.0 });
+        let place = Place::new(price_limit, amount.try_into().unwrap());
         let mut call = cex
-            .swap(Cex::Route {
-                pool: self.pool.clone(),
-                zeroForOne: if self.key.pool_cfg.base_is_0 { size < 0.0 } else { size > 0.0 },
-                amountSpecified: amount.try_into().unwrap(),
-                sqrtPriceLimitX96: price_limit,
-            })
+            .swap(pool.into_underlying(), place.into_underlying())
             .gas(self.key.gas_limit)
             .max_fee_per_gas(150 * gas_price)
             .max_priority_fee_per_gas(gas_price);

@@ -1,8 +1,24 @@
 [
 	{
-		"inputs": [],
+		"inputs": [
+			{
+				"internalType": "contract IVault",
+				"name": "vault",
+				"type": "address"
+			}
+		],
 		"stateMutability": "payable",
 		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "DisableContract",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "OnlyContract",
+		"type": "error"
 	},
 	{
 		"inputs": [
@@ -50,6 +66,19 @@
 		"type": "fallback"
 	},
 	{
+		"inputs": [],
+		"name": "_vault",
+		"outputs": [
+			{
+				"internalType": "contract IVault",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -80,32 +109,15 @@
 				"type": "bytes"
 			}
 		],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
 		"inputs": [
 			{
-				"components": [
-					{
-						"internalType": "enum PoolType",
-						"name": "ptype",
-						"type": "uint8"
-					},
-					{
-						"internalType": "address",
-						"name": "addr",
-						"type": "address"
-					},
-					{
-						"internalType": "uint16",
-						"name": "fee",
-						"type": "uint16"
-					}
-				],
-				"internalType": "struct Pool",
+				"internalType": "Pool",
 				"name": "pool",
-				"type": "tuple"
+				"type": "bytes32"
 			},
 			{
 				"internalType": "uint16",
@@ -201,6 +213,19 @@
 	{
 		"inputs": [
 			{
+				"internalType": "contract IVault",
+				"name": "vault",
+				"type": "address"
+			}
+		],
+		"name": "setVault",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "address",
 				"name": "target",
 				"type": "address"
@@ -230,48 +255,14 @@
 	{
 		"inputs": [
 			{
-				"components": [
-					{
-						"components": [
-							{
-								"internalType": "enum PoolType",
-								"name": "ptype",
-								"type": "uint8"
-							},
-							{
-								"internalType": "address",
-								"name": "addr",
-								"type": "address"
-							},
-							{
-								"internalType": "uint16",
-								"name": "fee",
-								"type": "uint16"
-							}
-						],
-						"internalType": "struct Pool",
-						"name": "pool",
-						"type": "tuple"
-					},
-					{
-						"internalType": "bool",
-						"name": "zeroForOne",
-						"type": "bool"
-					},
-					{
-						"internalType": "int128",
-						"name": "amountSpecified",
-						"type": "int128"
-					},
-					{
-						"internalType": "uint160",
-						"name": "sqrtPriceLimitX96",
-						"type": "uint160"
-					}
-				],
-				"internalType": "struct Route",
-				"name": "route",
-				"type": "tuple"
+				"internalType": "Pool",
+				"name": "pool",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "Place",
+				"name": "place",
+				"type": "bytes32"
 			}
 		],
 		"name": "swap",
@@ -287,7 +278,7 @@
 				"type": "int128"
 			}
 		],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
