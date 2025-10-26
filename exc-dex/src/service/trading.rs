@@ -70,7 +70,7 @@ impl Dex {
         let mut call = cex
             .swap(pool.into_underlying(), place.into_underlying())
             .gas(self.key.gas_limit)
-            .max_fee_per_gas(150 * gas_price)
+            .max_fee_per_gas(70 * gas_price)
             .max_priority_fee_per_gas(gas_price);
         match self.rpc.estimate_gas(call.as_ref().clone()).block(BlockId::pending()).await {
             Ok(gas) => {
