@@ -37,9 +37,11 @@ pub struct GetPositionRequest {
     pub symbol: String,
 }
 
+#[serde_as]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Asset {
+    #[serde_as(as = "DisplayFromStr")]
     pub position_amt: f64,
 }
 

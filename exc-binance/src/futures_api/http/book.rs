@@ -26,6 +26,9 @@ pub struct GetDepthResponse {
 impl Rest for GetDepthRequest {
     type Response = GetDepthResponse;
 
+    fn host(&self) -> Option<&'static str> {
+        Some("https://fapi.binance.com")
+    }
     fn api_kind(&self) -> ApiKind {
         ApiKind::FuturesApi
     }

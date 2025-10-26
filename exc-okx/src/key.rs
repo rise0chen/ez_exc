@@ -31,12 +31,7 @@ impl Key {
             passphrase: Str::new(passphrase),
         }
     }
-    pub fn sign<'a, T: Rest>(
-        &self,
-        params: &'a T,
-        format: ParamsFormat,
-        kind: ApiKind,
-    ) -> Result<SignedParams<'a, T>, anyhow::Error> {
+    pub fn sign<'a, T: Rest>(&self, params: &'a T, format: ParamsFormat, kind: ApiKind) -> Result<SignedParams<'a, T>, anyhow::Error> {
         SigningParams::now(params).signed(self, format, kind)
     }
 }

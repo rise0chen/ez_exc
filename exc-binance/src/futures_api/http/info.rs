@@ -20,6 +20,9 @@ pub struct GetFundingRateResponse {
 impl Rest for GetFundingRateRequest {
     type Response = GetFundingRateResponse;
 
+    fn host(&self) -> Option<&'static str> {
+        Some("https://fapi.binance.com")
+    }
     fn api_kind(&self) -> ApiKind {
         ApiKind::FuturesApi
     }
