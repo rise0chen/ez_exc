@@ -136,6 +136,8 @@ pub enum OrderStatus {
     Canceled = 4,
     /// 部分完成且已取消
     PartiallyCanceled = 5,
+    /// 已过期
+    Expired,
 }
 
 #[derive(FromPrimitive, IntoPrimitive)]
