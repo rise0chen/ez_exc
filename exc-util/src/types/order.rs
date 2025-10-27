@@ -139,6 +139,11 @@ pub enum OrderStatus {
     /// 已过期
     Expired,
 }
+impl OrderStatus {
+    pub fn is_finished(&self) -> bool {
+        matches!(self, Self::Canceled | Self::PartiallyCanceled | Self::Expired | Self::Filled)
+    }
+}
 
 #[derive(FromPrimitive, IntoPrimitive)]
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
