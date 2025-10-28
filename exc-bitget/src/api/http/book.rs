@@ -4,34 +4,30 @@ use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct GetStRateRequest {
+pub struct GetDepthRequest {
     pub category: &'static str,
-    pub coin: String,
+    pub symbol: String,
+    pub limit: u16,
 }
 
 #[serde_as]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct EarnInfo {
-    ///质押比例
-    #[serde_as(as = "DisplayFromStr")]
-    pub stake_exchange_rate: f64,
-    ///取回比例
-    #[serde_as(as = "DisplayFromStr")]
-    pub redeem_exchange_rate: f64,
-    // 赎回期
-    pub redeem_processing_minute: f64,
-    ///年化利率
-    pub estimate_apr: String,
-}
+/// price, size, 0, order_num
+pub struct Order(#[serde_as(as = "DisplayFromStr")] pub f64, #[serde_as(as = "DisplayFromStr")] pub f64);
+
+#[serde_as]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct GetStRateResponse {
-    pub list: Vec<EarnInfo>,
+pub struct GetDepthResponse {
+    pub a: Vec<Order>,
+    pub b: Vec<Order>,
+    #[serde_as(as = "DisplayFromStr")]
+    pub ts: u64,
 }
 
-impl Rest for GetStRateRequest {
-    type Response = GetStRateResponse;
+impl Rest for GetDepthRequest {
+    type Response = GetDepthResponse;
 
     fn api_kind(&self) -> ApiKind {
         ApiKind::Common
@@ -40,7 +36,7 @@ impl Rest for GetStRateRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/v5/earn/product".to_string()
+        "/api/v3/market/orderbook".to_string()
     }
     fn need_sign(&self) -> bool {
         false

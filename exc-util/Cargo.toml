@@ -1,8 +1,8 @@
 [package]
 authors = ["rise0chen"]
-description = "MEXC exchange services"
+description = "exc utils"
 edition = "2021"
-keywords = ["exchange", "tower", "mexc"]
+keywords = ["exchange", "tower"]
 license = "MIT"
 name = "exc-util"
 readme = "./README.md"

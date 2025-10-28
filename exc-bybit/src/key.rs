@@ -13,7 +13,7 @@ pub enum ParamsFormat {
     Urlencoded,
 }
 
-/// The APIKey definition of MEXC.
+/// The APIKey definition of Bitget.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Key {
     pub api_key: Str,

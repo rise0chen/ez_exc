@@ -1,10 +1,10 @@
 [package]
 authors = ["rise0chen"]
-description = "Okx exchange services"
+description = "Bitget exchange services"
 edition = "2021"
-keywords = ["exchange", "tower", "okx"]
+keywords = ["exchange", "tower", "bitget"]
 license = "MIT"
-name = "exc-okx"
+name = "exc-bitget"
 readme = "./README.md"
 repository = ""
 version = "0.7.0"

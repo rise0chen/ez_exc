@@ -8,6 +8,7 @@ members = [
   "exc-bybit",
   "exc-gate",
   "exc-binance",
+  "exc-bitget",
   "exc-mexc",
   "exc-kcex",
 ]

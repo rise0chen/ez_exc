@@ -14,7 +14,7 @@ pub enum ParamsFormat {
     Urlencoded,
 }
 
-/// The APIKey definition of Okx.
+/// The APIKey definition of Bitget.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Key {
     pub api_key: Str,
@@ -41,20 +41,18 @@ impl Key {
 pub struct SigningParams<'a, T: Rest> {
     #[serde(flatten)]
     pub params: &'a T,
-    pub timestamp: String,
+    pub timestamp: i64,
 }
 
 impl<'a, T: Rest> SigningParams<'a, T> {
-    fn with_timestamp(params: &'a T, timestamp: String) -> Self {
+    fn with_timestamp(params: &'a T, timestamp: i64) -> Self {
         Self { params, timestamp }
     }
 
     /// Sign the given params now.
     pub fn now(params: &'a T) -> Self {
-        use time::format_description::well_known::Rfc3339;
-        let now = OffsetDateTime::now_utc();
-        let now = now.replace_millisecond(now.millisecond()).unwrap();
-        Self::with_timestamp(params, now.format(&Rfc3339).unwrap())
+        let now = OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000;
+        Self::with_timestamp(params, now as i64)
     }
 }
 
