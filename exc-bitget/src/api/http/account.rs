@@ -20,7 +20,7 @@ pub struct Asset {
 #[serde(rename_all = "camelCase")]
 pub struct GetBalanceResponse {
     #[serde_as(as = "DisplayFromStr")]
-    pub account_equity: f64,
+    pub eff_equity: f64,
     pub assets: Vec<Asset>,
 }
 

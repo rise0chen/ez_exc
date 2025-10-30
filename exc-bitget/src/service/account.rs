@@ -8,7 +8,7 @@ impl Bitget {
         use crate::api::http::account::GetBalanceRequest;
         let req = GetBalanceRequest {};
         let resp = self.oneshot(req).await?;
-        Ok(resp.account_equity)
+        Ok(resp.eff_equity)
     }
     pub async fn get_position(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
