@@ -2,6 +2,7 @@ use super::super::types::{OrderSide, OrderStatus, OrderType, TimeInForce};
 use crate::response::List;
 use exc_util::interface::{ApiKind, Method, Rest};
 use exc_util::symbol::SymbolKind;
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
@@ -16,11 +17,9 @@ pub struct PlaceOrderRequest {
     pub side: OrderSide,
     pub order_type: OrderType,
     pub time_in_force: TimeInForce,
-    #[serde_as(as = "DisplayFromStr")]
-    pub qty: f64,
+    pub qty: Decimal,
     pub market_unit: String,
-    #[serde_as(as = "DisplayFromStr")]
-    pub price: f64,
+    pub price: Decimal,
     pub order_link_id: Option<String>,
 }
 
@@ -138,8 +137,7 @@ pub struct GetOrderResponse {
     #[serde_as(as = "DisplayFromStr")]
     pub qty: f64,
     pub market_unit: String,
-    #[serde_as(as = "DisplayFromStr")]
-    pub price: f64,
+    pub price: Decimal,
     #[serde_as(as = "DisplayFromStr")]
     pub cum_exec_qty: f64,
     #[serde_as(as = "DisplayFromStr")]

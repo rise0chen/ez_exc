@@ -1,5 +1,6 @@
 use crate::futures_api::types::TimeInForce;
 use exc_util::interface::{ApiKind, Method, Rest};
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
@@ -40,10 +41,8 @@ impl Rest for GetTradeRequest {
 pub struct PlaceOrderRequest {
     pub contract: String,
     pub text: Option<String>,
-    #[serde_as(as = "DisplayFromStr")]
-    pub size: i64,
-    #[serde_as(as = "DisplayFromStr")]
-    pub price: f64,
+    pub size: Decimal,
+    pub price: Decimal,
     pub tif: TimeInForce,
 }
 

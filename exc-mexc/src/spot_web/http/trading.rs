@@ -1,5 +1,6 @@
 use exc_util::interface::{ApiKind, Method, Rest};
 use exc_util::types::order::OrderSide;
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
@@ -50,11 +51,9 @@ pub struct PlaceOrderRequest {
     pub market_currency_id: String,
     pub trade_type: OrderSide,
     pub order_type: String,
-    #[serde_as(as = "DisplayFromStr")]
-    pub quantity: f64,
+    pub quantity: Decimal,
     //pub amount: Option<f64>,
-    #[serde_as(as = "DisplayFromStr")]
-    pub price: f64,
+    pub price: Decimal,
     pub client_order_id: Option<String>,
 }
 

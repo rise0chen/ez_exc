@@ -2,6 +2,8 @@ use super::Bitget;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{Fee, Order, OrderId, OrderSide, OrderType, PlaceOrderRequest};
+use rust_decimal::prelude::ToPrimitive;
+use rust_decimal::Decimal;
 use tower::ServiceExt;
 
 impl Bitget {
@@ -18,8 +20,8 @@ impl Bitget {
         } = data;
         let custom_id = format!(
             "t-{:08x?}{:04x?}{:016x?}",
-            (price as f32).ln().to_bits(),
-            (size as i16).to_be(),
+            price.to_f32().unwrap().ln().to_bits(),
+            price.to_i16().unwrap().to_be(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64
         );
         let mut ret = OrderId {
@@ -37,13 +39,17 @@ impl Bitget {
                 client_oid: Some(custom_id),
                 order_type: kind.into(),
                 time_in_force: kind.into(),
-                side: if size > 0.0 { OrderSide::Buy.into() } else { OrderSide::Sell.into() },
+                side: if size.is_sign_positive() {
+                    OrderSide::Buy.into()
+                } else {
+                    OrderSide::Sell.into()
+                },
                 qty: size.abs(),
                 price: if kind == OrderType::Market {
-                    if size > 0.0 {
-                        1.1 * price
+                    if size.is_sign_positive() {
+                        (Decimal::new(11, 1) * price).trunc_with_scale(price.scale())
                     } else {
-                        0.9 * price
+                        (Decimal::new(9, 1) * price).trunc_with_scale(price.scale())
                     }
                 } else {
                     price
@@ -58,13 +64,17 @@ impl Bitget {
                 client_oid: Some(custom_id),
                 order_type: kind.into(),
                 time_in_force: kind.into(),
-                side: if size > 0.0 { OrderSide::Buy.into() } else { OrderSide::Sell.into() },
+                side: if size.is_sign_positive() {
+                    OrderSide::Buy.into()
+                } else {
+                    OrderSide::Sell.into()
+                },
                 qty: size.abs(),
                 price: if kind == OrderType::Market {
-                    if size > 0.0 {
-                        1.1 * price
+                    if size.is_sign_positive() {
+                        (Decimal::new(11, 1) * price).trunc_with_scale(price.scale())
                     } else {
-                        0.9 * price
+                        (Decimal::new(9, 1) * price).trunc_with_scale(price.scale())
                     }
                 } else {
                     price

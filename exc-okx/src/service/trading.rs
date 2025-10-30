@@ -3,6 +3,7 @@ use crate::api::types::OrderSide;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
+use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
 
 impl Okx {
@@ -16,8 +17,8 @@ impl Okx {
         } = data;
         let custom_id = format!(
             "{:08x?}{:08x?}{:016x?}",
-            (price as f32).ln().to_bits(),
-            (size as f32).ln().to_bits(),
+            price.to_f32().unwrap().ln().to_bits(),
+            size.to_f32().unwrap().ln().to_bits(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64
         );
         let mut ret = OrderId {
@@ -31,7 +32,7 @@ impl Okx {
             inst_id,
             ccy: "USDT",
             td_mode: open_type.into(),
-            side: if size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },
+            side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
             ord_type: kind.into(),
             sz: size.abs(),
             px: price,

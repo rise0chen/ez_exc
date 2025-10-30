@@ -9,6 +9,7 @@ use alloy::providers::Provider;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderSide, OrderStatus, PlaceOrderRequest};
+use rust_decimal::prelude::ToPrimitive;
 
 impl Dex {
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
@@ -47,7 +48,7 @@ impl Dex {
             leverage: _,
             open_type: _,
         } = data;
-        let price = price * symbol.multi_price;
+        let price = price.to_f64().unwrap() * symbol.multi_price;
         let mut ret = OrderId {
             symbol: symbol.clone(),
             order_id: None,
@@ -62,10 +63,11 @@ impl Dex {
         let gas_price = self.key.gas_price as u128;
         let cex = Cex::new(self.cex, &self.rpc);
         let amount = parse_units(&(-size).to_string(), symbol.precision as u8).unwrap().get_signed();
-        let pool = self
-            .pool
-            .clone()
-            .zero_for_one(if self.key.pool_cfg.base_is_0 { size < 0.0 } else { size > 0.0 });
+        let pool = self.pool.clone().zero_for_one(if self.key.pool_cfg.base_is_0 {
+            size.is_sign_negative()
+        } else {
+            size.is_sign_positive()
+        });
         let place = Place::new(price_limit, amount.try_into().unwrap());
         let mut call = cex
             .swap(pool.into_underlying(), place.into_underlying())

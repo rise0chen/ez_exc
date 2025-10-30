@@ -1,5 +1,6 @@
 use exc_util::interface::{ApiKind, Method, Rest};
 use exc_util::types::order::{FuturesOpenType, OrderSide, OrderStatus, OrderType};
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr, FromInto};
 
@@ -70,12 +71,10 @@ pub struct PlaceOrderRequest {
     pub open_type: FuturesOpenType,
     #[serde_as(as = "FromInto<i8>")]
     pub r#type: OrderType,
-    #[serde_as(as = "DisplayFromStr")]
-    pub vol: f64,
+    pub vol: Decimal,
     #[serde_as(as = "DisplayFromStr")]
     pub leverage: f64,
-    #[serde_as(as = "DisplayFromStr")]
-    pub price: f64,
+    pub price: Decimal,
 }
 
 #[derive(Debug, Deserialize)]

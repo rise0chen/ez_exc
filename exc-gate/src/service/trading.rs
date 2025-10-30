@@ -3,6 +3,8 @@ use crate::spot_api::types::OrderSide;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderStatus, OrderType, PlaceOrderRequest};
+use rust_decimal::prelude::ToPrimitive;
+use rust_decimal::Decimal;
 use tower::ServiceExt;
 
 impl Gate {
@@ -30,8 +32,8 @@ impl Gate {
         } = data;
         let custom_id = format!(
             "t-{:08x?}{:04x?}{:016x?}",
-            (price as f32).ln().to_bits(),
-            (size as i16).to_be(),
+            price.to_f32().unwrap().ln().to_bits(),
+            price.to_i16().unwrap().to_be(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64
         );
         let mut ret = OrderId {
@@ -48,13 +50,13 @@ impl Gate {
                 text: Some(custom_id),
                 r#type: kind.into(),
                 time_in_force: kind.into(),
-                side: if size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },
+                side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
                 amount: size.abs(),
                 price: if kind == OrderType::Market {
-                    if size > 0.0 {
-                        1.1 * price
+                    if size.is_sign_positive() {
+                        (Decimal::new(11, 1) * price).trunc_with_scale(price.scale())
                     } else {
-                        0.9 * price
+                        (Decimal::new(9, 1) * price).trunc_with_scale(price.scale())
                     }
                 } else {
                     price
@@ -68,8 +70,8 @@ impl Gate {
             let req = PlaceOrderRequest {
                 contract: symbol_id,
                 text: Some(custom_id),
-                size: size.round() as i64,
-                price: if kind == OrderType::Market { 0.0 } else { price },
+                size,
+                price: if kind == OrderType::Market { Decimal::ZERO } else { price },
                 tif: kind.into(),
             };
             self.oneshot(req).await.map(|resp| resp.id.to_string())

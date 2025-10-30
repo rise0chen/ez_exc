@@ -24,6 +24,7 @@ futures = {version = "0.3"}
 hex = "0.4"
 num_enum = {version = "0.7"}
 pin-project-lite = {version = "0.2"}
+rust_decimal = {version = "1"}
 thiserror = {version = "1"}
 tracing = {version = "0.1"}
 

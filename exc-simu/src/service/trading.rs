@@ -31,7 +31,7 @@ impl Simu {
             deal_avg_price: price,
             fee: Fee::Quote(0.0),
             state: OrderStatus::Filled,
-            side: if size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },
+            side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
         })
     }
 }

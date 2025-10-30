@@ -3,6 +3,7 @@ use crate::api::types::OrderSide;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
+use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
 
 impl Bybit {
@@ -16,8 +17,8 @@ impl Bybit {
         } = data;
         let custom_id = format!(
             "{:08x?}{:08x?}{:016x?}",
-            (price as f32).ln().to_bits(),
-            (size as f32).ln().to_bits(),
+            price.to_f32().unwrap().ln().to_bits(),
+            size.to_f32().unwrap().ln().to_bits(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64
         );
         let mut ret = OrderId {
@@ -33,7 +34,7 @@ impl Bybit {
             is_leverage: if leverage == 1.0 { 0 } else { 1 },
             order_type: kind.into(),
             time_in_force: kind.into(),
-            side: if size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },
+            side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
             qty: size.abs(),
             market_unit: "baseCoin".into(),
             price,

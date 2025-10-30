@@ -2,6 +2,7 @@ use super::Mexc;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderSide, OrderType, PlaceOrderRequest};
+use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
 
 impl Mexc {
@@ -28,8 +29,8 @@ impl Mexc {
         } = data;
         let custom_id = format!(
             "{:08x?}{:08x?}{:016x?}",
-            (price as f32).ln().to_bits(),
-            (size as f32).ln().to_bits(),
+            price.to_f32().unwrap().ln().to_bits(),
+            size.to_f32().unwrap().ln().to_bits(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64
         );
         let mut ret = OrderId {
@@ -44,7 +45,7 @@ impl Mexc {
             let req = PlaceOrderRequest {
                 currency_id: symbol.base_id.clone(),
                 market_currency_id: symbol.quote_id.clone(),
-                trade_type: if size > 0.0 { OrderSide::Buy } else { OrderSide::Sell },
+                trade_type: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
                 order_type: match kind {
                     OrderType::Unknown => unreachable!(),
                     OrderType::Limit | OrderType::LimitMaker | OrderType::ImmediateOrCancel => String::from("LIMIT_ORDER"),
@@ -61,16 +62,16 @@ impl Mexc {
             let req = PlaceOrderRequest {
                 symbol: symbol_id,
                 external_oid: Some(custom_id),
-                side: if size > 0.0 {
+                side: if size.is_sign_positive() {
                     // 买
-                    if size.abs() > short {
+                    if size.abs().to_f64().unwrap() > short {
                         OrderSide::Buy
                     } else {
                         OrderSide::CloseSell
                     }
                 } else {
                     // 卖
-                    if size.abs() > long {
+                    if size.abs().to_f64().unwrap() > long {
                         OrderSide::Sell
                     } else {
                         OrderSide::CloseBuy

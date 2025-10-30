@@ -1,5 +1,6 @@
 use super::super::types::{OrderSide, OrderStatus, OrderType, TimeInForce};
 use exc_util::interface::{ApiKind, Method, Rest};
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
@@ -12,10 +13,8 @@ pub struct PlaceOrderRequest {
     pub side: OrderSide,
     pub order_type: OrderType,
     pub time_in_force: TimeInForce,
-    #[serde_as(as = "DisplayFromStr")]
-    pub qty: f64,
-    #[serde_as(as = "DisplayFromStr")]
-    pub price: f64,
+    pub qty: Decimal,
+    pub price: Decimal,
     pub client_oid: Option<String>,
 }
 

@@ -1,18 +1,19 @@
 use crate::symbol::Symbol;
 use num_enum::{FromPrimitive, IntoPrimitive};
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
 
 #[derive(Debug, Clone)]
 pub struct PlaceOrderRequest {
-    pub size: f64,
-    pub price: f64,
+    pub size: Decimal,
+    pub price: Decimal,
     pub kind: OrderType,
     pub leverage: f64,
     pub open_type: FuturesOpenType,
 }
 impl PlaceOrderRequest {
-    pub fn new(size: f64, price: f64, kind: OrderType) -> Self {
+    pub fn new(size: Decimal, price: Decimal, kind: OrderType) -> Self {
         Self {
             size,
             price,
