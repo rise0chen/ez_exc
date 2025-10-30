@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub enum OrderSide {
     Unknown = 0,
     Buy = 1,
@@ -29,7 +29,7 @@ impl From<OrderSide> for exc_util::types::order::OrderSide {
 }
 
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub enum OrderType {
     Unknown = 0,
     Limit = 1,

@@ -21,7 +21,7 @@ pub struct GetFundingRateResponse {
 }
 
 impl Rest for GetFundingRateRequest {
-    type Response = GetFundingRateResponse;
+    type Response = Vec<GetFundingRateResponse>;
 
     fn api_kind(&self) -> ApiKind {
         ApiKind::Common

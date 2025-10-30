@@ -60,7 +60,7 @@ pub struct Position {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GetPositionResponse {
-    pub list: Vec<Position>,
+    pub list: Option<Vec<Position>>,
 }
 
 impl Rest for GetPositionRequest {

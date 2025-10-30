@@ -83,13 +83,11 @@ pub struct GetOrderRequest {
     pub client_oid: Option<String>,
 }
 
-#[serde_as]
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Fee {
     pub fee_coin: String,
-    #[serde_as(as = "DisplayFromStr")]
-    pub fee: f64,
+    pub fee: String,
 }
 #[serde_as]
 #[derive(Debug, Deserialize)]
@@ -99,14 +97,14 @@ pub struct GetOrderResponse {
     pub symbol: String,
     pub order_id: String,
     pub client_oid: Option<String>,
-    pub ord_type: OrderType,
+    pub order_type: OrderType,
     #[serde_as(as = "DisplayFromStr")]
     pub qty: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub cum_exec_qty: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub cum_exec_value: f64,
-    pub fee_detail: Fee,
+    pub fee_detail: Vec<Fee>,
     pub order_status: OrderStatus,
     pub side: OrderSide,
 }

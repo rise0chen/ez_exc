@@ -27,7 +27,7 @@ impl Bitget {
                 category: "USDT-FUTURES",
                 symbol: symbol_id,
             };
-            let resp = self.oneshot(req).await?.list;
+            let resp = self.oneshot(req).await?.list.unwrap_or_default();
             resp.iter().map(|x| if x.pos_side == "short" { -x.total } else { x.total }).sum()
         };
         Ok(position)

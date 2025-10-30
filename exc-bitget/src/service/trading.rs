@@ -129,13 +129,14 @@ impl Bitget {
                 client_oid: custom_order_id,
                 symbol: symbol_id,
             };
-            let resp = self.oneshot(req).await?;
-            let fee = if resp.fee_detail.fee_coin == symbol.base.as_str() {
-                Fee::Base(resp.fee_detail.fee)
-            } else if resp.fee_detail.fee_coin == "USDT" {
-                Fee::Quote(resp.fee_detail.fee)
+            let mut resp = self.oneshot(req).await?;
+            let fee_detail = resp.fee_detail.pop().unwrap_or_default();
+            let fee = if fee_detail.fee_coin == symbol.base.as_str() {
+                Fee::Base(fee_detail.fee.parse().unwrap_or(0.0))
+            } else if fee_detail.fee_coin == "USDT" {
+                Fee::Quote(fee_detail.fee.parse().unwrap_or(0.0))
             } else {
-                Fee::Quote(0.001 * resp.cum_exec_value)
+                Fee::Quote(0.0006 * resp.cum_exec_value)
             };
             Order {
                 symbol: resp.symbol,
@@ -159,11 +160,12 @@ impl Bitget {
                 client_oid: custom_order_id,
                 symbol: symbol_id,
             };
-            let resp = self.oneshot(req).await?;
-            let fee = if resp.fee_detail.fee_coin == symbol.base.as_str() {
-                Fee::Base(resp.fee_detail.fee)
-            } else if resp.fee_detail.fee_coin == "USDT" {
-                Fee::Quote(resp.fee_detail.fee)
+            let mut resp = self.oneshot(req).await?;
+            let fee_detail = resp.fee_detail.pop().unwrap_or_default();
+            let fee = if fee_detail.fee_coin == symbol.base.as_str() {
+                Fee::Base(fee_detail.fee.parse().unwrap_or(0.0))
+            } else if fee_detail.fee_coin == "USDT" {
+                Fee::Quote(fee_detail.fee.parse().unwrap_or(0.0))
             } else {
                 Fee::Quote(0.0006 * resp.cum_exec_value)
             };
