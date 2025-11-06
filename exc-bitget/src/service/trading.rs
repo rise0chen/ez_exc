@@ -47,9 +47,9 @@ impl Bitget {
                 qty: size.abs(),
                 price: if kind == OrderType::Market {
                     if size.is_sign_positive() {
-                        (Decimal::new(11, 1) * price).trunc_with_scale(price.scale())
+                        (Decimal::new(101, 2) * price).trunc_with_scale(price.scale())
                     } else {
-                        (Decimal::new(9, 1) * price).trunc_with_scale(price.scale())
+                        (Decimal::new(99, 2) * price).trunc_with_scale(price.scale())
                     }
                 } else {
                     price
@@ -72,9 +72,9 @@ impl Bitget {
                 qty: size.abs(),
                 price: if kind == OrderType::Market {
                     if size.is_sign_positive() {
-                        (Decimal::new(11, 1) * price).trunc_with_scale(price.scale())
+                        (Decimal::new(101, 2) * price).trunc_with_scale(price.scale())
                     } else {
-                        (Decimal::new(9, 1) * price).trunc_with_scale(price.scale())
+                        (Decimal::new(99, 2) * price).trunc_with_scale(price.scale())
                     }
                 } else {
                     price
