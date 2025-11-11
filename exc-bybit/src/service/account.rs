@@ -28,7 +28,7 @@ impl Bybit {
                 resp.coin
                     .iter()
                     .find(|x| x.coin == symbol.base.as_str())
-                    .map(|x| x.wallet_balance)
+                    .map(|x| x.equity)
                     .unwrap_or(0.0)
             })
             .unwrap_or(0.0)

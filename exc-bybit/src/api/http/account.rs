@@ -17,7 +17,7 @@ pub struct GetBalanceRequest {
 pub struct Asset {
     pub coin: String,
     #[serde_as(as = "DisplayFromStr")]
-    pub wallet_balance: f64,
+    pub equity: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub locked: f64,
 }
