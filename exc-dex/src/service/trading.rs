@@ -79,7 +79,7 @@ impl Dex {
                 if gas > self.key.gas_limit {
                     return Err((ret, ExchangeError::Other(anyhow::anyhow!("gas too much!"))));
                 }
-                call = call.gas(gas * 3 / 2);
+                call = call.gas(gas * 13 / 10);
             }
             Err(e) => return Err((ret, map_err(e.into()))),
         }
