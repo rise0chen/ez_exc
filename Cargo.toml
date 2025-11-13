@@ -11,6 +11,7 @@ members = [
   "exc-bitget",
   "exc-mexc",
   "exc-kcex",
+  "exc-bitunix",
 ]
 resolver = "2"
 

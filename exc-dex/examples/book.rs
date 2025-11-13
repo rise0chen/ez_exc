@@ -19,6 +19,7 @@ async fn main() -> anyhow::Result<()> {
     symbol.base_id = "0x0872C997B2CB959Baf6F422a856AB91d261E5FDb".into();
     dex.perfect_symbol(&mut symbol).await.unwrap();
     let bid_ask = dex.get_depth(&symbol, 4).await.unwrap();
+    assert!(bid_ask.is_valid());
     tracing::info!("{:?}", bid_ask);
     Ok(())
 }

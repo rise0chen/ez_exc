@@ -24,14 +24,8 @@ impl Bybit {
                 coin: None,
             };
             let resp = self.oneshot(req).await?.list.pop();
-            resp.map(|resp| {
-                resp.coin
-                    .iter()
-                    .find(|x| x.coin == symbol.base.as_str())
-                    .map(|x| x.equity)
-                    .unwrap_or(0.0)
-            })
-            .unwrap_or(0.0)
+            resp.map(|resp| resp.coin.iter().find(|x| x.coin == symbol.base.as_str()).map(|x| x.equity).unwrap_or(0.0))
+                .unwrap_or(0.0)
         } else {
             use crate::api::http::account::GetPositionRequest;
             let req = GetPositionRequest {

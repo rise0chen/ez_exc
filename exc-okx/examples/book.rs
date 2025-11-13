@@ -17,10 +17,12 @@ async fn main() -> anyhow::Result<()> {
 
     let symbol = Symbol::spot(Asset::try_from("BTC").unwrap(), Asset::usdt());
     let bid_ask = okx.get_depth(&symbol, 4).await.unwrap();
+    assert!(bid_ask.is_valid());
     tracing::info!("{:?}", bid_ask);
 
     let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
     let bid_ask = okx.get_depth(&symbol, 4).await.unwrap();
+    assert!(bid_ask.is_valid());
     tracing::info!("{:?}", bid_ask);
     Ok(())
 }
