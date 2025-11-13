@@ -9,7 +9,7 @@ impl Bitunix {
         use crate::futures_api::http::account::GetBalanceRequest;
         let req = GetBalanceRequest { margin_coin: "USDT".into() };
         let resp = self.oneshot(req).await?;
-        Ok(resp.available + resp.margin)
+        Ok(resp.available + resp.margin + resp.cross_unrealized_p_n_l)
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(f64, f64), ExchangeError> {
         let (mut long, mut short) = (0.0, 0.0);
