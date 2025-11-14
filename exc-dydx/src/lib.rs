@@ -2,8 +2,8 @@
 
 extern crate tracing;
 
-pub mod symnol;
 pub mod key;
+pub mod symnol;
 
 cfg_if::cfg_if! {
     if #[cfg(any(feature = "rustls-tls", feature = "native-tls"))] {

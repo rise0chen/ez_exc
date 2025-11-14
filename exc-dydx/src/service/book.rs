@@ -1,6 +1,6 @@
 use super::Dydx;
 use bigdecimal::ToPrimitive;
-use dydx::indexer::{types::OrderbookResponsePriceLevel};
+use dydx::indexer::types::OrderbookResponsePriceLevel;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::book::{Depth, Order};
@@ -13,7 +13,7 @@ fn order(x: &OrderbookResponsePriceLevel) -> Order {
 impl Dydx {
     pub async fn get_depth(&mut self, symbol: &Symbol, _limit: u16) -> Result<Depth, ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
-        let resp = self.indexer.markets().get_perpetual_market_orderbook(&symbol_id).await?;
+        let resp = self.indexer().markets().get_perpetual_market_orderbook(&symbol_id).await?;
 
         Ok(Depth {
             bid: resp.bids.iter().map(order).collect(),

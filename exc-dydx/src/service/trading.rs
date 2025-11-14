@@ -41,6 +41,7 @@ impl Dydx {
             leverage: _,
             open_type: _,
         } = data;
+        let mut client = self.client().await;
         let custom_id = ClientId::random();
         let mut ret = OrderId {
             symbol: symbol.clone(),
@@ -49,10 +50,10 @@ impl Dydx {
         };
 
         let symbol_id = crate::symnol::symbol_id(symbol);
-        let mut account = self.wallet.account(0, &mut self.client).await.map_err(|e| (ret.clone(), e.into()))?;
+        let mut account = self.wallet().account(0, &mut client).await.map_err(|e| (ret.clone(), e.into()))?;
         let subaccount = account.subaccount(0).map_err(|e| (ret.clone(), e.into()))?;
         let market = self
-            .indexer
+            .indexer()
             .markets()
             .get_perpetual_market(&symbol_id)
             .await
@@ -81,7 +82,7 @@ impl Dydx {
                 order = order
                     .price(BigDecimal::new(price.mantissa().into(), price.scale() as i64))
                     .time_in_force(TimeInForce::Ioc)
-                    .until(self.client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(20))
+                    .until(client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(20))
                     .short_term();
             }
             OrderType::LimitMaker => {
@@ -93,19 +94,18 @@ impl Dydx {
             OrderType::ImmediateOrCancel => {
                 order = order
                     .time_in_force(TimeInForce::Ioc)
-                    .until(self.client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(20))
+                    .until(client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(20))
                     .short_term();
             }
             OrderType::FillOrKill => {
                 order = order
                     .time_in_force(TimeInForce::FillOrKill)
-                    .until(self.client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(20))
+                    .until(client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(20))
                     .long_term();
             }
         }
         let (order_id, order) = order.build(custom_id).map_err(|e| (ret.clone(), e.into()))?;
-        let _tx_hash = self
-            .client
+        let _tx_hash = client
             .place_order(&mut account, order)
             .await
             .map_err(|e| (ret.clone(), ExchangeError::UnexpectedResponseType(e.to_string())))?;
@@ -124,7 +124,8 @@ impl Dydx {
         todo!();
     }
     pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
-        let mut account = self.wallet.account(0, &mut self.client).await?;
+        let mut client = self.client().await;
+        let mut account = self.wallet().account(0, &mut client).await?;
         let subaccount = account.subaccount(0)?;
 
         let mut order_id_split = order_id.order_id.as_ref().unwrap().split(",");
@@ -138,9 +139,9 @@ impl Dydx {
         let until: OrderGoodUntil = if is_long {
             (Utc::now() + TimeDelta::days(1)).into()
         } else {
-            self.client.latest_block_height().await?.ahead(20).into()
+            client.latest_block_height().await?.ahead(20).into()
         };
-        self.client
+        client
             .cancel_order(&mut account, place_id, until)
             .await
             .map_err(|e| ExchangeError::UnexpectedResponseType(e.to_string()))?;
@@ -148,9 +149,9 @@ impl Dydx {
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let order_id = order_id.custom_order_id.unwrap();
-        let account = self.wallet.account(0, &mut self.client).await?;
+        let account = self.wallet().account_offline(0)?;
         let subaccount = account.subaccount(0)?;
-        let orders = self.indexer.accounts().get_subaccount_orders(&subaccount, None).await?;
+        let orders = self.indexer().accounts().get_subaccount_orders(&subaccount, None).await?;
         let order = orders.into_iter().find(|x| x.client_id.0 == order_id.parse::<u32>().unwrap());
         let Some(order) = order else {
             return Err(ExchangeError::OrderNotFound);
@@ -168,7 +169,7 @@ impl Dydx {
         if !ret.state.is_finished() {
             return Ok(ret);
         }
-        let fills = self.indexer.accounts().get_subaccount_fills(&subaccount, None).await?;
+        let fills = self.indexer().accounts().get_subaccount_fills(&subaccount, None).await?;
         let fill = fills.into_iter().find(|x| x.order_id.as_ref() == Some(&order.id));
         if let Some(fill) = fill {
             ret.deal_avg_price = fill.price.to_f64().unwrap_or(ret.deal_avg_price);
