@@ -4,6 +4,7 @@ members = [
   "exc-custom",
   "exc-simu",
   "exc-dex",
+  "exc-dydx",
   "exc-okx",
   "exc-bybit",
   "exc-gate",

@@ -1,0 +1,64 @@
+[package]
+authors = ["rise0chen"]
+description = "DYDX exchange services"
+edition = "2021"
+keywords = ["exchange", "tower", "dydx"]
+license = "MIT"
+name = "exc-dydx"
+readme = "./README.md"
+repository = ""
+version = "0.7.0"
+
+[features]
+default = ["rustls-tls"]
+native-tls = ["exc-core/native-tls"]
+rustls-tls = ["exc-core/rustls-tls"]
+
+[dependencies]
+anyhow = {version = "1"}
+bigdecimal = {version = "0.4"}
+cfg-if = {version = "1"}
+chrono = {version = "0.4", features = ["serde"]}
+dydx = {version = "0.3"}
+dydx-proto = {version = "0.4"}
+either = {version = "1"}
+exc-util = {path = "../exc-util"}
+futures = {version = "0.3"}
+hex = "0.4"
+num_enum = {version = "0.7"}
+pin-project-lite = {version = "0.2"}
+rust_decimal = {version = "1"}
+rustls = {version = "0.23"}
+thiserror = {version = "1"}
+tracing = {version = "0.1"}
+
+[dependencies.serde]
+features = ["derive"]
+version = "1"
+
+[dependencies.exc-core]
+default-features = false
+features = ["websocket", "driven", "http", "retry", "fetch-candles", "limit"]
+version = "0.7"
+
+[dependencies.tokio]
+features = ["sync", "rt-multi-thread", "time", "macros"]
+version = "1"
+
+[dependencies.time]
+features = ["serde-human-readable", "macros"]
+version = "0.3"
+
+[dependencies.hyper]
+features = ["client", "http1"]
+version = "1.4"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[dev-dependencies]
+clap = {version = "4.0.24", features = ["derive", "env"]}
+dotenvy = {version = "0.15"}
+serde_json = {version = "1"}
+tracing-subscriber = {version = "0.3.16", features = ["env-filter", "json"]}
