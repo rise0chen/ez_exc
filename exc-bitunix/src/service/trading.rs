@@ -106,7 +106,7 @@ impl Bitunix {
                 order_id: resp.order_id,
                 vol: resp.qty,
                 deal_vol: resp.trade_qty,
-                deal_avg_price: resp.avg_price.unwrap_or_default(),
+                deal_avg_price: resp.price,
                 fee: Fee::Quote(resp.fee),
                 state: resp.status.into(),
                 side: resp.side.into(),
