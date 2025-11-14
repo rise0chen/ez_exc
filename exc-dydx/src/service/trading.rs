@@ -148,7 +148,9 @@ impl Dydx {
         Ok(order_id)
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
-        let order_id = order_id.custom_order_id.unwrap();
+        let order_id = order_id
+            .custom_order_id
+            .unwrap_or(order_id.order_id.unwrap().split(",").nth(2).unwrap().into());
         let account = self.wallet().account_offline(0)?;
         let subaccount = account.subaccount(0)?;
         let orders = self.indexer().accounts().get_subaccount_orders(&subaccount, None).await?;
