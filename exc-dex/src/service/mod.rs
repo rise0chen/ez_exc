@@ -4,9 +4,9 @@ mod earn;
 mod info;
 mod trading;
 
-use crate::abi::Cex::Pool;
+use crate::abi::Cex::{self, Pool};
 use crate::key::Key;
-use alloy::primitives::{Address, Uint, U160};
+use alloy::primitives::Address;
 use alloy::providers::{DynProvider, Provider, ProviderBuilder, WsConnect};
 use alloy::signers::local::PrivateKeySigner;
 
@@ -24,8 +24,8 @@ pub struct Dex {
 
 impl Dex {
     pub async fn new(key: Key) -> Self {
-        let cex = key.cex_addr.parse().unwrap();
-        let quote = key.quote_addr.parse().unwrap();
+        let cex: Address = key.cex_addr.parse().unwrap();
+        let quote: Address = key.quote_addr.parse().unwrap();
         let pool = Pool::from(&key.pool_cfg);
 
         let signer: PrivateKeySigner = key.private_key.parse().unwrap();
@@ -38,12 +38,12 @@ impl Dex {
         } else {
             panic!("Unknown rpc url: {}", key.url);
         };
-        let vault = rpc.get_storage_at(cex, Uint::from(0)).await.unwrap();
+        let vault = Cex::new(cex, &rpc)._vault().call().await.unwrap();
         Self {
             key,
             rpc: rpc.erased(),
             cex,
-            vault: Address::from(U160::from(vault)),
+            vault,
             quote,
             pool,
         }
