@@ -1,5 +1,5 @@
 use super::Dydx;
-use bigdecimal::{BigDecimal, ToPrimitive};
+use bigdecimal::{BigDecimal, ToPrimitive, Zero as _};
 use chrono::{TimeDelta, Utc};
 use dydx::indexer::{types::ApiOrderStatus, ClientId, OrderSide as DydxSide, OrderStatus as DydxStatus};
 use dydx::node::{OrderBuilder, OrderGoodUntil, OrderId as PlaceId, OrderSide as PlaceSide};
@@ -82,7 +82,7 @@ impl Dydx {
                 order = order
                     .price(BigDecimal::new(price.mantissa().into(), price.scale() as i64))
                     .time_in_force(TimeInForce::Ioc)
-                    .until(client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(20))
+                    .until(client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(2))
                     .short_term();
             }
             OrderType::LimitMaker => {
@@ -94,14 +94,14 @@ impl Dydx {
             OrderType::ImmediateOrCancel => {
                 order = order
                     .time_in_force(TimeInForce::Ioc)
-                    .until(client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(20))
+                    .until(client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(2))
                     .short_term();
             }
             OrderType::FillOrKill => {
                 order = order
                     .time_in_force(TimeInForce::FillOrKill)
-                    .until(client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(20))
-                    .long_term();
+                    .until(client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(2))
+                    .short_term();
             }
         }
         let (order_id, order) = order.build(custom_id).map_err(|e| (ret.clone(), e.into()))?;
@@ -150,32 +150,50 @@ impl Dydx {
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let order_id = order_id
             .custom_order_id
-            .unwrap_or(order_id.order_id.unwrap().split(",").nth(2).unwrap().into());
+            .unwrap_or_else(|| order_id.order_id.unwrap().split(",").nth(2).unwrap().into());
+        let mut ret = Order {
+            symbol: String::new(),
+            order_id,
+            vol: 0.0,
+            deal_vol: 0.0,
+            deal_avg_price: 0.0,
+            fee: Fee::Quote(0.0),
+            state: OrderStatus::New,
+            side: OrderSide::Unknown,
+        };
         let account = self.wallet().account_offline(0)?;
         let subaccount = account.subaccount(0)?;
         let orders = self.indexer().accounts().get_subaccount_orders(&subaccount, None).await?;
-        let order = orders.into_iter().find(|x| x.client_id.0 == order_id.parse::<u32>().unwrap());
+        let order = orders.into_iter().find(|x| x.client_id.0 == ret.order_id.parse::<u32>().unwrap());
         let Some(order) = order else {
-            return Err(ExchangeError::OrderNotFound);
+            ret.state = OrderStatus::Canceled;
+            return Ok(ret);
         };
-        let mut ret = Order {
-            symbol: order.ticker.0,
-            order_id,
-            vol: order.size.to_f64().unwrap(),
-            deal_vol: order.total_filled.to_f64().unwrap(),
-            deal_avg_price: order.price.to_f64().unwrap(),
-            fee: Fee::Quote(0.0),
-            state: order_status(order.status),
-            side: order_side(order.side),
-        };
+        ret.symbol = order.ticker.0;
+        ret.vol = order.size.to_f64().unwrap();
+        ret.deal_vol = order.total_filled.to_f64().unwrap();
+        ret.deal_avg_price = order.price.to_f64().unwrap();
+        ret.state = order_status(order.status);
+        ret.side = order_side(order.side);
         if !ret.state.is_finished() {
             return Ok(ret);
         }
+
+        let mut vol = BigDecimal::zero();
+        let mut value = BigDecimal::zero();
+        let mut fee = BigDecimal::zero();
         let fills = self.indexer().accounts().get_subaccount_fills(&subaccount, None).await?;
-        let fill = fills.into_iter().find(|x| x.order_id.as_ref() == Some(&order.id));
-        if let Some(fill) = fill {
-            ret.deal_avg_price = fill.price.to_f64().unwrap_or(ret.deal_avg_price);
-            ret.fee = Fee::Quote(fill.fee.to_f64().unwrap_or(0.0))
+        for fill in fills {
+            if fill.order_id.as_ref() != Some(&order.id) {
+                continue;
+            }
+            vol += &fill.size;
+            value += &fill.size * &fill.price.0;
+            fee += fill.fee;
+        }
+        if !vol.is_zero() {
+            ret.deal_avg_price = (value / vol).to_f64().unwrap_or(ret.deal_avg_price);
+            ret.fee = Fee::Quote(fee.to_f64().unwrap_or(0.0));
         }
         Ok(ret)
     }
