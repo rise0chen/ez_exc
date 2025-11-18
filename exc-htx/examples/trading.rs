@@ -1,0 +1,29 @@
+use core::time::Duration;
+use exc_htx::service::Htx;
+use exc_util::symbol::{Asset, Symbol};
+use exc_util::types::order::{OrderType, PlaceOrderRequest};
+use rust_decimal::Decimal;
+use std::env::var;
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    dotenvy::dotenv()?;
+    tracing_subscriber::fmt::fmt()
+        .with_writer(std::io::stderr)
+        .with_env_filter(tracing_subscriber::EnvFilter::new(
+            std::env::var("RUST_LOG").unwrap_or_else(|_| "info,exc_htx=trace".into()),
+        ))
+        .init();
+
+    let key = serde_json::from_str(&var("HTX_KEY")?)?;
+    let mut htx = Htx::new(key);
+
+    let symbol = Symbol::spot(Asset::try_from("APE").unwrap(), Asset::usdt());
+    let order_req = PlaceOrderRequest::new(Decimal::new(50, 0), Decimal::new(2, 1), OrderType::Limit);
+    let order_id = htx.place_order(&symbol, order_req).await.unwrap();
+    tokio::time::sleep(Duration::from_secs(10)).await;
+    let order_id = htx.cancel_order(order_id).await.unwrap();
+    let order = htx.get_order(order_id).await.unwrap();
+    tracing::info!("{:?}", order);
+    Ok(())
+}
