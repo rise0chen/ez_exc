@@ -78,7 +78,7 @@ impl Dydx {
                 } else {
                     (Decimal::new(99, 2) * price).trunc_with_scale(price.scale())
                 };
-                let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(10);
+                let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(20);
                 order = order
                     .price(BigDecimal::new(price.mantissa().into(), price.scale() as i64))
                     .time_in_force(TimeInForce::Ioc)
@@ -93,14 +93,14 @@ impl Dydx {
                 order = order.time_in_force(TimeInForce::PostOnly).until(until).long_term();
             }
             OrderType::ImmediateOrCancel => {
-                let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(10);
+                let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(20);
                 order = order.time_in_force(TimeInForce::Ioc).until(until.clone()).short_term();
                 while client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))? < until {
                     tokio::time::sleep(Duration::from_secs(1)).await;
                 }
             }
             OrderType::FillOrKill => {
-                let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(10);
+                let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(20);
                 order = order.time_in_force(TimeInForce::FillOrKill).until(until.clone()).short_term();
                 while client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))? < until {
                     tokio::time::sleep(Duration::from_secs(1)).await;
