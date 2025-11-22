@@ -13,7 +13,6 @@ impl Simu {
         let depth = Depth {
             bid: orders.clone(),
             ask: orders,
-            price,
             version,
         };
         Ok(depth)

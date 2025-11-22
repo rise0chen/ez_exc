@@ -20,7 +20,6 @@ impl Bitunix {
             Depth {
                 bid: resp.bids.iter().map(|x| Order::new(x.0, x.1)).collect(),
                 ask: resp.asks.iter().map(|x| Order::new(x.0, x.1)).collect(),
-                price: (resp.asks[0].0 + resp.bids[0].0) / 2.0,
                 version: (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64,
             }
         };

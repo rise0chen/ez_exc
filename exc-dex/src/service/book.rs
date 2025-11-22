@@ -45,11 +45,6 @@ impl Dex {
         let bid_ask = Depth {
             bid,
             ask,
-            price: if self.key.pool_cfg.base_is_0 {
-                price(depth.price)
-            } else {
-                1.0 / price(depth.price)
-            } / symbol.multi_price,
             version: depth.timestamp.to::<u64>(),
         };
         Ok(bid_ask)

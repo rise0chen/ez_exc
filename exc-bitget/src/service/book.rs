@@ -18,7 +18,6 @@ impl Bitget {
             Depth {
                 bid: resp.b.iter().map(|x| Order::new(x.0, x.1)).collect(),
                 ask: resp.a.iter().map(|x| Order::new(x.0, x.1)).collect(),
-                price: (resp.a[0].0 + resp.b[0].0) / 2.0,
                 version: resp.ts,
             }
         } else {
@@ -32,7 +31,6 @@ impl Bitget {
             Depth {
                 bid: resp.b.iter().map(|x| Order::new(x.0, x.1)).collect(),
                 ask: resp.a.iter().map(|x| Order::new(x.0, x.1)).collect(),
-                price: (resp.a[0].0 + resp.b[0].0) / 2.0,
                 version: resp.ts,
             }
         };
