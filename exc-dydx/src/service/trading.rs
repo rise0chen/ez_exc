@@ -66,11 +66,12 @@ impl Dydx {
             BigDecimal::new(price.mantissa().into(), price.scale() as i64),
             BigDecimal::new(qty.mantissa().into(), qty.scale() as i64),
         );
-        match kind {
-            OrderType::Unknown => todo!(),
+        let until = match kind {
+            OrderType::Unknown => None,
             OrderType::Limit => {
                 let until = Utc::now() + TimeDelta::days(1);
                 order = order.time_in_force(TimeInForce::Unspecified).until(until).long_term();
+                None
             }
             OrderType::Market => {
                 let price = if size.is_sign_positive() {
@@ -78,35 +79,30 @@ impl Dydx {
                 } else {
                     (Decimal::new(99, 2) * price).trunc_with_scale(price.scale())
                 };
-                let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(20);
+                let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(10);
                 order = order
                     .price(BigDecimal::new(price.mantissa().into(), price.scale() as i64))
                     .time_in_force(TimeInForce::Ioc)
                     .until(until.clone())
                     .short_term();
-                while client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))? < until {
-                    tokio::time::sleep(Duration::from_secs(1)).await;
-                }
+                Some(until)
             }
             OrderType::LimitMaker => {
                 let until = Utc::now() + TimeDelta::days(1);
                 order = order.time_in_force(TimeInForce::PostOnly).until(until).long_term();
+                None
             }
             OrderType::ImmediateOrCancel => {
-                let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(20);
+                let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(10);
                 order = order.time_in_force(TimeInForce::Ioc).until(until.clone()).short_term();
-                while client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))? < until {
-                    tokio::time::sleep(Duration::from_secs(1)).await;
-                }
+                Some(until)
             }
             OrderType::FillOrKill => {
-                let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(20);
+                let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(10);
                 order = order.time_in_force(TimeInForce::FillOrKill).until(until.clone()).short_term();
-                while client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))? < until {
-                    tokio::time::sleep(Duration::from_secs(1)).await;
-                }
+                Some(until)
             }
-        }
+        };
         let (order_id, order) = order.build(custom_id).map_err(|e| (ret.clone(), e.into()))?;
         ret.order_id = Some(
             [
@@ -121,6 +117,11 @@ impl Dydx {
             .place_order(&mut account, order)
             .await
             .map_err(|e| (ret.clone(), ExchangeError::UnexpectedResponseType(e.to_string())))?;
+        if let Some(until) = until {
+            while client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))? < until {
+                tokio::time::sleep(Duration::from_secs(1)).await;
+            }
+        }
         Ok(ret)
     }
     pub async fn amend_order(&mut self, _order: AmendOrder) -> Result<OrderId, ExchangeError> {
