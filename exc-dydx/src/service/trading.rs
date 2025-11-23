@@ -108,10 +108,6 @@ impl Dydx {
             }
         }
         let (order_id, order) = order.build(custom_id).map_err(|e| (ret.clone(), e.into()))?;
-        let _tx_hash = client
-            .place_order(&mut account, order)
-            .await
-            .map_err(|e| (ret.clone(), ExchangeError::UnexpectedResponseType(e.to_string())))?;
         ret.order_id = Some(
             [
                 order_id.clob_pair_id.to_string(),
@@ -121,6 +117,10 @@ impl Dydx {
             ]
             .join(","),
         );
+        let _tx_hash = client
+            .place_order(&mut account, order)
+            .await
+            .map_err(|e| (ret.clone(), ExchangeError::UnexpectedResponseType(e.to_string())))?;
         Ok(ret)
     }
     pub async fn amend_order(&mut self, _order: AmendOrder) -> Result<OrderId, ExchangeError> {
@@ -151,9 +151,7 @@ impl Dydx {
         Ok(order_id)
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
-        let order_id = order_id
-            .custom_order_id
-            .unwrap_or_else(|| order_id.order_id.unwrap().split(",").nth(2).unwrap().into());
+        let order_id = order_id.order_id.unwrap();
         let mut ret = Order {
             symbol: String::new(),
             order_id,
@@ -164,10 +162,11 @@ impl Dydx {
             state: OrderStatus::New,
             side: OrderSide::Unknown,
         };
+        let client_id = ret.order_id.split(",").nth(2).unwrap().parse::<u32>().unwrap();
         let account = self.wallet().account_offline(0)?;
         let subaccount = account.subaccount(0)?;
         let orders = self.indexer().accounts().get_subaccount_orders(&subaccount, None).await?;
-        let order = orders.into_iter().find(|x| x.client_id.0 == ret.order_id.parse::<u32>().unwrap());
+        let order = orders.into_iter().find(|x| x.client_id.0 == client_id);
         let Some(order) = order else {
             ret.state = OrderStatus::Canceled;
             return Ok(ret);
