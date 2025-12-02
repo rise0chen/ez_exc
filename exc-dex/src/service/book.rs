@@ -32,7 +32,13 @@ impl Dex {
     pub async fn get_depth(&mut self, symbol: &Symbol, limit: u16) -> Result<Depth, ExchangeError> {
         let cex = Cex::new(self.cex, &self.rpc);
         let depth = cex.getDepth(self.pool.clone().into_underlying(), limit);
-        let depth = depth.block(BlockId::pending()).call().await.map_err(map_err)?;
+        let depth = match depth.block(BlockId::pending()).call().await {
+            Ok(depth) => depth,
+            Err(e) => {
+                self.reconnect().await?;
+                return Err(map_err(e));
+            }
+        };
         let (bid, ask) = if self.key.pool_cfg.base_is_0 {
             let bid = depth.bids.iter().filter_map(|x| map_order0(x, symbol)).collect();
             let ask = depth.asks.iter().filter_map(|x| map_order0(x, symbol)).collect();
