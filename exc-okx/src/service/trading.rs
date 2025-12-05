@@ -31,6 +31,7 @@ impl Okx {
         let req = crate::api::http::trading::PlaceOrderRequest {
             inst_id,
             ccy: "USDT",
+            trade_quote_ccy: self.key.usd.as_ref().map(|x| x.to_string()),
             td_mode: open_type.into(),
             side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
             ord_type: kind.into(),

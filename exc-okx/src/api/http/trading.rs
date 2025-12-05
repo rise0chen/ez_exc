@@ -10,6 +10,7 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct PlaceOrderRequest {
     pub inst_id: String,
     pub ccy: &'static str,
+    pub trade_quote_ccy: Option<String>,
     /// isolated：逐仓; cross：全仓; cash：非保证金
     pub td_mode: FuturesOpenType,
     /// buy：买， sell：卖
