@@ -35,3 +35,38 @@ impl Rest for GetFundingRateRequest {
         false
     }
 }
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub struct GetFundingRateHistoryRequest {
+    pub contract: String,
+    pub from: Option<u64>,
+    pub to: Option<u64>,
+    pub limit: Option<u8>,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct GetFundingRateHistoryResponse {
+    #[serde_as(as = "DisplayFromStr")]
+    pub r: f64,
+    pub t: u64,
+}
+
+impl Rest for GetFundingRateHistoryRequest {
+    type Response = Vec<GetFundingRateHistoryResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/api/v4/futures/usdt/funding_rate".into()
+    }
+    fn need_sign(&self) -> bool {
+        false
+    }
+}

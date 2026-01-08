@@ -6,6 +6,7 @@ pub mod trading;
 pub enum Request {
     GetDepth(book::GetDepthRequest),
     GetFundingRate(info::GetFundingRateRequest),
+    GetFundingRateHistory(info::GetFundingRateHistoryRequest),
     PlaceOrder(trading::PlaceOrderRequest),
     AmendOrder(trading::AmendOrderRequest),
     CancelOrder(trading::CancelOrderRequest),
@@ -19,6 +20,11 @@ impl From<book::GetDepthRequest> for Request {
 impl From<info::GetFundingRateRequest> for Request {
     fn from(value: info::GetFundingRateRequest) -> Self {
         Self::GetFundingRate(value)
+    }
+}
+impl From<info::GetFundingRateHistoryRequest> for Request {
+    fn from(value: info::GetFundingRateHistoryRequest) -> Self {
+        Self::GetFundingRateHistory(value)
     }
 }
 impl From<trading::PlaceOrderRequest> for Request {

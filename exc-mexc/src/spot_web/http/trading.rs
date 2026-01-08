@@ -2,9 +2,7 @@ use exc_util::interface::{ApiKind, Method, Rest};
 use exc_util::types::order::OrderSide;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DisplayFromStr};
 
-#[serde_as]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GetTradeRequest {
@@ -43,7 +41,6 @@ impl Rest for GetTradeRequest {
     }
 }
 
-#[serde_as]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PlaceOrderRequest {
@@ -82,7 +79,6 @@ impl Rest for PlaceOrderRequest {
     }
 }
 
-#[serde_as]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AmendOrderRequest {
@@ -116,7 +112,6 @@ impl Rest for AmendOrderRequest {
     }
 }
 
-#[serde_as]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CancelOrderRequest {

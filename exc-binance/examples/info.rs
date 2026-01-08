@@ -16,6 +16,8 @@ async fn main() -> anyhow::Result<()> {
     let mut binance = Binance::new(key);
 
     let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
+    let info = binance.get_funding_rate_history(&symbol, 2).await.unwrap();
+    tracing::info!("{:?}", info);
     let info = binance.get_funding_rate(&symbol).await.unwrap();
     tracing::info!("{:?}", info);
     Ok(())

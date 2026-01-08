@@ -8,3 +8,10 @@ pub struct GetFundingRateRequest {
     pub symbol: Symbol,
     pub ch: Sender<Result<FundingRate, ExchangeError>>,
 }
+
+#[derive(Debug)]
+pub struct GetFundingRateHistoryRequest {
+    pub symbol: Symbol,
+    pub day: u8,
+    pub ch: Sender<Result<Vec<FundingRate>, ExchangeError>>,
+}

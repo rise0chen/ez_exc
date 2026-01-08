@@ -1,8 +1,5 @@
 //! Exc-gate: Gate exchange services.
 
-#[macro_use]
-extern crate tracing;
-
 pub mod futures_api;
 pub mod futures_web;
 pub mod key;
