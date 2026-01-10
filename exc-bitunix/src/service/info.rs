@@ -42,7 +42,7 @@ impl Bitunix {
         Ok(resp
             .into_iter()
             .map(|x| FundingRate {
-                rate: x.settle_funding_rate,
+                rate: x.settle_funding_rate / 100.0,
                 time: (x.settle_time.unix_timestamp_nanos() / 1_000_000) as u64,
                 interval,
             })
