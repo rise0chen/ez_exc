@@ -59,7 +59,7 @@ pub struct GetPositionResponse {
     pub pos: f64,
     pub pos_side: String,
     #[serde_as(as = "DisplayFromStr")]
-    pub open_avg_px: f64,
+    pub avg_px: f64,
 }
 
 impl Rest for GetPositionRequest {

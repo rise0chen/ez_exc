@@ -29,10 +29,10 @@ impl Okx {
             for x in &resp {
                 if x.pos_side == "short" {
                     short_size += x.pos;
-                    short_val += x.pos * x.open_avg_px;
+                    short_val += x.pos * x.avg_px;
                 } else {
                     long_size = x.pos;
-                    long_val += x.pos * x.open_avg_px;
+                    long_val += x.pos * x.avg_px;
                 }
             }
             Ok((
