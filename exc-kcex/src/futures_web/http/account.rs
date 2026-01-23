@@ -42,6 +42,7 @@ pub struct Asset {
     pub hold_vol: f64,
     ///  1多 2空
     pub position_type: u8,
+    pub open_avg_price: f64,
 }
 
 #[derive(Debug, Deserialize)]

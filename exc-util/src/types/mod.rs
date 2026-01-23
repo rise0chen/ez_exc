@@ -1,3 +1,4 @@
+pub mod account;
 pub mod book;
 pub mod earn;
 pub mod info;

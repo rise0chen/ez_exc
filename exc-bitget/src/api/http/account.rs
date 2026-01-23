@@ -55,6 +55,8 @@ pub struct Position {
     #[serde_as(as = "DisplayFromStr")]
     pub total: f64,
     pub pos_side: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub avg_price: f64,
 }
 
 #[derive(Debug, Deserialize)]

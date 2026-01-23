@@ -43,6 +43,8 @@ pub struct GetPositionRequest {
 pub struct Asset {
     #[serde_as(as = "DisplayFromStr")]
     pub position_amt: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub entry_price: f64,
 }
 
 #[derive(Debug, Deserialize)]

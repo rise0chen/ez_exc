@@ -2,7 +2,7 @@ use num_enum::{FromPrimitive, IntoPrimitive};
 use serde::{Deserialize, Serialize};
 
 #[derive(FromPrimitive, IntoPrimitive)]
-#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq)]
 #[repr(i8)]
 pub enum OrderSide {
     #[num_enum(default)]

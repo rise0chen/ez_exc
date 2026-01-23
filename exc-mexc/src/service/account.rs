@@ -1,6 +1,7 @@
 use super::Mexc;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
+use exc_util::types::account::Position;
 use tower::ServiceExt;
 
 impl Mexc {
@@ -10,50 +11,51 @@ impl Mexc {
         let resp = self.oneshot(req).await?;
         Ok(resp.equity)
     }
-    pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(f64, f64), ExchangeError> {
-        let (mut long, mut short) = (0.0, 0.0);
+    pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
         if symbol.is_spot() {
             use crate::spot_api::http::account::GetBalanceRequest;
             let req = GetBalanceRequest;
             let resp = self.oneshot(req).await?;
-            long = resp
+            let size = resp
                 .balances
                 .iter()
                 .find(|x| x.asset == symbol.base.as_str())
                 .map(|x| x.free)
                 .unwrap_or(0.0);
+            Ok((Position::new(size), Position::default()))
         } else {
             use crate::futures_web::http::account::GetPositionRequest;
             let req = GetPositionRequest { symbol: symbol_id };
             let resp = self.oneshot(req).await?.0;
+            let (mut short_size, mut short_val) = (0.0, 0.0);
+            let (mut long_size, mut long_val) = (0.0, 0.0);
             for x in &resp {
                 if x.position_type == 2 {
-                    short += x.hold_vol
+                    short_size += x.hold_vol;
+                    short_val += x.hold_vol * x.open_avg_price;
                 } else {
-                    long += x.hold_vol
+                    long_size = x.hold_vol;
+                    long_val += x.hold_vol * x.open_avg_price;
                 }
             }
+            Ok((
+                Position {
+                    size: long_size,
+                    price: long_val / long_size,
+                },
+                Position {
+                    size: short_size,
+                    price: short_val / short_size,
+                },
+            ))
         }
-        Ok((long, short))
     }
-    pub async fn get_position(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
-        let symbol_id = crate::symnol::symbol_id(symbol);
-        let position = if symbol.is_spot() {
-            use crate::spot_api::http::account::GetBalanceRequest;
-            let req = GetBalanceRequest;
-            let resp = self.oneshot(req).await?;
-            resp.balances
-                .iter()
-                .find(|x| x.asset == symbol.base.as_str())
-                .map(|x| x.free)
-                .unwrap_or(0.0)
-        } else {
-            use crate::futures_web::http::account::GetPositionRequest;
-            let req = GetPositionRequest { symbol: symbol_id };
-            let resp = self.oneshot(req).await?.0;
-            resp.iter().map(|x| if x.position_type == 2 { -x.hold_vol } else { x.hold_vol }).sum()
-        };
-        Ok(position)
+    pub async fn get_position(&mut self, symbol: &Symbol) -> Result<Position, ExchangeError> {
+        self.get_positions(symbol).await.map(|(long, short)| {
+            let size = long.size - short.size;
+            let price = (long.size * long.price + short.size * short.price) / (long.size + short.size);
+            Position { size, price }
+        })
     }
 }

@@ -42,6 +42,7 @@ pub struct GetPositionRequest {
 #[serde(rename_all = "snake_case")]
 pub struct GetPositionResponse {
     pub size: Option<f64>,
+    pub entry_price: Option<f64>,
 }
 
 impl Rest for GetPositionRequest {

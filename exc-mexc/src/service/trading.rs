@@ -57,21 +57,21 @@ impl Mexc {
             };
             self.oneshot(req).await.map(|resp| resp.0)
         } else {
-            let (long, short) = self.get_positions(symbol).await.unwrap_or((0.0, 0.0));
+            let (long, short) = self.get_positions(symbol).await.unwrap_or_default();
             use crate::futures_web::http::trading::PlaceOrderRequest;
             let req = PlaceOrderRequest {
                 symbol: symbol_id,
                 external_oid: Some(custom_id),
                 side: if size.is_sign_positive() {
                     // 买
-                    if size.abs().to_f64().unwrap() > short {
+                    if size.abs().to_f64().unwrap() > short.size {
                         OrderSide::Buy
                     } else {
                         OrderSide::CloseSell
                     }
                 } else {
                     // 卖
-                    if size.abs().to_f64().unwrap() > long {
+                    if size.abs().to_f64().unwrap() > long.size {
                         OrderSide::Sell
                     } else {
                         OrderSide::CloseBuy

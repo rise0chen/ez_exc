@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub struct GetOrderRequest {
     pub client_id: Option<String>,
     pub order_id: Option<String>,
@@ -13,7 +13,7 @@ pub struct GetOrderRequest {
 
 #[serde_as]
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub struct GetOrderResponse {
     pub symbol: String,
     pub order_id: String,
@@ -51,7 +51,7 @@ impl Rest for GetOrderRequest {
 
 #[serde_as]
 #[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub struct PlaceOrderRequest {
     pub symbol: String,
     pub client_id: Option<String>,
@@ -64,7 +64,7 @@ pub struct PlaceOrderRequest {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub struct PlaceOrderResponse {
     pub order_id: String,
 }
@@ -88,14 +88,14 @@ impl Rest for PlaceOrderRequest {
 
 #[serde_as]
 #[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub struct CancelOrderRequest {
     pub symbol: String,
     pub order_list: Vec<GetOrderRequest>,
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub struct CancelOrderResponse {}
 
 impl Rest for CancelOrderRequest {

@@ -71,6 +71,8 @@ pub struct Position {
     #[serde_as(as = "DisplayFromStr")]
     pub size: f64,
     pub side: OrderSide,
+    #[serde_as(as = "DisplayFromStr")]
+    pub avg_price: f64,
 }
 
 #[serde_as]

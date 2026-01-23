@@ -52,6 +52,8 @@ pub struct Asset {
     pub qty: f64,
     ///  2多 1空
     pub side: OrderSide,
+    #[serde_as(as = "DisplayFromStr")]
+    pub avg_open_price: f64,
 }
 
 #[derive(Debug, Deserialize)]

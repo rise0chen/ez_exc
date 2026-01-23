@@ -3,14 +3,14 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub struct GetFundingRateRequest {
     pub symbol: String,
 }
 
 #[serde_as]
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub struct GetFundingRateResponse {
     #[serde_as(as = "DisplayFromStr")]
     pub funding_rate: f64,
@@ -36,7 +36,7 @@ impl Rest for GetFundingRateRequest {
 }
 
 #[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub struct GetFundingRateHistoryRequest {
     pub symbol: String,
     pub limit: u8,
@@ -44,7 +44,7 @@ pub struct GetFundingRateHistoryRequest {
 
 #[serde_as]
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub struct GetFundingRateHistoryResponse {
     #[serde_as(as = "DisplayFromStr")]
     pub funding_rate: f64,
