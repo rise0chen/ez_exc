@@ -15,7 +15,7 @@ impl Bitget {
             size,
             price,
             kind,
-            leverage: _,
+            leverage,
             open_type: _,
         } = data;
         let custom_id = format!(
@@ -34,7 +34,7 @@ impl Bitget {
         let order_id = if symbol.is_spot() {
             use crate::api::http::trading::PlaceOrderRequest;
             let req = PlaceOrderRequest {
-                category: "SPOT",
+                category: if leverage == 1.0 { "SPOT" } else { "MARGIN" },
                 symbol: symbol_id,
                 client_oid: Some(custom_id),
                 order_type: kind.into(),

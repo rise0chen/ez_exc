@@ -19,6 +19,7 @@ pub struct PlaceOrderRequest {
     pub ord_type: OrderType,
     pub sz: Decimal,
     pub px: Decimal,
+    pub px_amend_type: &'static str,
     pub cl_ord_id: Option<String>,
 }
 

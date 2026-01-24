@@ -37,6 +37,7 @@ impl Okx {
             ord_type: kind.into(),
             sz: size.abs(),
             px: price,
+            px_amend_type: "1",
             cl_ord_id: Some(custom_id),
         };
         let order_id = self.oneshot(req).await.map(|mut resp| resp.pop().map(|x| x.ord_id));
