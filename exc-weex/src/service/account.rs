@@ -33,11 +33,11 @@ impl Weex {
             Ok((
                 Position {
                     size: long_size,
-                    price: if long_size ==0.0{0.0}else{long_val / long_size},
+                    price: if long_size == 0.0 { 0.0 } else { long_val / long_size },
                 },
                 Position {
                     size: short_size,
-                    price: if short_size ==0.0{0.0}else{short_val / short_size},
+                    price: if short_size == 0.0 { 0.0 } else { short_val / short_size },
                 },
             ))
         }
@@ -45,7 +45,11 @@ impl Weex {
     pub async fn get_position(&mut self, symbol: &Symbol) -> Result<Position, ExchangeError> {
         self.get_positions(symbol).await.map(|(long, short)| {
             let size = long.size - short.size;
-            let price = if (long.size + short.size)==0.0{0.0}else{(long.size * long.price + short.size * short.price) / (long.size + short.size)};
+            let price = if (long.size + short.size) == 0.0 {
+                0.0
+            } else {
+                (long.size * long.price + short.size * short.price) / (long.size + short.size)
+            };
             Position { size, price }
         })
     }
