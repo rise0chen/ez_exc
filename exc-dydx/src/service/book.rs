@@ -22,8 +22,8 @@ impl Dydx {
         let mut markets = self.indexer().markets().get_perpetual_markets(opts).await?;
         let price = markets.remove(&symbol_id).unwrap().oracle_price;
         let price = price.map(|x| x.to_f64().unwrap()).unwrap_or_default();
-        let bid_order = [Order::new(price * 0.999, 50.0 / price)];
-        let ask_order = [Order::new(price * 1.001, 50.0 / price)];
+        let bid_order = [Order::new(price * 0.99, 150.0 / price)];
+        let ask_order = [Order::new(price * 1.01, 150.0 / price)];
 
         Ok(Depth {
             bid: bid_order.into_iter().chain(resp.bids.iter().map(order)).collect(),

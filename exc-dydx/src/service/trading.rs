@@ -93,9 +93,9 @@ impl Dydx {
                 None
             }
             OrderType::ImmediateOrCancel => {
-                let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(10);
-                order = order.time_in_force(TimeInForce::Ioc).until(until.clone()).short_term();
-                Some(until)
+                let until = Utc::now() + TimeDelta::seconds(15);
+                order = order.time_in_force(TimeInForce::Unspecified).until(until).long_term();
+                None
             }
             OrderType::FillOrKill => {
                 let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(10);
