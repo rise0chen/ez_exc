@@ -11,14 +11,13 @@ impl Bitunix {
             return Ok(FundingRate::default());
         }
         let symbol_id = crate::symnol::symbol_id(symbol);
-        use crate::futures_web::http::info::GetFundingRateRequest;
+        use crate::futures_api::http::info::GetFundingRateRequest;
         let req = GetFundingRateRequest { symbol: symbol_id };
         let resp = self.oneshot(req).await?;
-        let interval = 24 * 60 * 60 * 1000 / resp.funding_times.len() as u64;
-        let now = (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64;
+        let interval = resp.funding_interval * 60 * 60 * 1000;
         Ok(FundingRate {
-            rate: resp.funding_rate_next,
-            time: ((now / interval) + 1) * interval,
+            rate: resp.funding_rate / 100.0,
+            time: resp.next_funding_time,
             interval,
         })
     }
