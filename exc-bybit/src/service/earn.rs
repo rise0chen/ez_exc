@@ -8,13 +8,17 @@ impl Bybit {
     pub async fn get_st_rate(&mut self, symbol: &Symbol) -> Result<StRate, ExchangeError> {
         use crate::api::http::earn::GetStRateRequest;
         let coin: String = match symbol.base.as_str() {
+            "PAXG" => {
+                return Ok(StRate {
+                    rate: 1.01,
+                    start_time: u64::MAX,
+                    apy: 0.0,
+                })
+            }
             "BBSOL" => "BBSOL".into(),
             _ => return Err(ExchangeError::OrderNotFound),
         };
-        let req = GetStRateRequest {
-            category: "OnChain".into(),
-            coin,
-        };
+        let req = GetStRateRequest { category: "OnChain", coin };
         let Some(resp) = self.oneshot(req).await?.list.pop() else {
             return Err(ExchangeError::OrderNotFound);
         };
