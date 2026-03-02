@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Debug, Serialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct GetDepthRequest {
     pub symbol: String,
     pub limit: u16,
@@ -11,12 +11,12 @@ pub struct GetDepthRequest {
 
 #[serde_as]
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 /// price, size
 pub struct Order(#[serde_as(as = "DisplayFromStr")] pub f64, #[serde_as(as = "DisplayFromStr")] pub f64);
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct GetDepthResponse {
     pub asks: Vec<Order>,
     pub bids: Vec<Order>,
@@ -32,7 +32,7 @@ impl Rest for GetDepthRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/api/v1/futures/market/depth".into()
+        "/capi/v2/market/depth".into()
     }
     fn need_sign(&self) -> bool {
         false

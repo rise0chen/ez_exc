@@ -4,12 +4,12 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Debug, Serialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct GetBalanceRequest {}
 
 #[serde_as]
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct GetBalanceResponse {
     #[serde_as(as = "DisplayFromStr")]
     pub available: f64,
@@ -37,14 +37,14 @@ impl Rest for GetBalanceRequest {
 }
 
 #[derive(Debug, Serialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct GetPositionRequest {
     pub symbol: String,
 }
 
 #[serde_as]
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct Asset {
     #[serde_as(as = "DisplayFromStr")]
     pub size: f64,
@@ -56,7 +56,7 @@ pub struct Asset {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct GetPositionResponse(pub Vec<Asset>);
 
 impl Rest for GetPositionRequest {
