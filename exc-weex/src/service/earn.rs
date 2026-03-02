@@ -6,9 +6,16 @@ use exc_util::types::earn::StRate;
 impl Weex {
     pub async fn get_st_rate(&mut self, symbol: &Symbol) -> Result<StRate, ExchangeError> {
         let _coin: String = match symbol.base.as_str() {
+            "XAUT" => {
+                return Ok(StRate {
+                    rate: 0.997,
+                    start_time: 0,
+                    apy: 0.0,
+                })
+            }
             "PAXG" => {
                 return Ok(StRate {
-                    rate: 1.01,
+                    rate: 1.006,
                     start_time: 0,
                     apy: 0.0,
                 })

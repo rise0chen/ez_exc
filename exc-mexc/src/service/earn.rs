@@ -8,9 +8,16 @@ impl Mexc {
     pub async fn get_st_rate(&mut self, symbol: &Symbol) -> Result<StRate, ExchangeError> {
         use crate::spot_web::http::earn::GetStRateRequest;
         let project_no: String = match symbol.base.as_str() {
+            "XAUT" => {
+                return Ok(StRate {
+                    rate: 0.997,
+                    start_time: 0,
+                    apy: 0.0,
+                })
+            }
             "PAXG" => {
                 return Ok(StRate {
-                    rate: 1.01,
+                    rate: 1.006,
                     start_time: 0,
                     apy: 0.0,
                 })
