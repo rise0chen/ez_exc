@@ -1,6 +1,6 @@
 use super::Xt;
+use crate::futures_api::types::*;
 use exc_core::ExchangeError;
-use exc_util::types::order::OrderSide;
 use exc_util::{symbol::Symbol, types::account::Position};
 use tower::ServiceExt;
 
@@ -9,7 +9,7 @@ impl Xt {
         use crate::futures_api::http::account::GetBalanceRequest;
         let req = GetBalanceRequest { coin: "usdt".into() };
         let resp = self.oneshot(req).await?;
-        Ok(resp.available_balance)
+        Ok(resp.wallet_balance)
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
@@ -22,7 +22,7 @@ impl Xt {
             let (mut short_size, mut short_val) = (0.0, 0.0);
             let (mut long_size, mut long_val) = (0.0, 0.0);
             for x in &resp {
-                if matches!(x.position_side, OrderSide::Sell) {
+                if matches!(x.position_side, PositionSide::Short) {
                     short_size += x.position_size;
                     short_val += x.position_size * x.entry_price;
                 } else {

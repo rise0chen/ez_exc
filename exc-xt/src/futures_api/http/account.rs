@@ -1,4 +1,4 @@
-use exc_util::types::order::OrderSide;
+use super::super::types::*;
 use exc_util::interface::{ApiKind, Method, Rest};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
@@ -14,7 +14,7 @@ pub struct GetBalanceRequest {
 #[serde(rename_all = "camelCase")]
 pub struct GetBalanceResponse {
     #[serde_as(as = "DisplayFromStr")]
-    pub available_balance: f64,
+    pub wallet_balance: f64,
 }
 
 impl Rest for GetBalanceRequest {
@@ -44,8 +44,9 @@ pub struct GetPositionRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Asset {
+    #[serde_as(as = "DisplayFromStr")]
     pub position_size: f64,
-    pub position_side: OrderSide,
+    pub position_side: PositionSide,
     #[serde_as(as = "DisplayFromStr")]
     pub entry_price: f64,
 }

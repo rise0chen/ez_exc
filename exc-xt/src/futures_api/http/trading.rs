@@ -1,6 +1,6 @@
 use super::super::types::*;
-use exc_util::types::order::OrderSide;
 use exc_util::interface::{ApiKind, Method, Rest};
+use exc_util::types::order::OrderSide;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
@@ -19,6 +19,8 @@ pub struct GetOrderResponse {
     pub symbol: String,
     pub order_id: String,
     pub client_id: Option<String>,
+    pub contract_size: f64,
+    pub leverage: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub price: f64,
     #[serde_as(as = "DisplayFromStr")]
