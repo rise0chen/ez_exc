@@ -10,14 +10,14 @@ impl Mexc {
         let project_no: String = match symbol.base.as_str() {
             "XAUT" => {
                 return Ok(StRate {
-                    rate: 0.997,
+                    rate: 0.995,
                     start_time: 0,
                     apy: 0.0,
                 })
             }
             "PAXG" => {
                 return Ok(StRate {
-                    rate: 1.006,
+                    rate: 1.003,
                     start_time: 0,
                     apy: 0.0,
                 })
