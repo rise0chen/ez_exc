@@ -2,7 +2,6 @@ use super::Htx;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{Fee, Order, OrderId, OrderSide, OrderType, PlaceOrderRequest};
-use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use tower::ServiceExt;
 
@@ -16,14 +15,9 @@ impl Htx {
             price,
             kind,
             leverage: _,
-            open_type: _,
+            open_type,
         } = data;
-        let custom_id = format!(
-            "t-{:08x?}{:04x?}{:016x?}",
-            price.to_f32().unwrap().ln().to_bits(),
-            price.to_i16().unwrap().to_be(),
-            time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64
-        );
+        let custom_id = format!("{}", time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64);
         let mut ret = OrderId {
             symbol: symbol.clone(),
             order_id: None,
@@ -52,7 +46,28 @@ impl Htx {
             };
             self.oneshot(req).await.map(|resp| resp.data)
         } else {
-            todo!()
+            use crate::futures_api::http::trading::PlaceOrderRequest;
+            use crate::futures_api::types::OrderSide;
+            let req = PlaceOrderRequest {
+                contract_code: symbol_id,
+                client_order_id: Some(custom_id),
+                margin_mode: open_type.into(),
+                side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
+                position_side: "both",
+                r#type: kind.into(),
+                time_in_force: kind.into(),
+                volume: size.abs(),
+                price: if kind == OrderType::Market {
+                    if size.is_sign_positive() {
+                        (Decimal::new(101, 2) * price).trunc_with_scale(price.scale())
+                    } else {
+                        (Decimal::new(99, 2) * price).trunc_with_scale(price.scale())
+                    }
+                } else {
+                    price
+                },
+            };
+            self.oneshot(req).await.map(|resp| resp.order_id)
         };
         match order_id {
             Ok(id) => {
@@ -80,7 +95,17 @@ impl Htx {
                 custom_order_id,
             }
         } else {
-            todo!()
+            let req = crate::futures_api::http::trading::CancelOrderRequest {
+                contract_code: crate::symnol::symbol_id(&symbol),
+                order_id,
+                client_order_id: custom_order_id.clone(),
+            };
+            let resp = self.oneshot(req).await?;
+            OrderId {
+                symbol,
+                order_id: Some(resp.order_id),
+                custom_order_id,
+            }
         };
         Ok(order_id)
     }
@@ -113,7 +138,23 @@ impl Htx {
                 side: resp.r#type.into(),
             }
         } else {
-            todo!()
+            use crate::futures_api::http::trading::GetOrderRequest;
+            let req = GetOrderRequest {
+                contract_code: crate::symnol::symbol_id(&symbol),
+                order_id,
+                client_order_id: custom_order_id,
+            };
+            let resp = self.oneshot(req).await?;
+            Order {
+                symbol: resp.contract_code,
+                order_id: resp.order_id.to_string(),
+                vol: resp.volume.abs(),
+                deal_vol: (resp.trade_volume).abs(),
+                deal_avg_price: resp.trade_avg_price,
+                fee: Fee::Quote(resp.fee),
+                state: resp.state.into(),
+                side: resp.side.into(),
+            }
         };
         Ok(order)
     }

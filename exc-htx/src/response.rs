@@ -13,12 +13,13 @@ pub struct FullHttpResponse<T> {
     pub msg: Option<String>,
     /// Data.
     #[serde(flatten)]
+    pub d: Option<T>,
     pub data: Option<T>,
 }
 impl<T> From<FullHttpResponse<T>> for Result<T, ExchangeError> {
     fn from(value: FullHttpResponse<T>) -> Self {
         if value.code == Some(0) || value.code == Some(200) || value.status.as_deref() == Some("ok") || value.status.as_deref() == Some("success") {
-            value.data.ok_or(ExchangeError::UnexpectedResponseType(String::new()))
+            value.data.or(value.d).ok_or(ExchangeError::UnexpectedResponseType(String::new()))
         } else {
             Err(ExchangeError::Api(anyhow::anyhow!(
                 "[{}]: {}",

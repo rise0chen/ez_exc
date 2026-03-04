@@ -21,7 +21,17 @@ impl Htx {
                 version: resp.version,
             }
         } else {
-            todo!();
+            use crate::futures_api::http::book::GetDepthRequest;
+            let req = GetDepthRequest {
+                contract_code: symbol_id,
+                r#type: "step6",
+            };
+            let resp = self.oneshot(req).await?.tick;
+            Depth {
+                bid: resp.bids.iter().map(|x| Order::new(x.0, x.1)).collect(),
+                ask: resp.asks.iter().map(|x| Order::new(x.0, x.1)).collect(),
+                version: resp.ts,
+            }
         };
         Ok(bid_ask)
     }

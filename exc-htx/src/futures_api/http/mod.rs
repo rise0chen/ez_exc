@@ -1,3 +1,8 @@
+pub mod account;
+pub mod book;
+pub mod info;
+pub mod trading;
+
 use crate::key::{ApiKind, Key, ParamsFormat};
 use exc_core::transport::http::{Body, Request};
 use exc_util::interface::{Method, Rest};
@@ -13,7 +18,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
     let body = match req.method() {
         Method::GET | Method::DELETE => {
             let query_str = if req.need_sign() {
-                let signature = key.sign(req, ParamsFormat::Common, ApiKind::SpotApi)?;
+                let signature = key.sign(req, ParamsFormat::Common, ApiKind::FuturesApi)?;
                 serde_urlencoded::to_string(signature)?
             } else {
                 serde_urlencoded::to_string(req)?
@@ -24,7 +29,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
         }
         _ => {
             if req.need_sign() {
-                let signature = key.sign(req, ParamsFormat::Common, ApiKind::SpotApi)?;
+                let signature = key.sign(req, ParamsFormat::Common, ApiKind::FuturesApi)?;
                 let query_str = serde_urlencoded::to_string(signature)?;
                 uri.push('?');
                 uri.push_str(&query_str);
