@@ -70,11 +70,11 @@ impl From<OrderStatus> for exc_util::types::order::OrderStatus {
     fn from(value: OrderStatus) -> Self {
         match value {
             OrderStatus::Unknown => Self::Unknown,
-            OrderStatus::New | OrderStatus::Expired => Self::New,
+            OrderStatus::New => Self::New,
             OrderStatus::Filled => Self::Filled,
             OrderStatus::PartiallyFilled => Self::PartiallyFilled,
             OrderStatus::PartiallyCanceled => Self::PartiallyCanceled,
-            OrderStatus::Canceled => Self::Canceled,
+            OrderStatus::Canceled | OrderStatus::Expired => Self::Canceled,
         }
     }
 }
