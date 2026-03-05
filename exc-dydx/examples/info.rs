@@ -21,5 +21,7 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("{:?}", info);
     let info = dydx.get_funding_rate(&symbol).await.unwrap();
     tracing::info!("{:?}", info);
+    let info = dydx.get_index_price(&symbol).await.unwrap();
+    tracing::info!("{:?}", info);
     Ok(())
 }

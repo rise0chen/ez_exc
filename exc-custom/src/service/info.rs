@@ -7,6 +7,10 @@ use tokio::sync::oneshot;
 use tower::ServiceExt;
 
 impl Custom {
+    pub async fn get_index_price(&mut self, _symbol: &Symbol) -> Result<f64, ExchangeError> {
+        Ok(0.0)
+    }
+
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {
         let (tx, rx) = oneshot::channel();
         let req = GetFundingRateRequest {

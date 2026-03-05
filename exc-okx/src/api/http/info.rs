@@ -4,6 +4,37 @@ use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct GetIndexPriceRequest {
+    pub inst_id: String,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetIndexPriceResponse {
+    #[serde_as(as = "DisplayFromStr")]
+    pub idx_px: f64,
+}
+
+impl Rest for GetIndexPriceRequest {
+    type Response = Vec<GetIndexPriceResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::Common
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/api/v5/market/index-tickers".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        false
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GetFundingRateRequest {
     pub inst_id: String,
 }

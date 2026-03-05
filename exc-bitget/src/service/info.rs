@@ -6,6 +6,20 @@ use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
 
 impl Bitget {
+    pub async fn get_index_price(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
+        if symbol.is_spot() {
+            return Ok(0.0);
+        }
+        let symbol_id = crate::symnol::symbol_id(symbol);
+        use crate::api::http::info::GetIndexPriceRequest;
+        let req = GetIndexPriceRequest {
+            symbol: symbol_id,
+            product_type: "USDT-FUTURES",
+        };
+        let resp = self.oneshot(req).await?.pop();
+        resp.map(|resp| resp.index_price).ok_or(ExchangeError::OrderNotFound)
+    }
+
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {
         if symbol.is_spot() {
             return Ok(FundingRate::default());

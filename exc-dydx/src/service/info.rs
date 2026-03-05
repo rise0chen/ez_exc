@@ -8,6 +8,12 @@ use exc_util::types::info::FundingRate;
 use time::OffsetDateTime;
 
 impl Dydx {
+    pub async fn get_index_price(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
+        let symbol_id = crate::symnol::symbol_id(symbol);
+        let resp = self.indexer().markets().get_perpetual_market(&symbol_id).await?;
+        Ok(resp.oracle_price.map(|x| x.to_f64().unwrap()).unwrap_or(0.0))
+    }
+
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
         let resp = self.indexer().markets().get_perpetual_market(&symbol_id).await?;

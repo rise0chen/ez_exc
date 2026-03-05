@@ -13,6 +13,8 @@ pub struct GetFundingRateRequest {
 #[serde(rename_all = "camelCase")]
 pub struct GetFundingRateResponse {
     #[serde_as(as = "DisplayFromStr")]
+    pub mark_price: f64,
+    #[serde_as(as = "DisplayFromStr")]
     pub funding_rate: f64,
     pub funding_interval: u64,
     #[serde_as(as = "DisplayFromStr")]

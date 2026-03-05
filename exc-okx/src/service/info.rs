@@ -6,6 +6,19 @@ use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
 
 impl Okx {
+    pub async fn get_index_price(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
+        if symbol.is_spot() {
+            return Ok(0.0);
+        }
+        let mut symbol = symbol.clone();
+        symbol.kind = exc_util::symbol::SymbolKind::Spot;
+        let symbol_id = crate::symnol::symbol_id(&symbol);
+        use crate::api::http::info::GetIndexPriceRequest;
+        let req = GetIndexPriceRequest { inst_id: symbol_id };
+        let resp = self.oneshot(req).await?.pop();
+        resp.map(|resp| resp.idx_px).ok_or(ExchangeError::OrderNotFound)
+    }
+
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {
         if symbol.is_spot() {
             return Ok(FundingRate::default());

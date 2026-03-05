@@ -14,6 +14,8 @@ pub struct GetFundingRateRequest {
 #[serde(rename_all = "snake_case")]
 pub struct GetFundingRateResponse {
     #[serde_as(as = "DisplayFromStr")]
+    pub index_price: f64,
+    #[serde_as(as = "DisplayFromStr")]
     pub funding_rate: f64,
     pub funding_next_apply: u64,
     pub funding_interval: u64,

@@ -20,5 +20,7 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("{:?}", info);
     let info = binance.get_funding_rate(&symbol).await.unwrap();
     tracing::info!("{:?}", info);
+    let info = binance.get_index_price(&symbol).await.unwrap();
+    tracing::info!("{:?}", info);
     Ok(())
 }
