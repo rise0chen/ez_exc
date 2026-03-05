@@ -13,6 +13,13 @@ impl Gate {
                     apy: 0.0,
                 })
             }
+            "XPD" => {
+                return Ok(StRate {
+                    rate: 0.995,
+                    start_time: 0,
+                    apy: 0.0,
+                })
+            }
             "PAXG" => {
                 return Ok(StRate {
                     rate: 1.003,
