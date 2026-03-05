@@ -16,6 +16,7 @@ members = [
   "exc-bitunix",
   "exc-weex",
   "exc-xt",
+  "exc-aster",
 ]
 resolver = "2"
 
