@@ -41,6 +41,7 @@ impl<Req: Rest> Service<Req> for Aster {
             ApiKind::FuturesApi => crate::futures_api::http::req_to_http(&req, &self.key),
             _ => unreachable!(),
         };
+        tracing::trace!(?req, "http request;");
         match req {
             Ok(req) => self
                 .http
