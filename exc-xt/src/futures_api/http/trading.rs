@@ -18,7 +18,7 @@ pub struct GetOrderRequest {
 pub struct GetOrderResponse {
     pub symbol: String,
     pub order_id: String,
-    pub client_id: Option<String>,
+    pub client_order_id: Option<String>,
     pub contract_size: f64,
     pub leverage: f64,
     #[serde_as(as = "DisplayFromStr")]

@@ -62,7 +62,7 @@ pub enum OrderStatus {
     Filled = 3,
     PartFilled = 2,
     Canceled = 4,
-    PartFilledCanceled = 5,
+    PartiallyCanceled = 5,
     Init = 10,
 }
 impl From<OrderStatus> for exc_util::types::order::OrderStatus {
@@ -72,7 +72,7 @@ impl From<OrderStatus> for exc_util::types::order::OrderStatus {
             OrderStatus::New | OrderStatus::Init => Self::New,
             OrderStatus::Filled => Self::Filled,
             OrderStatus::PartFilled => Self::PartiallyFilled,
-            OrderStatus::PartFilledCanceled => Self::PartiallyCanceled,
+            OrderStatus::PartiallyCanceled => Self::PartiallyCanceled,
             OrderStatus::Canceled => Self::Canceled,
         }
     }
