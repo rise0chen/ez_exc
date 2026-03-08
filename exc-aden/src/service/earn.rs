@@ -1,9 +1,9 @@
-use super::Gate;
+use super::Aden;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::earn::StRate;
 
-impl Gate {
+impl Aden {
     pub async fn get_st_rate(&mut self, symbol: &Symbol) -> Result<StRate, ExchangeError> {
         let _coin: String = match symbol.base.as_str() {
             "XAUT" => {

@@ -17,6 +17,7 @@ members = [
   "exc-weex",
   "exc-xt",
   "exc-aster",
+  "exc-aden",
 ]
 resolver = "2"
 
