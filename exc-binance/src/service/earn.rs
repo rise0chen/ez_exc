@@ -6,16 +6,9 @@ use exc_util::types::earn::StRate;
 impl Binance {
     pub async fn get_st_rate(&mut self, symbol: &Symbol) -> Result<StRate, ExchangeError> {
         let _coin: String = match symbol.base.as_str() {
-            "XAUT" => {
+            "" => {
                 return Ok(StRate {
-                    rate: 0.995,
-                    start_time: 0,
-                    apy: 0.0,
-                })
-            }
-            "PAXG" => {
-                return Ok(StRate {
-                    rate: 1.003,
+                    rate: 1.0,
                     start_time: 0,
                     apy: 0.0,
                 })
