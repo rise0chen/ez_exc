@@ -18,9 +18,11 @@ async fn main() -> anyhow::Result<()> {
     let mut symbol = Symbol::spot(Asset::try_from("ETH").unwrap(), Asset::usd());
     dydx.perfect_symbol(&mut symbol).await.unwrap();
     let info = dydx.get_funding_rate_history(&symbol, 2).await.unwrap();
+    assert!(info[0].time > info[1].time + 58 * 60 * 1000);
     tracing::info!("{:?}", info);
-    let info = dydx.get_funding_rate(&symbol).await.unwrap();
-    tracing::info!("{:?}", info);
+    let rate = dydx.get_funding_rate(&symbol).await.unwrap();
+    assert!(rate.time > info[0].time + 58 * 60 * 1000);
+    tracing::info!("{:?}", rate);
     let info = dydx.get_index_price(&symbol).await.unwrap();
     tracing::info!("{:?}", info);
     Ok(())

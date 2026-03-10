@@ -17,9 +17,11 @@ async fn main() -> anyhow::Result<()> {
 
     let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
     let info = kcex.get_funding_rate_history(&symbol, 2).await.unwrap();
+    assert!(info[0].time > info[1].time + 58 * 60 * 1000);
     tracing::info!("{:?}", info);
-    let info = kcex.get_funding_rate(&symbol).await.unwrap();
-    tracing::info!("{:?}", info);
+    let rate = kcex.get_funding_rate(&symbol).await.unwrap();
+    assert!(rate.time > info[0].time + 58 * 60 * 1000);
+    tracing::info!("{:?}", rate);
     let info = kcex.get_index_price(&symbol).await.unwrap();
     tracing::info!("{:?}", info);
     Ok(())

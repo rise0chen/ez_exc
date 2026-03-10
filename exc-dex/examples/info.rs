@@ -18,7 +18,7 @@ async fn main() -> anyhow::Result<()> {
     let mut symbol = Symbol::spot(Asset::try_from("ETH").unwrap(), Asset::usdt());
     symbol.base_id = "0x0872C997B2CB959Baf6F422a856AB91d261E5FDb".into();
     dex.perfect_symbol(&mut symbol).await.unwrap();
-    let info = dex.get_funding_rate(&symbol).await.unwrap();
-    tracing::info!("{:?}", info);
+    let rate = dex.get_funding_rate(&symbol).await.unwrap();
+    tracing::info!("{:?}", rate);
     Ok(())
 }

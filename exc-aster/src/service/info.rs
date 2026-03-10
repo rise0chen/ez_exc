@@ -48,7 +48,8 @@ impl Aster {
             end_time: None,
             limit: Some(day * 24),
         };
-        let resp = self.oneshot(req).await?;
+        let mut resp = self.oneshot(req).await?;
+        resp.reverse();
         let interval = (day as u64 * 24 * 60 * 60 * 1000) / resp.len() as u64;
         Ok(resp
             .into_iter()
