@@ -10,7 +10,7 @@ use crate::futures_api::types::OrderStatus;
 /// price, size
 pub struct Order {
     pub order_index: i64,
-    pub client_order_index: i64,
+    pub client_order_id: String,
     pub market_index: i16,
     pub is_ask: bool,
     #[serde_as(as = "DisplayFromStr")]

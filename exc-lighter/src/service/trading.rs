@@ -118,8 +118,8 @@ impl Lighter {
             };
             let mut orders = self.oneshot(req).await?.orders;
             orders.retain(|x| {
-                (custom_order_id.is_some() && custom_order_id == Some(x.client_order_index.to_string()))
-                    || (order_id.is_some() && order_id == Some(x.order_index.to_string()))
+                (custom_order_id.is_some() && custom_order_id.as_ref() == Some(&x.client_order_id))
+                    || (order_id.is_some() && (order_id == Some(x.order_index.to_string()) || order_id.as_ref() == Some(&x.client_order_id)))
             });
             if orders.is_empty() {
                 let req = GetOrderRequest {
@@ -131,8 +131,8 @@ impl Lighter {
                 };
                 orders = self.oneshot(req).await?.orders;
                 orders.retain(|x| {
-                    (custom_order_id.is_some() && custom_order_id == Some(x.client_order_index.to_string()))
-                        || (order_id.is_some() && order_id == Some(x.order_index.to_string()))
+                    (custom_order_id.is_some() && custom_order_id.as_ref() == Some(&x.client_order_id))
+                        || (order_id.is_some() && (order_id == Some(x.order_index.to_string()) || order_id.as_ref() == Some(&x.client_order_id)))
                 });
             }
             let order = orders.pop();
