@@ -22,7 +22,7 @@ impl Lighter {
         let interval: u64 = 60 * 60 * 1000;
         let now = (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64;
         Ok(FundingRate {
-            rate: resp.current_funding_rate.parse::<f64>().unwrap(),
+            rate: resp.current_funding_rate.parse::<f64>().unwrap() / 100.0,
             time: ((now / interval) + 1) * interval,
             interval,
         })
@@ -51,7 +51,7 @@ impl Lighter {
         Ok(resp
             .into_iter()
             .map(|x| FundingRate {
-                rate: x.rate,
+                rate: x.rate / 100.0,
                 time: x.timestamp * 1000,
                 interval,
             })
