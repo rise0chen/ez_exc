@@ -36,6 +36,7 @@ impl Lighter {
         let ws = WsClient::builder()
             .host("mainnet.zklighter.elliot.ai")
             .markets(vec![key.market_index])
+            .order_books(vec![key.market_index])
             .build()
             .unwrap();
         let static_ws: &'static WsClient = unsafe { std::mem::transmute(&ws) };
