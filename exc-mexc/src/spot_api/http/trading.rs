@@ -88,9 +88,7 @@ pub struct GetOrderRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GetOrderResponse {
-    pub symbol: String,
     pub order_id: String,
-    pub client_order_id: Option<String>,
     pub price: Decimal,
     #[serde_as(as = "DisplayFromStr")]
     pub orig_qty: f64,

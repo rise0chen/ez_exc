@@ -142,8 +142,6 @@ pub struct GetOrderRequest {
 #[serde(rename_all = "snake_case")]
 pub struct GetOrderResponse {
     pub id: String,
-    pub text: Option<String>,
-    pub currency_pair: String,
     pub side: OrderSide,
     #[serde_as(as = "DisplayFromStr")]
     pub amount: f64,

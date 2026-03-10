@@ -149,7 +149,6 @@ impl Bitget {
                 Fee::Quote(0.0006 * resp.cum_exec_value)
             };
             Order {
-                symbol: resp.symbol,
                 order_id: resp.order_id.to_string(),
                 vol: resp.qty.abs(),
                 deal_vol: (resp.cum_exec_qty).abs(),
@@ -180,7 +179,6 @@ impl Bitget {
                 Fee::Quote(0.0006 * resp.cum_exec_value)
             };
             Order {
-                symbol: resp.symbol,
                 order_id: resp.order_id.to_string(),
                 vol: resp.qty.abs(),
                 deal_vol: (resp.cum_exec_qty).abs(),

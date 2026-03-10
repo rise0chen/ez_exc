@@ -11,12 +11,9 @@ version = "0.7.0"
 
 [features]
 default = ["rustls-tls"]
-native-tls = ["exc-core/native-tls", "tokio-tungstenite/native-tls"]
+native-tls = ["exc-core/native-tls"]
 prefer-client-id = []
-rustls-tls = [
-  "exc-core/rustls-tls",
-  "tokio-tungstenite/rustls-tls-webpki-roots",
-]
+rustls-tls = ["exc-core/rustls-tls"]
 
 [dependencies]
 anyhow = {version = "1"}
@@ -59,8 +56,6 @@ version = "0.4"
 features = ["decompression-gzip"]
 version = "0.5"
 
-[dependencies.tokio-tungstenite]
-version = "0.24"
 
 [dependencies.tokio]
 features = ["sync", "rt-multi-thread", "time", "macros"]

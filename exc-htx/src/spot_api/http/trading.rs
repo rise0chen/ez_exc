@@ -91,8 +91,6 @@ pub struct GetOrderRequest {
 #[serde(rename_all = "kebab-case")]
 pub struct OrderDetail {
     pub id: u64,
-    pub client_order_id: Option<String>,
-    pub symbol: String,
     pub r#type: OrderType,
     #[serde_as(as = "DisplayFromStr")]
     pub amount: f64,

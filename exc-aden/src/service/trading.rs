@@ -28,7 +28,7 @@ impl Aden {
             size,
             price,
             kind,
-            leverage,
+            leverage: _,
             open_type: _,
         } = data;
         let custom_id = format!(
@@ -72,7 +72,6 @@ impl Aden {
             custom_order_id,
         } = order.id;
 
-        let symbol_id = crate::symnol::symbol_id(&symbol);
         let order_id = if symbol.is_spot() {
             todo!();
         } else {
@@ -97,7 +96,6 @@ impl Aden {
             order_id,
             custom_order_id,
         } = order_id;
-        let symbol_id = crate::symnol::symbol_id(&symbol);
         let order_id = if symbol.is_spot() {
             todo!();
         } else {
@@ -121,7 +119,6 @@ impl Aden {
             custom_order_id,
         } = order_id;
 
-        let symbol_id = crate::symnol::symbol_id(&symbol);
         let order = if symbol.is_spot() {
             todo!();
         } else {
@@ -134,7 +131,6 @@ impl Aden {
             let deal_vol = (resp.size - resp.left).abs();
             let fee = 0.0005 * deal_vol * symbol.multi_size * resp.fill_price;
             Order {
-                symbol: resp.contract,
                 order_id: resp.id.to_string(),
                 vol: resp.size.abs(),
                 deal_vol,

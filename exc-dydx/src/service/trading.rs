@@ -154,7 +154,6 @@ impl Dydx {
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let order_id = order_id.order_id.unwrap();
         let mut ret = Order {
-            symbol: String::new(),
             order_id,
             vol: 0.0,
             deal_vol: 0.0,
@@ -172,7 +171,6 @@ impl Dydx {
             ret.state = OrderStatus::Canceled;
             return Ok(ret);
         };
-        ret.symbol = order.ticker.0;
         ret.vol = order.size.to_f64().unwrap();
         ret.deal_vol = order.total_filled.to_f64().unwrap();
         ret.deal_avg_price = order.price.to_f64().unwrap();

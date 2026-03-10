@@ -163,7 +163,6 @@ pub struct GetOrderRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct GetOrderResponse {
-    pub contract: String,
     pub id: i64,
     pub text: Option<String>,
     pub size: f64,

@@ -111,7 +111,6 @@ impl Kcex {
             };
             let resp = self.oneshot(req).await?;
             Order {
-                symbol: resp.symbol,
                 order_id: resp.order_id,
                 vol: resp.vol,
                 deal_vol: resp.deal_vol,

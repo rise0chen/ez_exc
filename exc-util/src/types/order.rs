@@ -63,7 +63,6 @@ pub enum Fee {
 
 #[derive(Debug)]
 pub struct Order {
-    pub symbol: String,
     pub order_id: String,
     pub vol: f64,
     pub deal_vol: f64,

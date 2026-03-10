@@ -132,7 +132,6 @@ impl Binance {
             let resp = self.oneshot(req).await?;
             let fee = Fee::Quote(0.001 * resp.cummulative_quote_qty);
             Order {
-                symbol: resp.symbol,
                 order_id: resp.order_id.to_string(),
                 vol: resp.orig_qty.abs(),
                 deal_vol: (resp.executed_qty).abs(),
@@ -155,7 +154,6 @@ impl Binance {
             let resp = self.oneshot(req).await?;
             let fee = Fee::Quote(0.001 * resp.cum_quote);
             Order {
-                symbol: resp.symbol,
                 order_id: resp.order_id.to_string(),
                 vol: resp.orig_qty.abs(),
                 deal_vol: (resp.executed_qty).abs(),

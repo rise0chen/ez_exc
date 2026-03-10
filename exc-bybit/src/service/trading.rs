@@ -106,7 +106,6 @@ impl Bybit {
         };
         let resp = self.oneshot(req).await?.list.pop();
         resp.map(|resp| Order {
-            symbol: resp.symbol,
             order_id: resp.order_id,
             vol: resp.qty,
             deal_vol: resp.cum_exec_qty,

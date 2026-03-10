@@ -102,7 +102,6 @@ impl Bitunix {
             };
             let resp = self.oneshot(req).await?;
             Order {
-                symbol: resp.symbol,
                 order_id: resp.order_id,
                 vol: resp.qty,
                 deal_vol: resp.trade_qty,

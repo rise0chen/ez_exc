@@ -124,9 +124,7 @@ pub struct GetOrderRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GetOrderResponse {
-    pub inst_id: String,
     pub ord_id: String,
-    pub cl_ord_id: Option<String>,
     pub ord_type: OrderType,
     pub px: String,
     pub avg_px: String,

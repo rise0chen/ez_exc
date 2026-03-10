@@ -181,7 +181,6 @@ impl Gate {
                 Fee::Base(resp.fee)
             };
             Order {
-                symbol: resp.currency_pair,
                 order_id: resp.id.to_string(),
                 vol: resp.amount.abs(),
                 deal_vol: (resp.filled_amount).abs(),
@@ -204,7 +203,6 @@ impl Gate {
             let deal_vol = (resp.size - resp.left).abs();
             let fee = 0.0005 * deal_vol * symbol.multi_size * resp.fill_price;
             Order {
-                symbol: resp.contract,
                 order_id: resp.id.to_string(),
                 vol: resp.size.abs(),
                 deal_vol,

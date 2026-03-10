@@ -165,7 +165,6 @@ impl Mexc {
             };
             let resp = self.oneshot(req).await?;
             Order {
-                symbol: resp.symbol,
                 order_id: resp.order_id,
                 vol: resp.orig_qty,
                 deal_vol: resp.executed_qty,
@@ -187,7 +186,6 @@ impl Mexc {
             };
             let resp = self.oneshot(req).await?;
             Order {
-                symbol: resp.symbol,
                 order_id: resp.order_id,
                 vol: resp.vol,
                 deal_vol: resp.deal_vol,

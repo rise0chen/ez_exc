@@ -102,7 +102,6 @@ impl Aster {
             };
             let resp = self.oneshot(req).await?;
             Order {
-                symbol: resp.symbol,
                 order_id: resp.order_id.to_string(),
                 vol: resp.orig_qty,
                 deal_vol: resp.executed_qty,

@@ -17,14 +17,12 @@ impl Simu {
         Ok(order_id)
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
-        let symbol = order_id.symbol.base_id;
         let order_id = order_id.order_id.unwrap();
         let mut id = order_id.split(',');
         let v: u64 = id.next().unwrap().parse().unwrap();
         let size: f64 = id.next().unwrap().parse().unwrap();
         let price = self.price_by_version(v);
         Ok(Order {
-            symbol,
             order_id,
             vol: size.abs(),
             deal_vol: size.abs(),

@@ -105,7 +105,6 @@ impl Okx {
         };
         let resp = self.oneshot(req).await?.pop();
         resp.map(|resp| Order {
-            symbol: resp.inst_id,
             order_id: resp.ord_id,
             vol: resp.sz,
             deal_vol: resp.acc_fill_sz,

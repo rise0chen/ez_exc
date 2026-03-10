@@ -94,8 +94,6 @@ pub struct GetOrderRequest {
 #[serde(rename_all = "camelCase")]
 pub struct GetOrderResponse {
     pub order_id: u64,
-    pub orig_client_order_id: Option<String>,
-    pub symbol: String,
     pub side: OrderSide,
     #[serde_as(as = "DisplayFromStr")]
     pub orig_qty: f64,

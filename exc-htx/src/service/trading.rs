@@ -124,7 +124,6 @@ impl Htx {
             };
             let resp = self.oneshot(req).await?.data;
             Order {
-                symbol: resp.symbol,
                 order_id: resp.id.to_string(),
                 vol: resp.amount.abs(),
                 deal_vol: (resp.field_amount).abs(),
@@ -146,7 +145,6 @@ impl Htx {
             };
             let resp = self.oneshot(req).await?;
             Order {
-                symbol: resp.contract_code,
                 order_id: resp.order_id.to_string(),
                 vol: resp.volume.abs(),
                 deal_vol: (resp.trade_volume).abs(),

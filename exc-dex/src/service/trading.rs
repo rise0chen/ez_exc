@@ -113,7 +113,6 @@ impl Dex {
         } = order_id;
         let tx_hash = order_id.or(custom_order_id).unwrap_or_default();
         let mut order = Order {
-            symbol: String::new(),
             order_id: tx_hash,
             vol: 0.0,
             deal_vol: 0.0,
