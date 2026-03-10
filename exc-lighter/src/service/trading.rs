@@ -2,8 +2,8 @@ use super::Lighter;
 use crate::futures_api::types::*;
 use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::OrderSide;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
+use exc_util::types::order::{OrderSide, OrderType};
 use lighter_rs::types::{CancelOrderTxReq, CreateOrderTxReq};
 use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
@@ -41,11 +41,15 @@ impl Lighter {
                 base_amount: base_amount.to_i64().unwrap(),
                 price: price.to_u32().unwrap(),
                 is_ask: size.is_sign_negative() as u8,
-                order_type: OrderType::from(kind) as u8,
+                order_type: OrderKind::from(kind) as u8,
                 time_in_force: TimeInForce::from(kind) as u8,
                 reduce_only: false as u8,
                 trigger_price: 0,
-                order_expiry: custom_id + 60 * 60 * 1000,
+                order_expiry: if matches!(kind, OrderType::Unknown | OrderType::Limit | OrderType::LimitMaker) {
+                    custom_id + 60 * 60 * 1000
+                } else {
+                    0
+                },
             };
             let req = match self.tx.create_order(&req, None).await {
                 Ok(req) => req,

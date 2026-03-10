@@ -15,12 +15,12 @@ pub enum PositionSide {
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 #[repr(i8)]
-pub enum OrderType {
+pub enum OrderKind {
     #[num_enum(default)]
     Limit = 0,
     Market = 1,
 }
-impl From<exc_util::types::order::OrderType> for OrderType {
+impl From<exc_util::types::order::OrderType> for OrderKind {
     fn from(value: exc_util::types::order::OrderType) -> Self {
         match value {
             exc_util::types::order::OrderType::Unknown => Self::Limit,

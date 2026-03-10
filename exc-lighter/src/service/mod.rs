@@ -39,10 +39,12 @@ impl Lighter {
             .order_books(vec![key.market_index])
             .build()
             .unwrap();
-        let static_ws: &'static WsClient = unsafe { std::mem::transmute(&ws) };
+        Self { key, http, tx, ws }
+    }
+    pub fn run(&self) {
+        let static_ws: &'static WsClient = unsafe { std::mem::transmute(&self.ws) };
         tokio::spawn(static_ws.run(|_k, _v| {}, |_k, _v| {}));
         std::thread::sleep(Duration::from_secs(3));
-        Self { key, http, tx, ws }
     }
 }
 
