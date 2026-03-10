@@ -17,7 +17,8 @@ impl Okx {
             let req = GetBalanceRequest {
                 ccy: Some(symbol.base.as_str().into()),
             };
-            let resp = self.oneshot(req).await?.pop().map(|x| x.details).unwrap_or_default();
+            let mut resp = self.oneshot(req).await?.pop().map(|x| x.details).unwrap_or_default();
+            resp.retain(|x| x.ccy == symbol.base.as_str());
             let size = resp.iter().find(|x| x.ccy == symbol.base.as_str()).map(|x| x.avail_bal).unwrap_or(0.0);
             Ok((Position::new(size), Position::default()))
         } else {
