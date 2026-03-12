@@ -23,8 +23,8 @@ pub struct GetOrderResponse {
     pub price: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub orig_qty: f64,
-    #[serde_as(as = "DisplayFromStr")]
-    pub executed_qty: f64,
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    pub executed_qty: Option<f64>,
     #[serde_as(as = "Option<DisplayFromStr>")]
     pub avg_price: Option<f64>,
     pub order_side: OrderSide,
