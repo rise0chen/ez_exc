@@ -15,6 +15,7 @@ async fn main() -> anyhow::Result<()> {
 
     let key = serde_json::from_str(&var("LIGHTER_KEY").unwrap_or_default()).unwrap();
     let mut lighter = Lighter::new(key);
+    lighter.run();
 
     let balance = lighter.get_balance().await.unwrap();
     tracing::info!("{:?}", balance);

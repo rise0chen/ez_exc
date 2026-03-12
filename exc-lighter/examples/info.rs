@@ -14,6 +14,7 @@ async fn main() -> anyhow::Result<()> {
 
     let key = serde_json::from_str(&var("LIGHTER_KEY").unwrap_or_default()).unwrap();
     let mut lighter = Lighter::new(key);
+    lighter.run();
 
     let mut symbol = Symbol::derivative(Asset::try_from("XAU").unwrap(), Asset::usdt());
     symbol.base_id = String::from("92");

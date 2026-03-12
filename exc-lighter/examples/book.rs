@@ -1,6 +1,6 @@
 use exc_lighter::service::Lighter;
 use exc_util::symbol::{Asset, Symbol};
-use std::env::var;
+use std::{env::var, time::Duration};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -14,11 +14,14 @@ async fn main() -> anyhow::Result<()> {
 
     let key = serde_json::from_str(&var("LIGHTER_KEY").unwrap_or_default()).unwrap();
     let mut lighter = Lighter::new(key);
+    lighter.run();
 
     let mut symbol = Symbol::derivative(Asset::try_from("XAU").unwrap(), Asset::usdt());
     symbol.base_id = String::from("92");
-    let bid_ask = lighter.get_depth(&symbol, 5).await.unwrap();
-    assert!(bid_ask.is_valid());
-    tracing::info!("{:?}", bid_ask);
-    Ok(())
+    loop {
+        let bid_ask = lighter.get_depth(&symbol, 5).await.unwrap();
+        assert!(bid_ask.is_valid());
+        tracing::info!("{:?}", bid_ask);
+        tokio::time::sleep(Duration::from_secs(3)).await;
+    }
 }

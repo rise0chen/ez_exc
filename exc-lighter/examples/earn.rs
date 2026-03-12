@@ -14,6 +14,7 @@ async fn main() -> anyhow::Result<()> {
 
     let key = serde_json::from_str(&var("LIGHTER_KEY").unwrap_or_default()).unwrap();
     let mut lighter = Lighter::new(key);
+    lighter.run();
 
     let symbol = Symbol::spot(Asset::try_from("MXSOL").unwrap(), Asset::usdt());
     let rate = lighter.get_st_rate(&symbol).await.unwrap();

@@ -6,7 +6,7 @@ use std::collections::BTreeMap;
 use time::OffsetDateTime;
 
 impl Lighter {
-    pub async fn get_depth(&mut self, symbol: &Symbol, _limit: u16) -> Result<Depth, ExchangeError> {
+    pub async fn get_depth(&mut self, symbol: &Symbol, limit: u16) -> Result<Depth, ExchangeError> {
         let bid_ask = if symbol.is_spot() {
             todo!();
         } else {
@@ -25,8 +25,10 @@ impl Lighter {
             });
             let mut bid: Vec<Order> = bids.into_iter().map(|(p, n)| Order::new(p.parse().unwrap(), n)).collect();
             bid.sort_by(|a, b| b.price.total_cmp(&a.price));
+            bid.truncate(limit as usize);
             let mut ask: Vec<Order> = asks.into_iter().map(|(p, n)| Order::new(p.parse().unwrap(), n)).collect();
             ask.sort_by(|a, b| a.price.total_cmp(&b.price));
+            ask.truncate(limit as usize);
             Depth {
                 bid,
                 ask,

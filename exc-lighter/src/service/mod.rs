@@ -43,7 +43,12 @@ impl Lighter {
     }
     pub fn run(&self) {
         let static_ws: &'static WsClient = unsafe { std::mem::transmute(&self.ws) };
-        tokio::spawn(static_ws.run(|_k, _v| {}, |_k, _v| {}));
+        tokio::spawn(async {
+            loop {
+                let ret = static_ws.run(|_k, _v| {}, |_k, _v| {}).await;
+                tracing::info!("lighter ws exit: {ret:?}");
+            }
+        });
         std::thread::sleep(Duration::from_secs(3));
     }
 }
