@@ -14,20 +14,16 @@ use futures::future::{ready, BoxFuture};
 use futures::{FutureExt, TryFutureExt};
 use lighter_rs::client::TxClient;
 use lighter_rs::ws_client::WsClient;
+use std::sync::Arc;
 use tower::{Service, ServiceBuilder};
 
 /// Lighter API.
+#[derive(Clone)]
 pub struct Lighter {
     key: Key,
     http: Client,
-    tx: TxClient,
-    ws: WsClient,
-}
-impl Clone for Lighter {
-    fn clone(&self) -> Self {
-        let key = self.key.clone();
-        Lighter::new(key)
-    }
+    tx: Arc<TxClient>,
+    ws: Arc<WsClient>,
 }
 impl Lighter {
     pub fn new(key: Key) -> Self {
@@ -39,13 +35,18 @@ impl Lighter {
             .order_books(vec![key.market_index])
             .build()
             .unwrap();
-        Self { key, http, tx, ws }
+        Self {
+            key,
+            http,
+            tx: Arc::new(tx),
+            ws: Arc::new(ws),
+        }
     }
     pub fn run(&self) {
-        let static_ws: &'static WsClient = unsafe { std::mem::transmute(&self.ws) };
-        tokio::spawn(async {
+        let ws = self.ws.clone();
+        tokio::spawn(async move {
             loop {
-                let ret = static_ws.run(|_k, _v| {}, |_k, _v| {}).await;
+                let ret = ws.run(|_k, _v| {}, |_k, _v| {}).await;
                 tracing::info!("lighter ws exit: {ret:?}");
             }
         });
