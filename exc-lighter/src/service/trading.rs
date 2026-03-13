@@ -4,11 +4,20 @@ use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
 use exc_util::types::order::{OrderSide, OrderType};
-use lighter_rs::types::{CancelOrderTxReq, CreateOrderTxReq};
+use lighter_rs::types::{CancelOrderTxReq, CreateOrderTxReq, TransactOpts};
 use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
 
 impl Lighter {
+    async fn get_transact_opts(&self) -> TransactOpts {
+        TransactOpts {
+            from_account_index: Some(self.key.account_index),
+            api_key_index: Some(self.key.key_index),
+            expired_at: (time::OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as i64 + 600_000,
+            nonce: Some(self.ws.get_account(&self.key.account_index.to_string()).await.unwrap().nonce as i64 + 1),
+            dry_run: false,
+        }
+    }
     pub async fn perfect_symbol(&mut self, _symbol: &mut Symbol) -> Result<(), ExchangeError> {
         Ok(())
     }
@@ -51,7 +60,7 @@ impl Lighter {
                     0
                 },
             };
-            let req = match self.tx.create_order(&req, None).await {
+            let req = match self.tx.create_order(&req, Some(self.get_transact_opts().await)).await {
                 Ok(req) => req,
                 Err(e) => return Err((ret, ExchangeError::Other(e.into()))),
             };
@@ -82,7 +91,7 @@ impl Lighter {
                 market_index: symbol_id as u8,
                 index: order_id.parse().unwrap(),
             };
-            let req = match self.tx.cancel_order(&req, None).await {
+            let req = match self.tx.cancel_order(&req, Some(self.get_transact_opts().await)).await {
                 Ok(req) => req,
                 Err(e) => return Err(ExchangeError::Other(e.into())),
             };

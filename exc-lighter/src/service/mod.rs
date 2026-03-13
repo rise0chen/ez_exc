@@ -31,6 +31,8 @@ impl Lighter {
         let tx = TxClient::new("https://mainnet.zklighter.elliot.ai", &key.key, key.account_index, key.key_index, 304).unwrap();
         let ws = WsClient::builder()
             .host("mainnet.zklighter.elliot.ai")
+            .auth(key.read.as_str())
+            .accounts(vec![key.account_index])
             .markets(vec![key.market_index])
             .order_books(vec![key.market_index])
             .build()
@@ -46,7 +48,7 @@ impl Lighter {
         let ws = self.ws.clone();
         tokio::spawn(async move {
             loop {
-                let ret = ws.run(|_k, _v| {}, |_k, _v| {}).await;
+                let ret = ws.run().await;
                 tracing::info!("lighter ws exit: {ret:?}");
             }
         });
