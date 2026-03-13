@@ -14,7 +14,7 @@ impl Lighter {
             from_account_index: Some(self.key.account_index),
             api_key_index: Some(self.key.key_index),
             expired_at: (time::OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as i64 + 600_000,
-            nonce: Some(self.ws.get_account(&self.key.account_index.to_string()).await.unwrap().nonce as i64 + 1),
+            nonce: self.ws.get_account(&self.key.account_index.to_string()).await.map(|x| x.nonce as i64 + 1),
             dry_run: false,
         }
     }
