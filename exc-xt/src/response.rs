@@ -18,6 +18,7 @@ pub struct Error {
 #[serde(rename_all = "camelCase")]
 pub struct FullHttpResponse<T> {
     /// Code.
+    #[serde(alias = "rc")]
     pub return_code: i64,
     /// Message.
     pub error: Option<Error>,

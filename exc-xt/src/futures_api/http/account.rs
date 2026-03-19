@@ -14,11 +14,11 @@ pub struct GetBalanceRequest {
 #[serde(rename_all = "camelCase")]
 pub struct GetBalanceResponse {
     #[serde_as(as = "DisplayFromStr")]
-    pub wallet_balance: f64,
+    pub margin_balance: f64,
 }
 
 impl Rest for GetBalanceRequest {
-    type Response = GetBalanceResponse;
+    type Response = Vec<GetBalanceResponse>;
 
     fn api_kind(&self) -> ApiKind {
         ApiKind::FuturesApi
@@ -27,7 +27,7 @@ impl Rest for GetBalanceRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/future/user/v1/balance/detail".to_string()
+        "/future/user/v1/compat/balance/list".to_string()
     }
     fn need_sign(&self) -> bool {
         true

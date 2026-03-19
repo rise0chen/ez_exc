@@ -8,8 +8,8 @@ impl Xt {
     pub async fn get_balance(&mut self) -> Result<f64, ExchangeError> {
         use crate::futures_api::http::account::GetBalanceRequest;
         let req = GetBalanceRequest { coin: "usdt".into() };
-        let resp = self.oneshot(req).await?;
-        Ok(resp.wallet_balance)
+        let resp = self.oneshot(req).await?.pop();
+        resp.map(|resp| resp.margin_balance).ok_or(ExchangeError::OrderNotFound)
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
