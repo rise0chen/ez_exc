@@ -34,12 +34,25 @@ impl Bitunix {
         let order_id = if symbol.is_spot() {
             todo!();
         } else {
+            let (long, short) = self.get_positions(symbol).await.unwrap_or_default();
             use crate::futures_api::http::trading::PlaceOrderRequest;
             let req = PlaceOrderRequest {
                 symbol: symbol_id,
                 client_id: Some(custom_id),
                 side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
-                trade_side: TradeSide::Open,
+                trade_side: if size.is_sign_positive() {
+                    if size.abs().to_f64().unwrap() > short.size {
+                        TradeSide::Open
+                    } else {
+                        TradeSide::Close
+                    }
+                } else {
+                    if size.abs().to_f64().unwrap() > long.size {
+                        TradeSide::Open
+                    } else {
+                        TradeSide::Close
+                    }
+                },
                 order_type: kind.into(),
                 effect: kind.into(),
                 qty: size.abs(),
