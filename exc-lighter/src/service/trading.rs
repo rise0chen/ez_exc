@@ -4,6 +4,7 @@ use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
 use exc_util::types::order::{OrderSide, OrderType};
+use lighter_rs::LighterError;
 use lighter_rs::types::{CancelOrderTxReq, CreateOrderTxReq, TransactOpts};
 use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
@@ -60,11 +61,29 @@ impl Lighter {
                     0
                 },
             };
-            let req = match self.tx.create_order(&req, Some(self.get_transact_opts().await)).await {
+            let tx = match self.tx.create_order(&req, Some(self.get_transact_opts().await)).await {
                 Ok(req) => req,
                 Err(e) => return Err((ret, ExchangeError::Other(e.into()))),
             };
-            self.tx.send_transaction(&req).await
+            match self.tx.send_transaction(&tx).await {
+                Ok(res) => Ok(res),
+                Err(e) => {
+                    let bad_nonce = if let LighterError::ApiError(s) = &e {
+                        s.contains("nonce")
+                    } else {
+                        matches!(e, LighterError::NonceTooLow(_))
+                    };
+                    if bad_nonce {
+                        let tx = match self.tx.create_order(&req, None).await {
+                            Ok(req) => req,
+                            Err(e) => return Err((ret, ExchangeError::Other(e.into()))),
+                        };
+                        self.tx.send_transaction(&tx).await
+                    } else {
+                        Err(e)
+                    }
+                }
+            }
         };
         match order_id {
             Ok(_) => Ok(ret),
