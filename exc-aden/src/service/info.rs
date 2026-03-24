@@ -49,6 +49,9 @@ impl Aden {
             limit: Some(day * 24),
         };
         let resp = self.oneshot(req).await?;
+        if resp.is_empty() {
+            return Err(ExchangeError::OrderNotFound);
+        }
         let interval = (day as u64 * 24 * 60 * 60 * 1000) / resp.len() as u64;
         Ok(resp
             .into_iter()

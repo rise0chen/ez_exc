@@ -46,6 +46,9 @@ impl Lighter {
             count_back: day * 24,
         };
         let mut resp = self.oneshot(req).await?.fundings;
+        if resp.is_empty() {
+            return Err(ExchangeError::OrderNotFound);
+        }
         resp.reverse();
         let interval = (day as u64 * 24 * 60 * 60 * 1000) / resp.len() as u64;
         Ok(resp
