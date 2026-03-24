@@ -47,7 +47,8 @@ impl Bitunix {
             symbol: symbol_id,
             start_time,
         };
-        let resp = self.oneshot(req).await?;
+        let mut resp = self.oneshot(req).await?;
+        resp.retain(|x| x.settle_time > start_time);
         if resp.is_empty() {
             return Err(ExchangeError::OrderNotFound);
         }

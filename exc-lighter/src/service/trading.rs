@@ -4,8 +4,8 @@ use exc_core::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
 use exc_util::types::order::{OrderSide, OrderType};
-use lighter_rs::LighterError;
 use lighter_rs::types::{CancelOrderTxReq, CreateOrderTxReq, TransactOpts};
+use lighter_rs::LighterError;
 use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
 
