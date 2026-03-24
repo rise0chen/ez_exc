@@ -41,14 +41,14 @@ impl Bitunix {
             return Err(ExchangeError::Forbidden(anyhow::anyhow!("day max 5")));
         }
         let symbol_id = crate::symnol::symbol_id(symbol);
-        let start_time = OffsetDateTime::now_utc() - Duration::days(day as i64);
-        use crate::futures_web::http::info::GetFundingRateHistoryRequest;
+        let start_time = ((OffsetDateTime::now_utc() - Duration::days(day as i64)).unix_timestamp_nanos() / 1_000_000) as u64;
+        use crate::futures_api::http::info::GetFundingRateHistoryRequest;
         let req = GetFundingRateHistoryRequest {
             symbol: symbol_id,
             start_time,
         };
         let mut resp = self.oneshot(req).await?;
-        resp.retain(|x| x.settle_time > start_time);
+        resp.retain(|x| x.funding_time > start_time);
         if resp.is_empty() {
             return Err(ExchangeError::OrderNotFound);
         }
@@ -56,8 +56,8 @@ impl Bitunix {
         Ok(resp
             .into_iter()
             .map(|x| FundingRate {
-                rate: x.settle_funding_rate / 100.0,
-                time: (x.settle_time.unix_timestamp_nanos() / 1_000_000) as u64,
+                rate: x.funding_rate,
+                time: x.funding_time,
                 interval,
             })
             .collect())

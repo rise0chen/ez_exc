@@ -37,3 +37,38 @@ impl Rest for GetFundingRateRequest {
         false
     }
 }
+
+#[serde_as]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFundingRateHistoryRequest {
+    pub symbol: String,
+    pub start_time: u64,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFundingRateHistoryResponse {
+    #[serde_as(as = "DisplayFromStr")]
+    pub funding_rate: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub funding_time: u64,
+}
+
+impl Rest for GetFundingRateHistoryRequest {
+    type Response = Vec<GetFundingRateHistoryResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/api/v1/futures/market/get_funding_rate_history".into()
+    }
+    fn need_sign(&self) -> bool {
+        false
+    }
+}
