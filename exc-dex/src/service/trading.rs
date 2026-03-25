@@ -102,8 +102,12 @@ impl Dex {
     pub async fn amend_order(&mut self, _order: AmendOrder) -> Result<OrderId, ExchangeError> {
         todo!();
     }
-    pub async fn cancel_order(&mut self, _order_id: OrderId) -> Result<OrderId, ExchangeError> {
-        todo!();
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+        if order_id.custom_order_id.as_deref().unwrap_or_default() == "" && order_id.order_id.as_deref().unwrap_or_default() == "" {
+            Ok(order_id)
+        } else {
+            Err(ExchangeError::Forbidden(anyhow::anyhow!("")))
+        }
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {
