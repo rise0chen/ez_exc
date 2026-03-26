@@ -14,6 +14,7 @@ async fn main() -> anyhow::Result<()> {
 
     let key = serde_json::from_str(&var("BITUNIX_KEY").unwrap_or_default()).unwrap();
     let mut bitunix = Bitunix::new(key);
+    bitunix.run();
 
     let symbol = Symbol::spot(Asset::try_from("MXSOL").unwrap(), Asset::usdt());
     let rate = bitunix.get_st_rate(&symbol).await.unwrap();

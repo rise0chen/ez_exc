@@ -14,6 +14,7 @@ async fn main() -> anyhow::Result<()> {
 
     let key = serde_json::from_str(&var("BITUNIX_KEY").unwrap_or_default()).unwrap();
     let mut bitunix = Bitunix::new(key);
+    bitunix.run();
 
     let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
     let info = bitunix.get_funding_rate_history(&symbol, 2).await.unwrap();

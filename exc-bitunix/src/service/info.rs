@@ -11,10 +11,11 @@ impl Bitunix {
             return Ok(0.0);
         }
         let symbol_id = crate::symnol::symbol_id(symbol);
-        use crate::futures_api::http::info::GetFundingRateRequest;
-        let req = GetFundingRateRequest { symbol: symbol_id };
-        let resp = self.oneshot(req).await?;
-        Ok(resp.mark_price)
+        if let Some(ch) = self.ws.index_prices.get(&symbol_id) {
+            Ok(*ch.borrow())
+        } else {
+            Err(ExchangeError::OrderNotFound)
+        }
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {

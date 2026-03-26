@@ -15,6 +15,7 @@ async fn main() -> anyhow::Result<()> {
 
     let key = serde_json::from_str(&var("BITUNIX_KEY").unwrap_or_default()).unwrap();
     let mut bitunix = Bitunix::new(key);
+    bitunix.run();
 
     let balance = bitunix.get_balance().await.unwrap();
     tracing::info!("{:?}", balance);
