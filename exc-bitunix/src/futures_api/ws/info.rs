@@ -1,4 +1,4 @@
-use serde::{Deserialize};
+use serde::Deserialize;
 use serde_with::{serde_as, DisplayFromStr};
 
 #[serde_as]
