@@ -15,11 +15,16 @@ async fn main() -> anyhow::Result<()> {
 
     let key = serde_json::from_str(&var("HTX_KEY").unwrap_or_default()).unwrap();
     let mut htx = Htx::new(key);
+    htx.run();
 
     let balance = htx.get_balance().await.unwrap();
     tracing::info!("{:?}", balance);
 
-    let symbol = Symbol::spot(Asset::try_from("DOGE").unwrap(), Asset::usdt());
+    let symbol = Symbol::spot(Asset::try_from("XAUT").unwrap(), Asset::usdt());
+    let balance = htx.get_position(&symbol).await.unwrap();
+    tracing::info!("{}: {:?}", symbol, balance);
+
+    let symbol = Symbol::derivative(Asset::try_from("XAUT").unwrap(), Asset::usdt());
     let balance = htx.get_position(&symbol).await.unwrap();
     tracing::info!("{}: {:?}", symbol, balance);
     Ok(())

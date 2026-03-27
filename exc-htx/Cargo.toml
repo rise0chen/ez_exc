@@ -11,9 +11,12 @@ version = "0.7.0"
 
 [features]
 default = ["rustls-tls"]
-native-tls = ["exc-core/native-tls"]
+native-tls = ["exc-core/native-tls", "tokio-tungstenite/native-tls"]
 prefer-client-id = []
-rustls-tls = ["exc-core/rustls-tls"]
+rustls-tls = [
+  "exc-core/rustls-tls",
+  "tokio-tungstenite/rustls-tls-webpki-roots",
+]
 
 [dependencies]
 anyhow = {version = "1"}
@@ -23,7 +26,9 @@ base64 = "0.22"
 cfg-if = {version = "1"}
 either = {version = "1"}
 exc-util = {path = "../exc-util"}
+flate2 = {version = "1.0", features = ["rust_backend"]}
 futures = {version = "0.3"}
+futures-util = "0.3.32"
 hex = "0.4"
 hmac = {version = "0.12"}
 http = {version = "1.1"}
@@ -38,6 +43,7 @@ serde_with = {version = "3"}
 sha2 = {version = "0.10"}
 thiserror = {version = "1"}
 tokio-tower = {version = "0.6"}
+tokio-tungstenite = {version = "0.26"}
 tracing = {version = "0.1"}
 
 [dependencies.serde]
@@ -56,7 +62,6 @@ version = "0.4"
 [dependencies.tower-http]
 features = ["decompression-gzip"]
 version = "0.5"
-
 
 [dependencies.tokio]
 features = ["sync", "rt-multi-thread", "time", "macros"]

@@ -9,7 +9,7 @@ impl Order {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default, Clone)]
 pub struct Depth {
     pub bid: Vec<Order>,
     pub ask: Vec<Order>,

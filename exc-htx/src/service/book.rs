@@ -21,6 +21,11 @@ impl Htx {
                 version: resp.version,
             }
         } else {
+            if let Some(ch) = self.ws.books.get(&symbol_id) {
+                return Ok(ch.borrow().clone());
+            } else {
+                tracing::warn!("htx get depth {} by http", symbol_id);
+            }
             use crate::futures_api::http::book::GetDepthRequest;
             let req = GetDepthRequest {
                 contract_code: symbol_id,

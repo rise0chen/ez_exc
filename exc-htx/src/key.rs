@@ -26,6 +26,7 @@ pub enum ParamsFormat {
 /// The APIKey definition of Htx.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Key {
+    pub symbol: Str,
     pub account_id: u64,
     pub api_key: Str,
     pub secret_key: Str,
@@ -33,9 +34,10 @@ pub struct Key {
 
 impl Key {
     /// Create a new [`Key`].
-    pub fn new(account_id: u64, api_key: &str, secret_key: &str) -> Self {
+    pub fn new(account_id: u64, symbol: &str, api_key: &str, secret_key: &str) -> Self {
         Self {
             account_id,
+            symbol: Str::new(symbol),
             api_key: Str::new(api_key),
             secret_key: Str::new(secret_key),
         }

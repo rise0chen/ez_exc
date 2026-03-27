@@ -17,9 +17,10 @@ async fn main() -> anyhow::Result<()> {
 
     let key = serde_json::from_str(&var("HTX_KEY")?)?;
     let mut htx = Htx::new(key);
+    htx.run();
 
-    let symbol = Symbol::spot(Asset::try_from("APE").unwrap(), Asset::usdt());
-    let order_req = PlaceOrderRequest::new(Decimal::new(50, 0), Decimal::new(2, 1), OrderType::Limit);
+    let symbol = Symbol::derivative(Asset::try_from("XAUT").unwrap(), Asset::usdt());
+    let order_req = PlaceOrderRequest::new(Decimal::new(1, 0), Decimal::new(4000, 0), OrderType::Limit);
     let order_id = htx.place_order(&symbol, order_req).await.unwrap();
     tokio::time::sleep(Duration::from_secs(10)).await;
     let order_id = htx.cancel_order(order_id).await.unwrap();

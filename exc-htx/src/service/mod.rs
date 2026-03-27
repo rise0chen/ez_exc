@@ -6,6 +6,7 @@ mod trading;
 
 use crate::key::Key;
 use crate::response::FullHttpResponse;
+use core::time::Duration;
 use exc_core::transport::http::Client;
 use exc_core::ExchangeError;
 use exc_util::interface::{ApiKind, Rest};
@@ -18,12 +19,24 @@ use tower::{Service, ServiceBuilder};
 pub struct Htx {
     key: Key,
     http: Client,
+    ws: crate::futures_api::ws::Ws,
 }
 
 impl Htx {
     pub fn new(key: Key) -> Self {
         let http = ServiceBuilder::default().service(Client::new());
-        Self { key, http }
+        let ws = crate::futures_api::ws::Ws::new(vec![key.symbol.to_string()]);
+        Self { key, http, ws }
+    }
+    pub fn run(&self) {
+        let ws = self.ws.clone();
+        tokio::spawn(async move {
+            loop {
+                let ret = ws.run().await;
+                tracing::info!("htx ws exit: {ret:?}");
+            }
+        });
+        std::thread::sleep(Duration::from_secs(3));
     }
 }
 
