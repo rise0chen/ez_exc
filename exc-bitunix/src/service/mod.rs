@@ -29,6 +29,9 @@ impl Bitunix {
         Self { key, http, ws }
     }
     pub fn run(&self) {
+        if self.ws.symbols[0].is_empty() {
+            return;
+        }
         let ws = self.ws.clone();
         tokio::spawn(async move {
             loop {
