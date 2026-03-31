@@ -3,11 +3,11 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub enum TradeSide {
+pub enum PositionSide {
     #[serde(alias = "")]
     Unknown = 0,
-    Open = 1,
-    Close = 2,
+    Long = 1,
+    Short = 2,
 }
 
 #[derive(FromPrimitive, IntoPrimitive)]
@@ -18,15 +18,15 @@ pub enum OrderSide {
     #[num_enum(default)]
     #[serde(alias = "")]
     Unknown = 0,
-    Long = 1,
-    Short = 3,
+    Buy = 1,
+    Sell = 3,
 }
 impl From<OrderSide> for exc_util::types::order::OrderSide {
     fn from(value: OrderSide) -> Self {
         match value {
             OrderSide::Unknown => Self::Unknown,
-            OrderSide::Long => Self::Buy,
-            OrderSide::Short => Self::Sell,
+            OrderSide::Buy => Self::Buy,
+            OrderSide::Sell => Self::Sell,
         }
     }
 }
@@ -80,21 +80,19 @@ impl From<exc_util::types::order::OrderType> for TimeInForce {
 pub enum OrderStatus {
     Unknown = 0,
     New = 1,
+    Pending = 2,
     Filled = 3,
-    PartFilled = 2,
     Canceled = 4,
-    PartFilledCanceled = 5,
-    Init = 10,
+    Canceling = 5,
 }
 impl From<OrderStatus> for exc_util::types::order::OrderStatus {
     fn from(value: OrderStatus) -> Self {
         match value {
             OrderStatus::Unknown => Self::Unknown,
-            OrderStatus::New | OrderStatus::Init => Self::New,
+            OrderStatus::New | OrderStatus::Pending => Self::New,
             OrderStatus::Filled => Self::Filled,
-            OrderStatus::PartFilled => Self::PartiallyFilled,
-            OrderStatus::PartFilledCanceled => Self::PartiallyCanceled,
             OrderStatus::Canceled => Self::Canceled,
+            OrderStatus::Canceling => Self::PartiallyFilled,
         }
     }
 }

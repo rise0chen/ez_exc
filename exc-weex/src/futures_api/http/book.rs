@@ -32,7 +32,7 @@ impl Rest for GetDepthRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/capi/v2/market/depth".into()
+        "/capi/v3/market/depth".into()
     }
     fn need_sign(&self) -> bool {
         false

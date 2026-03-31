@@ -1,5 +1,5 @@
 use super::Weex;
-use crate::futures_api::types::OrderSide;
+use crate::futures_api::types::PositionSide;
 use exc_core::ExchangeError;
 use exc_util::{symbol::Symbol, types::account::Position};
 use tower::ServiceExt;
@@ -22,7 +22,7 @@ impl Weex {
             let (mut short_size, mut short_val) = (0.0, 0.0);
             let (mut long_size, mut long_val) = (0.0, 0.0);
             for x in &resp {
-                if x.side == OrderSide::Short {
+                if x.side == PositionSide::Short {
                     short_size += x.size;
                     short_val += x.open_value;
                 } else {

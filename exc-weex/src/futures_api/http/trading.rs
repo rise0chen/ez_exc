@@ -5,27 +5,27 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Debug, Serialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct GetOrderRequest {
-    pub client_id: Option<String>,
-    pub order_id: Option<String>,
+    pub order_id: String,
 }
 
 #[serde_as]
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct GetOrderResponse {
-    pub order_id: String,
+    pub order_id: u64,
+    pub client_order_id: Option<String>,
     #[serde_as(as = "DisplayFromStr")]
     pub price: f64,
     #[serde_as(as = "DisplayFromStr")]
-    pub qty: f64,
+    pub orig_qty: f64,
     #[serde_as(as = "DisplayFromStr")]
-    pub trade_qty: f64,
+    pub executed_qty: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub cum_quote: f64,
     #[serde_as(as = "Option<DisplayFromStr>")]
     pub avg_price: Option<f64>,
-    #[serde_as(as = "DisplayFromStr")]
-    pub fee: f64,
     pub side: OrderSide,
     pub status: OrderStatus,
 }
@@ -40,7 +40,53 @@ impl Rest for GetOrderRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/api/v1/futures/trade/get_order_detail".into()
+        "/capi/v3/order".into()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetOpenOrdersRequest {
+    pub symbol: String,
+}
+
+impl Rest for GetOpenOrdersRequest {
+    type Response = Vec<GetOrderResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/capi/v3/openOrders".into()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetCloseOrdersRequest {
+    pub symbol: String,
+}
+
+impl Rest for GetCloseOrdersRequest {
+    type Response = Vec<GetOrderResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/capi/v3/order/history".into()
     }
     fn need_sign(&self) -> bool {
         true
@@ -49,20 +95,20 @@ impl Rest for GetOrderRequest {
 
 #[serde_as]
 #[derive(Debug, Serialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct PlaceOrderRequest {
     pub symbol: String,
-    pub client_id: Option<String>,
+    pub new_client_order_id: Option<String>,
     pub side: OrderSide,
-    pub trade_side: TradeSide,
-    pub order_type: OrderType,
-    pub effect: TimeInForce,
-    pub qty: Decimal,
+    pub position_side: PositionSide,
+    pub r#type: OrderType,
+    pub time_in_force: TimeInForce,
+    pub quantity: Decimal,
     pub price: Decimal,
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct PlaceOrderResponse {
     pub order_id: String,
 }
@@ -77,7 +123,7 @@ impl Rest for PlaceOrderRequest {
         Method::POST
     }
     fn path(&self) -> String {
-        "/api/v1/futures/trade/place_order".to_string()
+        "/capi/v3/order".to_string()
     }
     fn need_sign(&self) -> bool {
         true
@@ -86,14 +132,14 @@ impl Rest for PlaceOrderRequest {
 
 #[serde_as]
 #[derive(Debug, Serialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct CancelOrderRequest {
-    pub symbol: String,
-    pub order_list: Vec<GetOrderRequest>,
+    pub orig_client_order_id: Option<String>,
+    pub order_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct CancelOrderResponse {}
 
 impl Rest for CancelOrderRequest {
@@ -103,10 +149,10 @@ impl Rest for CancelOrderRequest {
         ApiKind::FuturesApi
     }
     fn method(&self) -> Method {
-        Method::POST
+        Method::DELETE
     }
     fn path(&self) -> String {
-        "/api/v1/futures/trade/cancel_orders".to_string()
+        "/capi/v3/order".to_string()
     }
     fn need_sign(&self) -> bool {
         true

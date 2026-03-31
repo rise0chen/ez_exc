@@ -48,7 +48,7 @@ pub struct GetPositionRequest {
 pub struct Asset {
     #[serde_as(as = "DisplayFromStr")]
     pub size: f64,
-    pub side: OrderSide,
+    pub side: PositionSide,
     #[serde_as(as = "DisplayFromStr")]
     pub open_value: f64,
     #[serde_as(as = "DisplayFromStr")]
@@ -69,7 +69,7 @@ impl Rest for GetPositionRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/capi/v2/account/position/singlePosition".to_string()
+        "/capi/v3/account/position/singlePosition".to_string()
     }
     fn need_sign(&self) -> bool {
         true

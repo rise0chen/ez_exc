@@ -11,10 +11,10 @@ impl Weex {
             return Ok(0.0);
         }
         let symbol_id = crate::symnol::symbol_id(symbol);
-        use crate::futures_api::http::info::GetIndexPriceRequest;
-        let req = GetIndexPriceRequest { symbol: symbol_id };
-        let resp = self.oneshot(req).await?;
-        Ok(resp.index_price)
+        use crate::futures_api::http::info::GetFundingRateRequest;
+        let req = GetFundingRateRequest { symbol: symbol_id };
+        let resp = self.oneshot(req).await?.pop();
+        resp.map(|resp| resp.index_price).ok_or(ExchangeError::OrderNotFound)
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {
@@ -26,8 +26,8 @@ impl Weex {
         let req = GetFundingRateRequest { symbol: symbol_id };
         let resp = self.oneshot(req).await?.pop();
         resp.map(|resp| FundingRate {
-            rate: resp.funding_rate,
-            time: resp.timestamp,
+            rate: resp.forecast_funding_rate,
+            time: resp.next_funding_time,
             interval: resp.collect_cycle * 60 * 1000,
         })
         .ok_or(ExchangeError::OrderNotFound)
@@ -45,6 +45,7 @@ impl Weex {
         use crate::futures_api::http::info::GetFundingRateHistoryRequest;
         let req = GetFundingRateHistoryRequest {
             symbol: symbol_id,
+            start_time,
             limit: 24 * day,
         };
         let mut resp = self.oneshot(req).await?;

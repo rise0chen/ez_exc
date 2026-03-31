@@ -19,7 +19,7 @@ async fn main() -> anyhow::Result<()> {
     let balance = weex.get_balance().await.unwrap();
     tracing::info!("{:?}", balance);
 
-    let symbol = Symbol::derivative(Asset::try_from("DOGE").unwrap(), Asset::usdt());
+    let symbol = Symbol::derivative(Asset::try_from("PAXG").unwrap(), Asset::usdt());
     let balance = weex.get_position(&symbol).await.unwrap();
     tracing::info!("{}: {:?}", symbol, balance);
     Ok(())

@@ -26,7 +26,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
         header.insert("ACCESS-KEY", key.api_key.as_str().try_into()?);
         header.insert("ACCESS-SIGN", signature.signature.try_into()?);
         header.insert("ACCESS-TIMESTAMP", signature.signing.timestamp.into());
-        //header.insert("ACCESS-PASSPHRASE", key.passphrase.as_str().try_into()?);
+        header.insert("ACCESS-PASSPHRASE", key.passphrase.as_str().try_into()?);
     }
     let body = match req.method() {
         Method::GET | Method::DELETE => {
@@ -39,6 +39,5 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
 
     *request.url_mut() = uri.parse()?;
     request.body_mut().replace(body);
-    println!("{:?}", request);
     Ok(request)
 }
