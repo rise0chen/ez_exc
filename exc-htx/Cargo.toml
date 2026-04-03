@@ -15,7 +15,7 @@ native-tls = ["exc-core/native-tls", "tokio-tungstenite/native-tls"]
 prefer-client-id = []
 rustls-tls = [
   "exc-core/rustls-tls",
-  "tokio-tungstenite/rustls-tls-webpki-roots",
+  "tokio-tungstenite/rustls-tls-native-roots",
 ]
 
 [dependencies]
