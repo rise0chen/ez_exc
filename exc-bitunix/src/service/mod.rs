@@ -36,7 +36,9 @@ impl Bitunix {
         tokio::spawn(async move {
             loop {
                 let ret = ws.run().await;
+                ws.clear();
                 tracing::info!("bitunix ws exit: {ret:?}");
+                tokio::time::sleep(Duration::from_secs(5)).await;
             }
         });
         std::thread::sleep(Duration::from_secs(3));

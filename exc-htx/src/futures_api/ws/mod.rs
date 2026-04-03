@@ -57,6 +57,11 @@ impl Ws {
         let books = Arc::new(symbols.iter().map(|s| (s.clone(), watch::channel(Depth::default()).0)).collect());
         Ws { symbols, books }
     }
+    pub fn clear(&self) {
+        self.books.values().for_each(|x| {
+            x.send_replace(Depth::default());
+        });
+    }
     pub async fn run(&self) -> Result<(), anyhow::Error> {
         let (ws_stream, _) = tokio_tungstenite::connect_async(HOST).await?;
         tracing::info!(base_url = HOST, "WebSocket connected");

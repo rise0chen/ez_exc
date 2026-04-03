@@ -49,7 +49,9 @@ impl Lighter {
         tokio::spawn(async move {
             loop {
                 let ret = ws.run().await;
+                ws.clear().await;
                 tracing::info!("lighter ws exit: {ret:?}");
+                tokio::time::sleep(Duration::from_secs(5)).await;
             }
         });
         std::thread::sleep(Duration::from_secs(3));

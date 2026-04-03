@@ -60,6 +60,11 @@ impl Ws {
         let index_prices = Arc::new(symbols.iter().map(|s| (s.clone(), watch::channel(0.0).0)).collect());
         Ws { symbols, index_prices }
     }
+    pub fn clear(&self) {
+        self.index_prices.values().for_each(|x| {
+            x.send_replace(0.0);
+        });
+    }
     pub async fn run(&self) -> Result<(), anyhow::Error> {
         let (ws_stream, _) = tokio_tungstenite::connect_async(HOST).await?;
         tracing::info!(base_url = HOST, "WebSocket connected");
