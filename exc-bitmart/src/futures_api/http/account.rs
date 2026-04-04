@@ -45,7 +45,7 @@ pub struct GetPositionRequest {
 pub struct Asset {
     pub position_side: PositionSide,
     #[serde_as(as = "DisplayFromStr")]
-    pub current_amount: f64,
+    pub position_amount: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub position_value: f64,
 }

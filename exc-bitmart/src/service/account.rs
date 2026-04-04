@@ -25,19 +25,19 @@ impl Bitmart {
             for x in &resp {
                 match x.position_side {
                     PositionSide::Short => {
-                        short_size += x.current_amount;
+                        short_size += x.position_amount;
                         short_val += x.position_value;
                     }
                     PositionSide::Long => {
-                        long_size = x.current_amount;
+                        long_size = x.position_amount;
                         long_val += x.position_value;
                     }
                     _ => {
-                        if x.current_amount.is_sign_negative() {
-                            short_size += x.current_amount.abs();
+                        if x.position_amount.is_sign_negative() {
+                            short_size += x.position_amount.abs();
                             short_val += x.position_value;
                         } else {
-                            long_size = x.current_amount;
+                            long_size = x.position_amount;
                             long_val += x.position_value;
                         }
                     }
