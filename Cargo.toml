@@ -11,6 +11,7 @@ members = [
   "exc-htx",
   "exc-binance",
   "exc-bitget",
+  "exc-bitmart",
   "exc-mexc",
   "exc-kcex",
   "exc-bitunix",
