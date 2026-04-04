@@ -27,12 +27,12 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
         Method::GET | Method::DELETE => {
             uri.push('?');
             uri.push_str(&serde_urlencoded::to_string(req)?);
-            Body::wrap(String::new())
+            String::new()
         }
-        _ => Body::wrap(serde_json::to_string(req)?),
+        _ => serde_json::to_string(req)?,
     };
 
     *request.url_mut() = uri.parse()?;
-    request.body_mut().replace(body);
+    request.body_mut().replace(Body::wrap(body));
     Ok(request)
 }

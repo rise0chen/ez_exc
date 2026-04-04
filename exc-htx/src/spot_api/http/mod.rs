@@ -24,7 +24,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
             };
             uri.push('?');
             uri.push_str(&query_str);
-            Body::wrap(String::new())
+            String::new()
         }
         _ => {
             if req.need_sign() {
@@ -33,12 +33,11 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
                 uri.push('?');
                 uri.push_str(&query_str);
             };
-            let body_str = serde_json::to_string(req)?;
-            Body::wrap(body_str)
+            serde_json::to_string(req)?
         }
     };
 
     *request.url_mut() = uri.parse()?;
-    request.body_mut().replace(body);
+    request.body_mut().replace(Body::wrap(body));
     Ok(request)
 }

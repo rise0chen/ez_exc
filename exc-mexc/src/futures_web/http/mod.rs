@@ -37,22 +37,21 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
             };
             uri.push('?');
             uri.push_str(&body_str);
-            Body::wrap(String::new())
+            String::new()
         }
         _ => {
-            let body_str = if req.need_sign() {
+            if req.need_sign() {
                 let signature = key.sign(req, ParamsFormat::Json, ApiKind::FuturesWeb)?;
                 header.insert("x-mxc-nonce", signature.signing.timestamp.into());
                 header.insert("x-mxc-sign", signature.signature.try_into()?);
                 serde_json::to_string(&signature.signing.params)?
             } else {
                 serde_json::to_string(req)?
-            };
-            Body::wrap(body_str)
+            }
         }
     };
 
     *request.url_mut() = uri.parse()?;
-    request.body_mut().replace(body);
+    request.body_mut().replace(Body::wrap(body));
     Ok(request)
 }

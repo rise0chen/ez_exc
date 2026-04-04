@@ -18,12 +18,12 @@ pub fn req_to_http<Req: Rest>(req: &Req, _key: &Key) -> Result<Request, anyhow::
         Method::GET | Method::DELETE => {
             uri.push('?');
             uri.push_str(&body);
-            Body::wrap(String::new())
+            String::new()
         }
-        _ => Body::wrap(body),
+        _ => body,
     };
 
     *request.url_mut() = uri.parse()?;
-    request.body_mut().replace(body);
+    request.body_mut().replace(Body::wrap(body));
     Ok(request)
 }

@@ -35,15 +35,12 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
             let body_str = serde_urlencoded::to_string(req)?;
             uri.push('?');
             uri.push_str(&body_str);
-            Body::wrap(String::new())
+            String::new()
         }
-        _ => {
-            let body_str = serde_json::to_string(req)?;
-            Body::wrap(body_str)
-        }
+        _ => serde_json::to_string(req)?,
     };
 
     *request.url_mut() = uri.parse()?;
-    request.body_mut().replace(body);
+    request.body_mut().replace(Body::wrap(body));
     Ok(request)
 }
