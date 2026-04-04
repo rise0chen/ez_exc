@@ -10,7 +10,9 @@ impl Lighter {
         let bid_ask = if symbol.is_spot() {
             todo!();
         } else {
-            let resp = self.ws.get_order_book(&symbol.base_id).await.unwrap();
+            let Some(resp) = self.ws.get_order_book(&symbol.base_id).await else {
+                return Ok(Depth::default());
+            };
             let mut bids = BTreeMap::new();
             let mut asks = BTreeMap::new();
             resp.bids.into_iter().for_each(|x| {
