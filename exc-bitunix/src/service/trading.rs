@@ -82,12 +82,11 @@ impl Bitunix {
             todo!();
         } else {
             use crate::futures_api::http::trading::{CancelOrderRequest, GetOrderRequest};
-            let id = order_id.clone().unwrap_or(custom_order_id.clone().unwrap_or(String::new()));
             let req = CancelOrderRequest {
                 symbol: symbol_id,
                 order_list: vec![GetOrderRequest {
-                    order_id: Some(id),
-                    client_id: None,
+                    order_id: order_id.clone(),
+                    client_id: custom_order_id.clone(),
                 }],
             };
             let _ = self.oneshot(req).await?;

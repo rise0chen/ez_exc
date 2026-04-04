@@ -8,8 +8,7 @@ use serde_with::{serde_as, DisplayFromStr};
 #[serde(rename_all = "snake_case")]
 pub struct GetOrderRequest {
     pub symbol: String,
-    pub order_id: Option<String>,
-    pub client_order_id: Option<String>,
+    pub order_id: String,
 }
 
 #[serde_as]
@@ -17,6 +16,7 @@ pub struct GetOrderRequest {
 #[serde(rename_all = "snake_case")]
 pub struct GetOrderResponse {
     pub order_id: String,
+    pub client_order_id: Option<String>,
     #[serde_as(as = "DisplayFromStr")]
     pub price: f64,
     #[serde_as(as = "DisplayFromStr")]
@@ -40,6 +40,53 @@ impl Rest for GetOrderRequest {
     }
     fn path(&self) -> String {
         "/contract/private/order".into()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetOpenOrdersRequest {
+    pub symbol: String,
+}
+
+impl Rest for GetOpenOrdersRequest {
+    type Response = Vec<GetOrderResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/contract/private/get-open-orders".into()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetCloseOrdersRequest {
+    pub symbol: String,
+    pub client_order_id: Option<String>,
+}
+
+impl Rest for GetCloseOrdersRequest {
+    type Response = Vec<GetOrderResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/contract/private/order-history".into()
     }
     fn need_sign(&self) -> bool {
         true

@@ -94,13 +94,32 @@ impl Bitmart {
         let order = if symbol.is_spot() {
             todo!();
         } else {
-            use crate::futures_api::http::trading::GetOrderRequest;
-            let req = GetOrderRequest {
-                symbol: symbol_id,
-                order_id,
-                client_order_id: custom_order_id,
+            use crate::futures_api::http::trading::{GetCloseOrdersRequest, GetOpenOrdersRequest, GetOrderRequest};
+            let order = if let Some(id) = order_id {
+                let req = GetOrderRequest {
+                    symbol: symbol_id,
+                    order_id: id,
+                };
+                let resp = self.oneshot(req).await?;
+                Some(resp)
+            } else if let Some(id) = &custom_order_id {
+                let symbol_id = crate::symnol::symbol_id(&symbol);
+                let req = GetOpenOrdersRequest { symbol: symbol_id };
+                let resp = self.oneshot(req).await?.into_iter().find(|x| x.client_order_id.as_deref() == Some(id));
+                if resp.is_some() {
+                    resp
+                } else {
+                    let symbol_id = crate::symnol::symbol_id(&symbol);
+                    let req = GetCloseOrdersRequest {
+                        symbol: symbol_id,
+                        client_order_id: custom_order_id.clone(),
+                    };
+                    self.oneshot(req).await?.into_iter().find(|x| x.client_order_id.as_deref() == Some(id))
+                }
+            } else {
+                None
             };
-            let resp = self.oneshot(req).await?;
+            let Some(resp) = order else { return Err(ExchangeError::OrderNotFound) };
             Order {
                 order_id: resp.order_id,
                 vol: resp.size,
