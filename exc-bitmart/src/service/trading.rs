@@ -87,7 +87,7 @@ impl Bitmart {
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {
             symbol,
-            order_id: _,
+            order_id,
             custom_order_id,
         } = order_id;
         let symbol_id = crate::symnol::symbol_id(&symbol);
@@ -95,7 +95,20 @@ impl Bitmart {
             todo!();
         } else {
             use crate::futures_api::http::trading::{GetCloseOrdersRequest, GetOpenOrdersRequest};
-            let order = if let Some(id) = &custom_order_id {
+            let order = if let Some(id) = &order_id {
+                let req = GetOpenOrdersRequest { symbol: symbol_id };
+                let resp = self.oneshot(req).await?.into_iter().find(|x| &x.order_id == id);
+                if resp.is_some() {
+                    resp
+                } else {
+                    let symbol_id = crate::symnol::symbol_id(&symbol);
+                    let req = GetCloseOrdersRequest {
+                        symbol: symbol_id,
+                        client_order_id: custom_order_id.clone(),
+                    };
+                    self.oneshot(req).await?.into_iter().find(|x| &x.order_id == id)
+                }
+            } else if let Some(id) = &custom_order_id {
                 let req = GetOpenOrdersRequest { symbol: symbol_id };
                 let resp = self.oneshot(req).await?.into_iter().find(|x| x.client_order_id.as_deref() == Some(id));
                 if resp.is_some() {
