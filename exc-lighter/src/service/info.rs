@@ -10,7 +10,9 @@ impl Lighter {
         if symbol.is_spot() {
             return Ok(0.0);
         }
-        let resp = self.ws.get_market(&symbol.base_id).await.unwrap();
+        let Some(resp) = self.ws.get_market(&symbol.base_id).await else {
+            return Err(ExchangeError::OrderNotFound);
+        };
         Ok(resp.index_price.parse::<f64>().unwrap())
     }
 
@@ -18,7 +20,9 @@ impl Lighter {
         if symbol.is_spot() {
             return Ok(FundingRate::default());
         }
-        let resp = self.ws.get_market(&symbol.base_id).await.unwrap();
+        let Some(resp) = self.ws.get_market(&symbol.base_id).await else {
+            return Err(ExchangeError::OrderNotFound);
+        };
         let interval: u64 = 60 * 60 * 1000;
         let now = (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64;
         Ok(FundingRate {
