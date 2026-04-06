@@ -93,6 +93,39 @@ impl Rest for GetCloseOrdersRequest {
     }
 }
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub struct GetTradesRequest {
+    pub symbol: String,
+    pub order_id: Option<String>,
+    pub client_order_id: Option<String>,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct GetTradesResponse {
+    #[serde_as(as = "DisplayFromStr")]
+    pub paid_fees: f64,
+}
+
+impl Rest for GetTradesRequest {
+    type Response = Vec<GetTradesResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/contract/private/trades".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
+
 #[serde_as]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "snake_case")]

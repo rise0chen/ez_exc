@@ -94,29 +94,27 @@ impl Bitmart {
         let order = if symbol.is_spot() {
             todo!();
         } else {
-            use crate::futures_api::http::trading::{GetCloseOrdersRequest, GetOpenOrdersRequest};
+            use crate::futures_api::http::trading::{GetCloseOrdersRequest, GetOpenOrdersRequest, GetTradesRequest};
             let order = if let Some(id) = &order_id {
-                let req = GetOpenOrdersRequest { symbol: symbol_id };
+                let req = GetOpenOrdersRequest { symbol: symbol_id.clone() };
                 let resp = self.oneshot(req).await?.into_iter().find(|x| &x.order_id == id);
                 if resp.is_some() {
                     resp
                 } else {
-                    let symbol_id = crate::symnol::symbol_id(&symbol);
                     let req = GetCloseOrdersRequest {
-                        symbol: symbol_id,
+                        symbol: symbol_id.clone(),
                         client_order_id: custom_order_id.clone(),
                     };
                     self.oneshot(req).await?.into_iter().find(|x| &x.order_id == id)
                 }
             } else if let Some(id) = &custom_order_id {
-                let req = GetOpenOrdersRequest { symbol: symbol_id };
+                let req = GetOpenOrdersRequest { symbol: symbol_id.clone() };
                 let resp = self.oneshot(req).await?.into_iter().find(|x| x.client_order_id.as_deref() == Some(id));
                 if resp.is_some() {
                     resp
                 } else {
-                    let symbol_id = crate::symnol::symbol_id(&symbol);
                     let req = GetCloseOrdersRequest {
-                        symbol: symbol_id,
+                        symbol: symbol_id.clone(),
                         client_order_id: custom_order_id.clone(),
                     };
                     self.oneshot(req).await?.into_iter().find(|x| x.client_order_id.as_deref() == Some(id))
@@ -125,12 +123,20 @@ impl Bitmart {
                 None
             };
             let Some(resp) = order else { return Err(ExchangeError::OrderNotFound) };
+
+            let req = GetTradesRequest {
+                symbol: symbol_id,
+                order_id: order_id.clone(),
+                client_order_id: custom_order_id,
+            };
+            let fee = self.oneshot(req).await?.iter().map(|x| x.paid_fees).sum();
+
             Order {
                 order_id: resp.order_id,
                 vol: resp.size,
                 deal_vol: resp.deal_size,
                 deal_avg_price: resp.deal_avg_price,
-                fee: Fee::Quote(resp.deal_avg_price * resp.deal_size * 0.0006),
+                fee: Fee::Quote(fee),
                 state: resp.state.into(),
                 side: resp.side.into(),
             }
