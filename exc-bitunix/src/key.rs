@@ -2,9 +2,8 @@ use exc_core::Str;
 pub use exc_util::interface::ApiKind;
 use exc_util::interface::Rest;
 use http::Method;
-use md5::Digest;
 use serde::{Deserialize, Serialize};
-use sha2::Sha256;
+use sha2::{Digest, Sha256};
 use time::OffsetDateTime;
 
 pub enum ParamsFormat {

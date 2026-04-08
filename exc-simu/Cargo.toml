@@ -27,7 +27,7 @@ version = "1"
 
 [dependencies.tower]
 features = ["util", "reconnect", "buffer", "timeout", "retry", "ready-cache"]
-version = "0.4"
+version = "0.5"
 
 [package.metadata.docs.rs]
 all-features = true

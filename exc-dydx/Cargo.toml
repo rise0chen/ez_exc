@@ -29,7 +29,7 @@ num_enum = {version = "0.7"}
 pin-project-lite = {version = "0.2"}
 rust_decimal = {version = "1"}
 rustls = {version = "0.23"}
-thiserror = {version = "1"}
+thiserror = {version = "2"}
 tracing = {version = "0.1"}
 
 [dependencies.serde]
