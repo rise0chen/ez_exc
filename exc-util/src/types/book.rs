@@ -20,6 +20,6 @@ impl Depth {
         if self.bid.is_empty() || self.ask.is_empty() {
             return false;
         }
-        self.bid[0].price < self.ask[0].price && self.ask[0].price < self.ask[1].price && self.bid[0].price > self.bid[1].price
+        self.bid[0].price <= self.ask[0].price && self.ask[0].price < self.ask[1].price && self.bid[0].price > self.bid[1].price
     }
 }
