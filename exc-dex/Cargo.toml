@@ -34,7 +34,7 @@ version = "1"
 
 [dependencies.exc-core]
 default-features = false
-features = ["websocket", "driven", "http", "retry", "fetch-candles", "limit"]
+features = ["websocket", "driven", "http", "fetch-candles", "limit"]
 version = "0.7"
 
 [dependencies.tokio]
