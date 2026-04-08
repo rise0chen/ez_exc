@@ -41,7 +41,7 @@ serde_urlencoded = "0.7"
 serde_with = {version = "3"}
 sha2 = {version = "0.10"}
 thiserror = {version = "2"}
-tokio-tungstenite = {version = "0.26"}
+tokio-tungstenite = {version = "0.28"}
 tracing = {version = "0.1"}
 
 [dependencies.serde]
