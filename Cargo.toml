@@ -9,6 +9,7 @@ members = [
   "exc-bybit",
   "exc-gate",
   "exc-htx",
+  "exc-hyperliquid",
   "exc-binance",
   "exc-bitget",
   "exc-bitmart",
