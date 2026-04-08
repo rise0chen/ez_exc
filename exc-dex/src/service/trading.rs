@@ -15,7 +15,7 @@ impl Dex {
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
         if self.key.gas_price == 0 {
             self.key.gas_price = self.rpc.get_gas_price().await.map_err(|e| map_err(e.into()))? as u64;
-            tracing::info!("dex precision from 0 to {}", self.key.gas_price);
+            tracing::info!("dex gas from 0 to {}", self.key.gas_price);
         }
         let base = ERC20::new(symbol.base_id.parse().unwrap(), &self.rpc);
         if symbol.quote_id.is_empty() {
@@ -134,6 +134,7 @@ impl Dex {
             return Ok(order);
         };
         let Some(event) = tx.decoded_log::<Cex::Swap>() else {
+            order.side = OrderSide::Buy;
             order.state = OrderStatus::Filled;
             return Ok(order);
         };
