@@ -23,7 +23,7 @@ async fn main() -> anyhow::Result<()> {
     symbol.base_id = "110003".into();
     hyperliquid.perfect_symbol(&mut symbol).await.unwrap();
     let order_req = PlaceOrderRequest::new(Decimal::new(3, 3), Decimal::new(4880, 0), OrderType::Limit);
-    let order_id = hyperliquid.place_order(&symbol, order_req).await.unwrap();
+    let order_id = hyperliquid.place_order(&symbol, order_req).await.unwrap_or_else(|e|e.0);
     let order = hyperliquid.get_order(order_id.clone()).await;
     tracing::info!("{:?}", order);
     tokio::time::sleep(Duration::from_secs(5)).await;

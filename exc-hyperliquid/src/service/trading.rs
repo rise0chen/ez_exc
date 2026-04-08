@@ -138,7 +138,7 @@ impl Hyperliquid {
         Ok(Order {
             order_id: resp.order.oid.to_string(),
             vol: resp.order.orig_sz.as_f64(),
-            deal_vol: resp.order.sz.as_f64(),
+            deal_vol: size,
             deal_avg_price: if size == 0.0 { 0.0 } else { val / size },
             fee: Fee::Quote(fills.iter().map(|x| x.fee.as_f64()).sum()),
             state: if resp.status.is_finished() {
