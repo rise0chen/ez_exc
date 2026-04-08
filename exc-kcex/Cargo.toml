@@ -34,7 +34,6 @@ serde_json = {version = "1"}
 serde_urlencoded = "0.7"
 serde_with = {version = "3"}
 thiserror = {version = "2"}
-tokio-tower = {version = "0.6"}
 tracing = {version = "0.1"}
 
 [dependencies.serde]

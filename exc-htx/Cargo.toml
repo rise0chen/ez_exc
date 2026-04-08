@@ -41,7 +41,6 @@ serde_urlencoded = "0.7"
 serde_with = {version = "3"}
 sha2 = {version = "0.10"}
 thiserror = {version = "2"}
-tokio-tower = {version = "0.6"}
 tokio-tungstenite = {version = "0.26"}
 tracing = {version = "0.1"}
 
