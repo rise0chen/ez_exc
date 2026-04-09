@@ -1,5 +1,5 @@
 use super::Bybit;
-use exc_core::ExchangeError;
+use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::book::{Depth, Order};
 use tower::ServiceExt;

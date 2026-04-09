@@ -1,6 +1,6 @@
 use super::Dydx;
 use bigdecimal::ToPrimitive;
-use exc_core::ExchangeError;
+use exc_util::error::ExchangeError;
 use exc_util::{symbol::Symbol, types::account::Position};
 
 impl Dydx {

@@ -1,4 +1,4 @@
-use exc_core::Str;
+use exc_util::asset::Str;
 pub use exc_util::interface::ApiKind;
 use md5::{Digest, Md5};
 use serde::{Deserialize, Serialize};

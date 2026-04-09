@@ -1,5 +1,4 @@
-use exc_core::Asset;
-use exc_util::symbol::Symbol;
+use exc_util::symbol::{Asset, Symbol};
 use exc_weex::service::Weex;
 use std::env::var;
 

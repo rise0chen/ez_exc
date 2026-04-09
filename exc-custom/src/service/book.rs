@@ -1,6 +1,6 @@
 use super::Custom;
 use crate::api::book::GetDepthRequest;
-use exc_core::ExchangeError;
+use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::book::Depth;
 use tokio::sync::oneshot;

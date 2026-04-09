@@ -1,5 +1,4 @@
-use exc_core::Asset;
-use exc_util::symbol::Symbol;
+use exc_util::symbol::{Asset, Symbol};
 use exc_xt::service::Xt;
 use std::env::var;
 

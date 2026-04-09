@@ -21,7 +21,7 @@ async fn main() -> anyhow::Result<()> {
 
     let symbol = Symbol::derivative(Asset::try_from("XAUT").unwrap(), Asset::usdt());
     let order_req = PlaceOrderRequest::new(Decimal::new(1, 0), Decimal::new(4000, 0), OrderType::Limit);
-    let order_id = htx.place_order(&symbol, order_req).await.unwrap_or_else(|e|e.0);
+    let order_id = htx.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     tokio::time::sleep(Duration::from_secs(10)).await;
     let order_id = htx.cancel_order(order_id).await.unwrap();
     let order = htx.get_order(order_id).await.unwrap();

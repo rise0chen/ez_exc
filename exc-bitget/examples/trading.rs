@@ -20,7 +20,7 @@ async fn main() -> anyhow::Result<()> {
 
     let symbol = Symbol::spot(Asset::try_from("APE").unwrap(), Asset::usdt());
     let order_req = PlaceOrderRequest::new(Decimal::new(20, 0), Decimal::new(3, 1), OrderType::Limit);
-    let order_id = bitget.place_order(&symbol, order_req).await.unwrap_or_else(|e|e.0);
+    let order_id = bitget.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     tokio::time::sleep(Duration::from_secs(20)).await;
     let order_id = bitget.cancel_order(order_id).await.unwrap();
     let order = bitget.get_order(order_id).await.unwrap();
@@ -29,7 +29,7 @@ async fn main() -> anyhow::Result<()> {
     let symbol = Symbol::derivative(Asset::try_from("APE").unwrap(), Asset::usdt());
     let mut order_req = PlaceOrderRequest::new(Decimal::new(20, 0), Decimal::new(3, 1), OrderType::Limit);
     order_req.set_leverage(10.0);
-    let order_id = bitget.place_order(&symbol, order_req).await.unwrap_or_else(|e|e.0);
+    let order_id = bitget.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     tokio::time::sleep(Duration::from_secs(20)).await;
     let order_id = bitget.cancel_order(order_id).await.unwrap();
     let order = bitget.get_order(order_id).await.unwrap();

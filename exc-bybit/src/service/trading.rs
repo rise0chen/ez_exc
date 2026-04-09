@@ -1,6 +1,6 @@
 use super::Bybit;
 use crate::api::types::OrderSide;
-use exc_core::ExchangeError;
+use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
 use rust_decimal::prelude::ToPrimitive;

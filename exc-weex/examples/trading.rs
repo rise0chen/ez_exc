@@ -21,7 +21,7 @@ async fn main() -> anyhow::Result<()> {
     let symbol = Symbol::derivative(Asset::try_from("PAXG").unwrap(), Asset::usdt());
     let mut order_req = PlaceOrderRequest::new(Decimal::new(1, 3), Decimal::new(4000, 0), OrderType::ImmediateOrCancel);
     order_req.set_leverage(20.0);
-    let order_id = weex.place_order(&symbol, order_req).await.unwrap_or_else(|e|e.0);
+    let order_id = weex.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     tokio::time::sleep(Duration::from_secs(32)).await;
     let order_id = weex.cancel_order(order_id).await.unwrap();
     let order = weex.get_order(order_id).await.unwrap();

@@ -1,5 +1,5 @@
 use alloy::contract::Error;
-use exc_core::ExchangeError;
+use exc_util::error::ExchangeError;
 
 pub fn map_err(e: Error) -> ExchangeError {
     ExchangeError::Other(e.into())

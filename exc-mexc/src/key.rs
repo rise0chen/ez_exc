@@ -1,4 +1,4 @@
-use exc_core::Str;
+use exc_util::asset::Str;
 pub use exc_util::interface::ApiKind;
 use hmac::{Hmac, Mac};
 use md5::{Digest, Md5};

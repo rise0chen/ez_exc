@@ -3,7 +3,7 @@ mod info;
 mod trading;
 
 use crate::api::Request;
-use exc_core::ExchangeError;
+use exc_util::error::ExchangeError;
 use futures::future::BoxFuture;
 use tokio::sync::mpsc;
 use tower::Service;

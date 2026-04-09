@@ -22,7 +22,7 @@ async fn main() -> anyhow::Result<()> {
     symbol.base_id = "0x0872C997B2CB959Baf6F422a856AB91d261E5FDb".into();
     dex.perfect_symbol(&mut symbol).await.unwrap();
     let order_req = PlaceOrderRequest::new(Decimal::new(20, 0), Decimal::new(3, 1), OrderType::Limit);
-    let order_id = dex.place_order(&symbol, order_req).await.unwrap_or_else(|e|e.0);
+    let order_id = dex.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     tokio::time::sleep(Duration::from_secs(5)).await;
     let order = dex.get_order(order_id).await.unwrap();
     tracing::info!("{:?}", order);

@@ -1,6 +1,6 @@
 use super::Bitunix;
 use crate::futures_api::types::OrderSide;
-use exc_core::ExchangeError;
+use exc_util::error::ExchangeError;
 use exc_util::{symbol::Symbol, types::account::Position};
 use tower::ServiceExt;
 

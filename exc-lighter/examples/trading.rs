@@ -23,7 +23,7 @@ async fn main() -> anyhow::Result<()> {
     symbol.base_id = String::from("92");
     let mut order_req = PlaceOrderRequest::new(Decimal::new(-30, 4), Decimal::new(530000, 2), OrderType::Limit);
     order_req.set_leverage(20.0);
-    let order_id = lighter.place_order(&symbol, order_req).await.unwrap_or_else(|e|e.0);
+    let order_id = lighter.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     let order = lighter.get_order(order_id.clone()).await;
     tracing::info!("{:?}", order);
     tokio::time::sleep(Duration::from_secs(32)).await;

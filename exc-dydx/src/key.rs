@@ -1,4 +1,4 @@
-use exc_core::Str;
+use exc_util::asset::Str;
 use serde::{Deserialize, Serialize};
 
 /// The APIKey definition of DYDX.

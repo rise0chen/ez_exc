@@ -5,7 +5,7 @@ use core::time::Duration;
 use dydx::indexer::{types::ApiOrderStatus, ClientId, OrderSide as DydxSide, OrderStatus as DydxStatus};
 use dydx::node::{OrderBuilder, OrderGoodUntil, OrderId as PlaceId, OrderSide as PlaceSide};
 use dydx_proto::dydxprotocol::clob::order::TimeInForce;
-use exc_core::ExchangeError;
+use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderSide, OrderStatus, OrderType, PlaceOrderRequest};
 use rust_decimal::Decimal;

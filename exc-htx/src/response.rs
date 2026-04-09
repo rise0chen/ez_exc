@@ -1,4 +1,4 @@
-use exc_core::ExchangeError;
+use exc_util::error::ExchangeError;
 use serde::Deserialize;
 
 /// HTTP API Response (with `code` and `msg`).

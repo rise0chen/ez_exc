@@ -6,7 +6,7 @@ use alloy::eips::BlockId;
 use alloy::primitives::utils::{format_units, parse_units};
 use alloy::primitives::Uint;
 use alloy::providers::Provider;
-use exc_core::ExchangeError;
+use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderSide, OrderStatus, PlaceOrderRequest};
 use rust_decimal::prelude::ToPrimitive;

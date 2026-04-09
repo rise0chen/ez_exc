@@ -3,7 +3,7 @@ use crate::abi::ERC20;
 use crate::error::map_err;
 use alloy::eips::BlockId;
 use alloy::primitives::utils::format_units;
-use exc_core::ExchangeError;
+use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::account::Position;
 

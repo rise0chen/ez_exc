@@ -4,7 +4,7 @@ use crate::error::map_err;
 use alloy::eips::BlockId;
 use alloy::primitives::utils::format_units;
 use alloy::primitives::U160;
-use exc_core::ExchangeError;
+use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::book::{Depth, Order};
 

@@ -1,5 +1,5 @@
 use base64::Engine as _;
-use exc_core::Str;
+use exc_util::asset::Str;
 pub use exc_util::interface::ApiKind;
 use exc_util::interface::Rest;
 use hmac::{Hmac, Mac};

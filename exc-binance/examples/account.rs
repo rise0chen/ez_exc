@@ -1,6 +1,5 @@
 use exc_binance::service::Binance;
-use exc_core::Asset;
-use exc_util::symbol::Symbol;
+use exc_util::symbol::{Asset, Symbol};
 use std::env::var;
 
 #[tokio::main]

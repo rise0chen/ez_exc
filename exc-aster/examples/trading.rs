@@ -21,7 +21,7 @@ async fn main() -> anyhow::Result<()> {
     let symbol = Symbol::derivative(Asset::try_from("XAU").unwrap(), Asset::usdt());
     let mut order_req = PlaceOrderRequest::new(Decimal::new(1, 3), Decimal::new(5000, 0), OrderType::Limit);
     order_req.set_leverage(20.0);
-    let order_id = aster.place_order(&symbol, order_req).await.unwrap_or_else(|e|e.0);
+    let order_id = aster.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     let order = aster.get_order(order_id.clone()).await.unwrap();
     tracing::info!("{:?}", order);
     tokio::time::sleep(Duration::from_secs(32)).await;

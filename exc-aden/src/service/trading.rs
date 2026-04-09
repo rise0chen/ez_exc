@@ -1,7 +1,7 @@
 use crate::futures_api::types::OrderSide;
 
 use super::Aden;
-use exc_core::ExchangeError;
+use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderStatus, OrderType, PlaceOrderRequest};
 use rust_decimal::prelude::ToPrimitive;

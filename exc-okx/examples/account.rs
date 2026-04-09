@@ -1,6 +1,5 @@
-use exc_core::Asset;
 use exc_okx::service::Okx;
-use exc_util::symbol::Symbol;
+use exc_util::symbol::{Asset, Symbol};
 use std::env::var;
 
 #[tokio::main]

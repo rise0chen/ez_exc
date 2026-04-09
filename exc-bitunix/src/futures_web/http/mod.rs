@@ -1,7 +1,7 @@
 pub mod info;
 
 use crate::key::Key;
-use exc_core::transport::http::{Body, Request};
+use exc_util::http::{Body, Request};
 use exc_util::interface::{Method, Rest};
 
 const HOST: &str = "https://api.bitunix.com";

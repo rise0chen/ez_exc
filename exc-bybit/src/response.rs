@@ -1,4 +1,4 @@
-use exc_core::ExchangeError;
+use exc_util::error::ExchangeError;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]

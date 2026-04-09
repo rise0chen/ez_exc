@@ -1,6 +1,6 @@
 use super::Xt;
 use crate::futures_api::types::*;
-use exc_core::ExchangeError;
+use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::OrderSide;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};

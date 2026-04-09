@@ -7,8 +7,8 @@ mod trading;
 use crate::key::Key;
 use crate::response::FullHttpResponse;
 use core::time::Duration;
-use exc_core::transport::http::Client;
-use exc_core::ExchangeError;
+use exc_util::error::ExchangeError;
+use exc_util::http::Client;
 use exc_util::interface::{ApiKind, Rest};
 use futures::future::{ready, BoxFuture};
 use futures::{FutureExt, TryFutureExt};
@@ -66,7 +66,7 @@ impl<Req: Rest> Service<Req> for Bitunix {
                 .call(req)
                 .map_err(ExchangeError::from)
                 .and_then(|resp| {
-                    trace!("http response; status: {:?}", resp.status());
+                    tracing::trace!("http response; status: {:?}", resp.status());
                     resp.bytes().map_err(|err| ExchangeError::UnexpectedResponseType(err.to_string()))
                 })
                 .and_then(|bytes| {

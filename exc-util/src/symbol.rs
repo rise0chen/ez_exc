@@ -1,4 +1,4 @@
-pub use exc_core::Asset;
+pub use crate::asset::Asset;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 

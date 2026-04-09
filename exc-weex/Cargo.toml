@@ -10,10 +10,7 @@ repository = ""
 version = "0.7.0"
 
 [features]
-default = ["rustls-tls"]
-native-tls = ["exc-core/native-tls"]
-prefer-client-id = []
-rustls-tls = ["exc-core/rustls-tls"]
+default = []
 
 [dependencies]
 anyhow = {version = "1"}
@@ -42,10 +39,6 @@ tracing = {version = "0.1"}
 features = ["derive"]
 version = "1"
 
-[dependencies.exc-core]
-default-features = false
-features = ["websocket", "driven", "http", "fetch-candles", "limit"]
-version = "0.7"
 
 [dependencies.tower]
 features = ["util", "reconnect", "buffer", "timeout", "retry", "ready-cache"]
