@@ -17,6 +17,7 @@ members = [
   "exc-lighter",
   "exc-mexc",
   "exc-okx",
+  "exc-paradex",
   "exc-simu",
   "exc-util",
   "exc-weex",
