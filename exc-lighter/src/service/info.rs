@@ -1,4 +1,5 @@
 use super::Lighter;
+use crate::futures_api::types::PositionSide;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::info::FundingRate;
@@ -58,7 +59,7 @@ impl Lighter {
         Ok(resp
             .into_iter()
             .map(|x| FundingRate {
-                rate: -x.rate / 100.0,
+                rate: if matches!(x.direction, PositionSide::Long) { 1.0 } else { -1.0 } * x.rate / 100.0,
                 time: x.timestamp * 1000,
                 interval,
             })
