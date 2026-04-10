@@ -33,7 +33,7 @@ impl Lighter {
         let custom_id = (time::OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as i64;
         let ret = OrderId {
             symbol: symbol.clone(),
-            order_id: Some(custom_id.to_string()),
+            order_id: None,
             custom_order_id: Some(custom_id.to_string()),
         };
 
@@ -103,8 +103,17 @@ impl Lighter {
         let order = if symbol.is_spot() {
             todo!();
         } else {
-            let Some(order_id) = order_id else {
-                return Err(ExchangeError::OrderNotFound);
+            let order_id = if let Some(order_id) = order_id {
+                order_id
+            } else {
+                let order = self
+                    .get_order(OrderId {
+                        symbol: symbol.clone(),
+                        order_id: order_id.clone(),
+                        custom_order_id: custom_order_id.clone(),
+                    })
+                    .await?;
+                order.order_id
             };
             let req = CancelOrderTxReq {
                 market_index: symbol_id as u8,
