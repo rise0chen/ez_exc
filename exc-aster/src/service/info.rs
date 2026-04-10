@@ -8,12 +8,7 @@ use tower::ServiceExt;
 impl Aster {
     pub async fn get_index_price(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
         if symbol.is_spot() {
-            let depth = self.get_depth(symbol, 2).await?;
-            return if depth.is_valid() {
-                Ok((depth.ask[0].price + depth.bid[0].price) / 2.0)
-            } else {
-                Err(ExchangeError::OrderNotFound)
-            };
+            return Ok(0.0);
         }
         let symbol_id = crate::symnol::symbol_id(symbol);
         use crate::futures_api::http::info::GetFundingRateRequest;

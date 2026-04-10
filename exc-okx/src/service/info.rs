@@ -8,12 +8,7 @@ use tower::ServiceExt;
 impl Okx {
     pub async fn get_index_price(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
         if symbol.is_spot() {
-            let depth = self.get_depth(symbol, 2).await?;
-            return if depth.is_valid() {
-                Ok((depth.ask[0].price + depth.bid[0].price) / 2.0)
-            } else {
-                Err(ExchangeError::OrderNotFound)
-            };
+            return Ok(0.0);
         }
         let mut symbol = symbol.clone();
         symbol.kind = exc_util::symbol::SymbolKind::Spot;
