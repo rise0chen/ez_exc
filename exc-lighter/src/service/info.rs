@@ -58,7 +58,7 @@ impl Lighter {
         Ok(resp
             .into_iter()
             .map(|x| FundingRate {
-                rate: x.rate / 100.0,
+                rate: -x.rate / 100.0,
                 time: x.timestamp * 1000,
                 interval,
             })
