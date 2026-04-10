@@ -9,6 +9,11 @@ readme = "./README.md"
 repository = ""
 version = "0.7.0"
 
+[features]
+default = ["rustls-tls"]
+native-tls = ["reqwest/native-tls"]
+rustls-tls = ["reqwest/rustls"]
+
 [dependencies]
 anyhow = {version = "1"}
 futures-util = "0.3.25"

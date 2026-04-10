@@ -1,29 +1,29 @@
 [workspace]
 members = [
-  "exc-util",
-  "exc-custom",
-  "exc-simu",
-  "exc-dex",
-  "exc-dydx",
-  "exc-okx",
-  "exc-bybit",
-  "exc-gate",
-  "exc-htx",
-  "exc-hyperliquid",
+  "exc-aden",
+  "exc-aster",
   "exc-binance",
   "exc-bitget",
   "exc-bitmart",
-  "exc-mexc",
-  "exc-kcex",
   "exc-bitunix",
+  "exc-bybit",
+  "exc-custom",
+  "exc-dex",
+  "exc-dydx",
+  "exc-gate",
+  "exc-htx",
+  "exc-hyperliquid",
+  "exc-kcex",
+  "exc-lighter",
+  "exc-mexc",
+  "exc-okx",
+  "exc-simu",
+  "exc-util",
   "exc-weex",
   "exc-xt",
-  "exc-aster",
-  "exc-aden",
-  "exc-lighter",
 ]
 resolver = "2"
 
 [patch.crates-io]
 dydx = {git = "https://github.com/rise0chen/dydx", branch = "main"}
-lighter-rs = { git = "https://github.com/rise0chen/lighter-rs", branch = "rise"}
+lighter-rs = {git = "https://github.com/rise0chen/lighter-rs", branch = "rise"}
