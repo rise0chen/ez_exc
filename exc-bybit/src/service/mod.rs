@@ -22,7 +22,7 @@ pub struct Bybit {
 
 impl Bybit {
     pub fn new(key: Key) -> Self {
-        let http = ServiceBuilder::default().service(Client::new());
+        let http = ServiceBuilder::default().service(Client::new(None));
         Self { key, http }
     }
 }

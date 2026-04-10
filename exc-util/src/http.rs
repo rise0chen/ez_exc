@@ -1,5 +1,6 @@
 use crate::error::ExchangeError;
 use futures_util::{future::BoxFuture, FutureExt as _, TryFutureExt as _};
+use reqwest::Certificate;
 pub use reqwest::{Body, Request, Response};
 
 /// Http CLient
@@ -10,16 +11,14 @@ pub struct Client {
 
 impl Client {
     /// Create a new websocket connector.
-    pub fn new() -> Self {
-        let client = reqwest::Client::builder().redirect(reqwest::redirect::Policy::none());
+    pub fn new(cert: Option<&[u8]>) -> Self {
+        let mut client = reqwest::Client::builder().redirect(reqwest::redirect::Policy::none());
+        if let Some(cert) = cert {
+            client = client.tls_certs_merge(Certificate::from_pem(cert));
+        }
         Self {
             inner: client.build().unwrap(),
         }
-    }
-}
-impl Default for Client {
-    fn default() -> Self {
-        Self::new()
     }
 }
 impl tower::Service<Request> for Client {

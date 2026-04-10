@@ -22,7 +22,7 @@ pub struct Weex {
 
 impl Weex {
     pub fn new(key: Key) -> Self {
-        let http = ServiceBuilder::default().service(Client::new());
+        let http = ServiceBuilder::default().service(Client::new(None));
         Self { key, http }
     }
 }

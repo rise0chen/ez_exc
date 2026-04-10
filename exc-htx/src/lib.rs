@@ -1,5 +1,6 @@
 //! Exc-htx: Htx exchange services.
 
+pub mod cert;
 pub mod futures_api;
 pub mod key;
 pub mod response;

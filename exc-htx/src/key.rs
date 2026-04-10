@@ -9,7 +9,7 @@ use sha2::Sha256;
 use time::format_description::well_known::iso8601::{Config, EncodedConfig, FormattedComponents, Iso8601, TimePrecision};
 use time::OffsetDateTime;
 
-const HOST_FUTURES: &str = "https://api.hbdm.com";
+const HOST_FUTURES: &str = "https://api.hbdm.vn";
 const HOST_SPOT: &str = "https://api.huobi.pro";
 const TIME_CFG: EncodedConfig = Config::DEFAULT
     .set_time_precision(TimePrecision::Second { decimal_digits: None })

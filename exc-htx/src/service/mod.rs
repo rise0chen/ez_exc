@@ -24,7 +24,7 @@ pub struct Htx {
 
 impl Htx {
     pub fn new(key: Key) -> Self {
-        let http = ServiceBuilder::default().service(Client::new());
+        let http = ServiceBuilder::default().service(Client::new(Some(crate::cert::CERT.as_bytes())));
         let ws = crate::futures_api::ws::Ws::new(vec![key.symbol.to_string()]);
         Self { key, http, ws }
     }

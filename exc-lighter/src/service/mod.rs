@@ -27,7 +27,7 @@ pub struct Lighter {
 }
 impl Lighter {
     pub fn new(key: Key) -> Self {
-        let http = ServiceBuilder::default().service(Client::new());
+        let http = ServiceBuilder::default().service(Client::new(None));
         let tx = TxClient::new("https://mainnet.zklighter.elliot.ai", &key.key, key.account_index, key.key_index, 304).unwrap();
         let ws = WsClient::builder()
             .host("mainnet.zklighter.elliot.ai")

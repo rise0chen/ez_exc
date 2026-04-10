@@ -7,7 +7,7 @@ use crate::key::{ApiKind, Key, ParamsFormat};
 use exc_util::http::{Body, Request};
 use exc_util::interface::{Method, Rest};
 
-const HOST: &str = "https://api.hbdm.com";
+const HOST: &str = "https://api.hbdm.vn";
 
 pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::Error> {
     let host = req.host().unwrap_or(HOST);

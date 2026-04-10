@@ -10,7 +10,7 @@ use time::OffsetDateTime;
 use tokio::sync::watch;
 use tokio_tungstenite::tungstenite::Message;
 
-const HOST: &str = "wss://api.hbdm.com/linear-swap-ws";
+const HOST: &str = "wss://api.hbdm.vn/linear-swap-ws";
 
 #[derive(Debug, Serialize)]
 pub struct Tx {
