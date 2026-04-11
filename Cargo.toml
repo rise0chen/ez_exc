@@ -27,4 +27,5 @@ resolver = "2"
 
 [patch.crates-io]
 dydx = {git = "https://github.com/rise0chen/dydx", branch = "main"}
+hypersdk = {git = "https://github.com/rise0chen/hypersdk", branch = "main"}
 lighter-rs = {git = "https://github.com/rise0chen/lighter-rs", branch = "rise"}

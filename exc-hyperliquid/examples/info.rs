@@ -16,6 +16,12 @@ async fn main() -> anyhow::Result<()> {
     let mut hyperliquid = Hyperliquid::new(key);
     hyperliquid.run();
 
+    let mut symbol = Symbol::spot(Asset::try_from("FLR").unwrap(), Asset::usd());
+    symbol.base_id = "10225".into();
+    hyperliquid.perfect_symbol(&mut symbol).await.unwrap();
+    let info = hyperliquid.get_index_price(&symbol).await.unwrap();
+    tracing::info!("{:?}", info);
+
     let mut symbol = Symbol::derivative(Asset::try_from("xyz:GOLD").unwrap(), Asset::usd());
     symbol.base_id = "110003".into();
     hyperliquid.perfect_symbol(&mut symbol).await.unwrap();

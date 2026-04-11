@@ -55,6 +55,13 @@ impl Ws {
                         tracing::warn!("Not init {} index_price", coin);
                     }
                 }
+                Incoming::ActiveSpotAssetCtx { coin, ctx } => {
+                    if let Some(ch) = self.index_prices.get(&coin) {
+                        ch.send_replace(ctx.mark_px.unwrap_or_default().as_f64());
+                    } else {
+                        tracing::warn!("Not init {} index_price", coin);
+                    }
+                }
                 Incoming::L2Book(book) => {
                     if let Some(ch) = self.books.get(&book.coin) {
                         let bid = book

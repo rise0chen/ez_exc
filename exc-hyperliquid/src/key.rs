@@ -5,7 +5,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Key {
     pub market: Str,
-    pub market_index: usize,
     pub user: Str,
     pub secret_key: Str,
 }

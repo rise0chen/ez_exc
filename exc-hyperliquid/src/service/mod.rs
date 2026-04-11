@@ -20,7 +20,7 @@ pub struct Hyperliquid {
 impl Hyperliquid {
     pub fn new(key: Key) -> Self {
         let http = Arc::new(hypercore::mainnet());
-        let ws = Ws::new(vec![key.market.to_string()]);
+        let ws = Ws::new(key.market.split(',').map(ToOwned::to_owned).collect());
         Self { key, http, ws }
     }
     pub fn run(&self) {
