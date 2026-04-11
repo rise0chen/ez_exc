@@ -10,7 +10,8 @@ use exc_util::interface::{Method, Rest};
 const HOST: &str = "https://api-contract.weex.com";
 
 pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::Error> {
-    let mut request = Request::new(req.method(), HOST.parse()?);
+    let host = req.host().unwrap_or(HOST);
+    let mut request = Request::new(req.method(), host.parse()?);
     let header = request.headers_mut();
     header.insert("content-type", "application/json".try_into()?);
     header.insert("locale", "zh-CN".try_into()?);
@@ -19,7 +20,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0".try_into()?,
     );
 
-    let mut uri = format!("{}{}", HOST, req.path());
+    let mut uri = format!("{}{}", host, req.path());
     if req.need_sign() {
         let signature = key.sign(req, ParamsFormat::Common, ApiKind::Common)?;
 

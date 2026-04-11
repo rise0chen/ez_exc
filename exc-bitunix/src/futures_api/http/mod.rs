@@ -10,7 +10,8 @@ use exc_util::interface::{Method, Rest};
 const HOST: &str = "https://fapi.bitunix.com";
 
 pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::Error> {
-    let mut request = Request::new(req.method(), HOST.parse()?);
+    let host = req.host().unwrap_or(HOST);
+    let mut request = Request::new(req.method(), host.parse()?);
     let header = request.headers_mut();
     header.insert("content-type", "application/json".try_into()?);
     if req.need_sign() {
@@ -20,7 +21,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
         header.insert("timestamp", signature.signing.timestamp.into());
         header.insert("sign", signature.signature.try_into()?);
     }
-    let mut uri = format!("{}{}", HOST, req.path());
+    let mut uri = format!("{}{}", host, req.path());
     let body = match req.method() {
         Method::GET | Method::DELETE => {
             let body_str = serde_urlencoded::to_string(req)?;

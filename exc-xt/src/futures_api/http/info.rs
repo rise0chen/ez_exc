@@ -51,6 +51,9 @@ pub struct GetFundingRateResponse {
 impl Rest for GetFundingRateRequest {
     type Response = GetFundingRateResponse;
 
+    fn host(&self) -> Option<&'static str> {
+        Some("https://www.xt.com")
+    }
     fn api_kind(&self) -> ApiKind {
         ApiKind::FuturesApi
     }
@@ -58,7 +61,7 @@ impl Rest for GetFundingRateRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/future/market/v1/public/q/funding-rate".to_string()
+        "/fapi/market/v1/public/q/funding-rate".to_string()
     }
     fn need_sign(&self) -> bool {
         false
