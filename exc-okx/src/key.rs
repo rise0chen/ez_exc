@@ -20,7 +20,6 @@ pub struct Key {
     pub api_key: Str,
     pub secret_key: Str,
     pub passphrase: Str,
-    pub usd: Option<Str>,
 }
 
 impl Key {
@@ -30,7 +29,6 @@ impl Key {
             api_key: Str::new(api_key),
             secret_key: Str::new(secret_key),
             passphrase: Str::new(passphrase),
-            usd: None,
         }
     }
     pub fn sign<'a, T: Rest>(&self, params: &'a T, format: ParamsFormat, kind: ApiKind) -> Result<SignedParams<'a, T>, anyhow::Error> {

@@ -30,8 +30,7 @@ impl Okx {
         let inst_id = crate::symnol::symbol_id(symbol);
         let req = crate::api::http::trading::PlaceOrderRequest {
             inst_id,
-            ccy: "USDT",
-            trade_quote_ccy: self.key.usd.as_ref().map(|x| x.to_string()),
+            trade_quote_ccy: (!symbol.quote_id.is_empty()).then_some(symbol.quote_id.clone()),
             td_mode: open_type.into(),
             side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
             ord_type: kind.into(),
