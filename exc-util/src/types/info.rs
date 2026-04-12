@@ -1,4 +1,4 @@
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct FundingRate {
     pub rate: f64,
     pub time: u64,

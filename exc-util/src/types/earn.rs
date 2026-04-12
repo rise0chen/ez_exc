@@ -1,4 +1,4 @@
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct StRate {
     pub rate: f64,
     pub start_time: u64,
