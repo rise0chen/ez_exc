@@ -18,6 +18,7 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("HTX_KEY")?)?;
     let mut htx = Htx::new(key);
     htx.run();
+    tokio::time::sleep(Duration::from_secs(2)).await;
 
     let symbol = Symbol::derivative(Asset::try_from("XAUT").unwrap(), Asset::usdt());
     let order_req = PlaceOrderRequest::new(Decimal::new(1, 0), Decimal::new(4000, 0), OrderType::Limit);

@@ -41,7 +41,6 @@ impl Bitunix {
                 tokio::time::sleep(Duration::from_secs(5)).await;
             }
         });
-        std::thread::sleep(Duration::from_secs(3));
     }
 }
 

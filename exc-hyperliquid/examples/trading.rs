@@ -18,6 +18,7 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("HYPERLIQUID_KEY")?)?;
     let mut hyperliquid = Hyperliquid::new(key);
     hyperliquid.run();
+    tokio::time::sleep(Duration::from_secs(2)).await;
 
     let mut symbol = Symbol::spot(Asset::try_from("FLR").unwrap(), Asset::usd());
     symbol.base_id = "10225".into();

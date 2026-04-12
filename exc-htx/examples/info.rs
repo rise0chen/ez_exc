@@ -1,6 +1,7 @@
 use exc_htx::service::Htx;
 use exc_util::symbol::{Asset, Symbol};
 use std::env::var;
+use std::time::Duration;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -15,6 +16,7 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("HTX_KEY").unwrap_or_default()).unwrap();
     let mut htx = Htx::new(key);
     htx.run();
+    tokio::time::sleep(Duration::from_secs(2)).await;
 
     let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
     let info = htx.get_funding_rate_history(&symbol, 2).await.unwrap();

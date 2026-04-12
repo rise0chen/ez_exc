@@ -1,6 +1,7 @@
 use exc_hyperliquid::service::Hyperliquid;
 use exc_util::symbol::{Asset, Symbol};
 use std::env::var;
+use std::time::Duration;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -15,6 +16,7 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("HYPERLIQUID_KEY").unwrap_or_default()).unwrap();
     let mut hyperliquid = Hyperliquid::new(key);
     hyperliquid.run();
+    tokio::time::sleep(Duration::from_secs(2)).await;
 
     let mut symbol = Symbol::spot(Asset::try_from("FLR").unwrap(), Asset::usd());
     symbol.base_id = "10225".into();

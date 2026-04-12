@@ -18,6 +18,7 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("BITUNIX_KEY")?)?;
     let mut bitunix = Bitunix::new(key);
     bitunix.run();
+    tokio::time::sleep(Duration::from_secs(2)).await;
 
     let symbol = Symbol::derivative(Asset::try_from("APE").unwrap(), Asset::usdt());
     let mut order_req = PlaceOrderRequest::new(Decimal::new(20, 0), Decimal::new(3, 1), OrderType::Limit);
