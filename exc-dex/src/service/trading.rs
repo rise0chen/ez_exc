@@ -52,7 +52,7 @@ impl Dex {
         let mut ret = OrderId {
             symbol: symbol.clone(),
             order_id: None,
-            custom_order_id: Some(String::new()),
+            custom_order_id: None,
         };
         let price_limit = if self.key.pool_cfg.base_is_0 {
             Uint::from((price * 2.0f64.powi(128)).sqrt() as u128).saturating_shl(32)
@@ -123,8 +123,12 @@ impl Dex {
             deal_avg_price: 0.0,
             fee: Fee::Quote(0.013),
             state: OrderStatus::New,
-            side: OrderSide::Unknown,
+            side: OrderSide::Buy,
         };
+        if order.order_id.is_empty() {
+            order.state = OrderStatus::Canceled;
+            return Ok(order);
+        }
         let Ok(tx) = order.order_id.parse() else {
             order.fee = Fee::Quote(0.0);
             order.state = OrderStatus::Canceled;
@@ -134,7 +138,6 @@ impl Dex {
             return Ok(order);
         };
         let Some(event) = tx.decoded_log::<Cex::Swap>() else {
-            order.side = OrderSide::Buy;
             order.state = OrderStatus::Filled;
             return Ok(order);
         };

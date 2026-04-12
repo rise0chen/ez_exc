@@ -1,4 +1,5 @@
 use super::Okx;
+use exc_util::asset::Asset;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::info::FundingRate;
@@ -12,6 +13,9 @@ impl Okx {
         }
         let mut symbol = symbol.clone();
         symbol.kind = exc_util::symbol::SymbolKind::Spot;
+        if symbol.quote != "USDT" {
+            symbol.quote = Asset::usd();
+        }
         let symbol_id = crate::symnol::symbol_id(&symbol);
         use crate::api::http::info::GetIndexPriceRequest;
         let req = GetIndexPriceRequest { inst_id: symbol_id };
