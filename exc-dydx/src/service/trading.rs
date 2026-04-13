@@ -128,6 +128,9 @@ impl Dydx {
         todo!();
     }
     pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+        if order_id.order_id.as_deref().unwrap_or_default().is_empty() {
+            return Ok(order_id);
+        }
         let mut client = self.client().await;
         let mut account = self.wallet().account(0, &mut client).await?;
         let subaccount = account.subaccount(0)?;
@@ -152,7 +155,7 @@ impl Dydx {
         Ok(order_id)
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
-        let order_id = order_id.order_id.unwrap();
+        let order_id = order_id.order_id.unwrap_or_default();
         let mut ret = Order {
             order_id,
             vol: 0.0,
@@ -160,8 +163,12 @@ impl Dydx {
             deal_avg_price: 0.0,
             fee: Fee::Quote(0.0),
             state: OrderStatus::New,
-            side: OrderSide::Unknown,
+            side: OrderSide::Buy,
         };
+        if ret.order_id.is_empty() {
+            ret.state = OrderStatus::Canceled;
+            return Ok(ret);
+        }
         let client_id = ret.order_id.split(",").nth(2).unwrap().parse::<u32>().unwrap();
         let account = self.wallet().account_offline(0)?;
         let subaccount = account.subaccount(0)?;

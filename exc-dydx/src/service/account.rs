@@ -20,6 +20,9 @@ impl Dydx {
         let (mut short_size, mut short_val) = (0.0, 0.0);
         let (mut long_size, mut long_val) = (0.0, 0.0);
         for x in resp {
+            if matches!(x.status, dydx::indexer::PerpetualPositionStatus::Closed) {
+                continue;
+            }
             let size = x.size.to_f64().unwrap();
             let price = x.entry_price.to_f64().unwrap();
             if size < 0.0 {

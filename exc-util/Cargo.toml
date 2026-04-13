@@ -11,8 +11,8 @@ version = "0.7.0"
 
 [features]
 default = ["rustls-tls"]
-native-tls = ["reqwest/native-tls"]
-rustls-tls = ["reqwest/rustls"]
+native-tls = ["reqwest/native-tls", "tokio-tungstenite/native-tls"]
+rustls-tls = ["reqwest/rustls", "tokio-tungstenite/rustls-tls-native-roots"]
 
 [dependencies]
 anyhow = {version = "1"}
@@ -24,4 +24,5 @@ rust_decimal = {version = "1"}
 serde = {version = "1", features = ["derive"]}
 smol_str = {version = "0.3", features = ["serde"]}
 thiserror = "2"
+tokio-tungstenite = {version = "0.28"}
 tower = {version = "0.5", default-features = false}
