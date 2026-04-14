@@ -52,7 +52,7 @@ impl Gate {
         if resp.is_empty() {
             return Err(ExchangeError::OrderNotFound);
         }
-        let interval = (day as u64 * 24 * 60 * 60 * 1000) / resp.len() as u64;
+        let interval = (resp[0].t - resp[1].t) * 1000;
         Ok(resp
             .into_iter()
             .map(|x| FundingRate {

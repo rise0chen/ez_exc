@@ -15,7 +15,7 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("BINANCE_KEY").unwrap_or_default()).unwrap();
     let mut binance = Binance::new(key);
 
-    let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
+    let symbol = Symbol::derivative(Asset::try_from("CL").unwrap(), Asset::usdt());
     let info = binance.get_funding_rate_history(&symbol, 2).await.unwrap();
     assert!(info[0].time > info[1].time + 58 * 60 * 1000);
     tracing::info!("{:?}", info);

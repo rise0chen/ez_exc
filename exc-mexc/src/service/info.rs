@@ -47,7 +47,7 @@ impl Mexc {
         if resp.is_empty() {
             return Err(ExchangeError::OrderNotFound);
         }
-        let interval = (day as u64 * 24 * 60 * 60 * 1000) / resp.len() as u64;
+        let interval = resp[0].settle_time - resp[1].settle_time;
         Ok(resp
             .into_iter()
             .map(|x| FundingRate {
