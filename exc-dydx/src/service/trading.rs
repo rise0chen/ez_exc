@@ -129,7 +129,7 @@ impl Dydx {
     }
     pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
         if order_id.order_id.as_deref().unwrap_or_default().is_empty() {
-            return Ok(order_id);
+            return Err(ExchangeError::OrderNotFound);
         }
         let mut client = self.client().await;
         let mut account = self.wallet().account(0, &mut client).await?;
@@ -166,8 +166,7 @@ impl Dydx {
             side: OrderSide::Buy,
         };
         if ret.order_id.is_empty() {
-            ret.state = OrderStatus::Canceled;
-            return Ok(ret);
+            return Err(ExchangeError::OrderNotFound);
         }
         let client_id = ret.order_id.split(",").nth(2).unwrap().parse::<u32>().unwrap();
         let account = self.wallet().account_offline(0)?;
@@ -175,7 +174,6 @@ impl Dydx {
         let orders = self.indexer().accounts().get_subaccount_orders(&subaccount, None).await?;
         let order = orders.into_iter().find(|x| x.client_id.0 == client_id);
         let Some(order) = order else {
-            ret.state = OrderStatus::Canceled;
             return Ok(ret);
         };
         ret.vol = order.size.to_f64().unwrap();
