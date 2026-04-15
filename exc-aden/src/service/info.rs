@@ -6,6 +6,34 @@ use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
 
 impl Aden {
+    pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
+        if symbol.is_spot() {
+            return Ok(());
+        }
+        let symbol_id = crate::symnol::symbol_id(symbol);
+        use crate::futures_api::http::info::GetInfoRequest;
+        let req = GetInfoRequest { contract: symbol_id };
+        let a = self.oneshot(req).await?;
+        if symbol.multi_price != 1.0 {
+            tracing::error!("aden contract multi_price from {} to {}", symbol.multi_price, 1.0);
+            symbol.multi_price = 1.0;
+        }
+        if symbol.multi_size != a.quanto_multiplier {
+            tracing::error!("aden contract multi_size from {} to {}", symbol.multi_size, a.quanto_multiplier);
+            symbol.multi_size = a.quanto_multiplier;
+        }
+        if symbol.precision != 0 {
+            tracing::warn!("aden contract precision from {} to {}", symbol.precision, 0);
+            symbol.precision = 0;
+        }
+        let precision_price = -a.order_price_round.log10().round() as i8;
+        if symbol.precision_price != precision_price {
+            tracing::warn!("aden contract precision_price from {} to {}", symbol.precision_price, precision_price);
+            symbol.precision_price = precision_price;
+        }
+        Ok(())
+    }
+
     pub async fn get_index_price(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
         if symbol.is_spot() {
             return Ok(0.0);

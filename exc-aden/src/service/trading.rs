@@ -9,20 +9,6 @@ use rust_decimal::Decimal;
 use tower::ServiceExt;
 
 impl Aden {
-    pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
-        if symbol.is_spot() {
-            return Ok(());
-        }
-        let symbol_id = crate::symnol::symbol_id(symbol);
-        use crate::futures_api::http::trading::GetTradeRequest;
-        let req = GetTradeRequest { contract: symbol_id };
-        let a = self.oneshot(req).await?;
-        if symbol.multi_size != a.quanto_multiplier {
-            tracing::info!("aden contract multi_size from {} to {}", symbol.multi_size, a.quanto_multiplier);
-            symbol.multi_size = a.quanto_multiplier;
-        }
-        Ok(())
-    }
     pub async fn place_order(&mut self, symbol: &Symbol, data: PlaceOrderRequest) -> Result<OrderId, (OrderId, ExchangeError)> {
         let PlaceOrderRequest {
             size,

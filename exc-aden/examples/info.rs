@@ -15,7 +15,8 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("ADEN_KEY").unwrap_or_default()).unwrap();
     let mut aden = Aden::new(key);
 
-    let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
+    aden.perfect_symbol(&mut symbol).await.unwrap();
     let info = aden.get_funding_rate_history(&symbol, 2).await.unwrap();
     assert!(info[0].time > info[1].time + 58 * 60 * 1000);
     tracing::info!("{:?}", info);

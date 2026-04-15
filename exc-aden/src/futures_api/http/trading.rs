@@ -4,37 +4,6 @@ use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "snake_case")]
-pub struct GetTradeRequest {
-    pub contract: String,
-}
-
-#[serde_as]
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub struct GetTradeResponse {
-    #[serde_as(as = "DisplayFromStr")]
-    pub quanto_multiplier: f64,
-}
-
-impl Rest for GetTradeRequest {
-    type Response = GetTradeResponse;
-
-    fn api_kind(&self) -> ApiKind {
-        ApiKind::FuturesApi
-    }
-    fn method(&self) -> Method {
-        Method::GET
-    }
-    fn path(&self) -> String {
-        format!("/api/v1/dex_futures/usdt/contracts/{}", self.contract)
-    }
-    fn need_sign(&self) -> bool {
-        false
-    }
-}
-
 #[serde_as]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "snake_case")]
