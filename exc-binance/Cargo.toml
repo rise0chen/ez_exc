@@ -21,7 +21,7 @@ atomic-waker = "1.0.0"
 cfg-if = {version = "1"}
 either = {version = "1"}
 exc-util = {path = "../exc-util"}
-futures = {version = "0.3"}
+futures-util = {version = "0.3"}
 hex = "0.4"
 hmac = {version = "0.12"}
 http = {version = "1.1"}

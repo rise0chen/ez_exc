@@ -22,7 +22,7 @@ chrono = {version = "0.4", features = ["serde"]}
 hypersdk = {version = "0.2"}
 either = {version = "1"}
 exc-util = {path = "../exc-util"}
-futures = {version = "0.3"}
+futures-util = {version = "0.3"}
 hex = "0.4"
 num_enum = {version = "0.7"}
 pin-project-lite = {version = "0.2"}

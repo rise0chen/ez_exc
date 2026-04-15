@@ -23,7 +23,7 @@ dydx = {version = "0.3"}
 dydx-proto = {version = "0.4"}
 either = {version = "1"}
 exc-util = {path = "../exc-util"}
-futures = {version = "0.3"}
+futures-util = {version = "0.3"}
 hex = "0.4"
 num_enum = {version = "0.7"}
 pin-project-lite = {version = "0.2"}

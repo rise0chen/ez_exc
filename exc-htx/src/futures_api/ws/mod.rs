@@ -3,7 +3,7 @@ pub mod book;
 use core::time::Duration;
 use exc_util::types::book::{Depth, Order};
 use flate2::read::GzDecoder;
-use futures::{SinkExt, StreamExt};
+use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, io::Read as _, sync::Arc};
 use time::OffsetDateTime;

@@ -23,8 +23,7 @@ cfg-if = {version = "1"}
 either = {version = "1"}
 exc-util = {path = "../exc-util"}
 flate2 = {version = "1.0", features = ["rust_backend"]}
-futures = {version = "0.3"}
-futures-util = "0.3.32"
+futures-util = {version = "0.3"}
 hex = "0.4"
 hmac = {version = "0.12"}
 http = {version = "1.1"}

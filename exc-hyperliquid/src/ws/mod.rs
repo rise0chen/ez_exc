@@ -1,5 +1,5 @@
 use exc_util::types::book::{Depth, Order};
-use futures::StreamExt;
+use futures_util::StreamExt;
 use hypersdk::hypercore::{self, ws::Event, Incoming, Subscription};
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::watch;

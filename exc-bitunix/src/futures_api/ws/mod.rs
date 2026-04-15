@@ -1,7 +1,7 @@
 pub mod info;
 
 use core::time::Duration;
-use futures::{SinkExt, StreamExt};
+use futures_util::{SinkExt, StreamExt};
 use std::{collections::HashMap, sync::Arc};
 use time::OffsetDateTime;
 use tokio::sync::watch;

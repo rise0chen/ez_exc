@@ -9,8 +9,8 @@ use crate::response::FullHttpResponse;
 use exc_util::error::ExchangeError;
 use exc_util::http::Client;
 use exc_util::interface::{ApiKind, Rest};
-use futures::future::{ready, BoxFuture};
-use futures::{FutureExt, TryFutureExt};
+use futures_util::future::{ready, BoxFuture};
+use futures_util::{FutureExt, TryFutureExt};
 use tower::{Service, ServiceBuilder};
 
 /// Okx API.
