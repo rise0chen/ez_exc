@@ -33,19 +33,19 @@ impl Hyperliquid {
             precision_price = 6 - precision_size;
         }
         if symbol.multi_price != multi_price {
-            tracing::error!("gate multi_price from {} to {}", symbol.multi_price, multi_price);
+            tracing::error!("hyperliquid multi_price from {} to {}", symbol.multi_price, multi_price);
             symbol.multi_price = multi_price;
         }
-        if symbol.multi_size != multi_size {
-            tracing::error!("gate multi_size from {} to {}", symbol.multi_size, multi_size);
+        if symbol.multi_size.max(multi_size) / symbol.multi_size.min(multi_size) > 8.0 {
+            tracing::error!("hyperliquid multi_size from {} to {}", symbol.multi_size, multi_size);
             symbol.multi_size = multi_size;
         }
         if symbol.precision != precision_size {
-            tracing::warn!("gate precision_size from {} to {}", symbol.precision, precision_size);
+            tracing::warn!("hyperliquid precision_size from {} to {}", symbol.precision, precision_size);
             symbol.precision = precision_size;
         }
         if symbol.precision_price != precision_price {
-            tracing::warn!("gate precision_price from {} to {}", symbol.precision_price, precision_price);
+            tracing::warn!("hyperliquid precision_price from {} to {}", symbol.precision_price, precision_price);
             symbol.precision_price = precision_price;
         }
         Ok(())

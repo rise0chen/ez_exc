@@ -16,7 +16,7 @@ impl Bitget {
         let symbol_id = crate::symnol::symbol_id(symbol);
         use crate::api::http::info::GetInfoRequest;
         let req = GetInfoRequest {
-            category: "USDT-FUTURES",
+            category: if symbol.is_spot() { "SPOT" } else { "USDT-FUTURES" },
             symbol: symbol_id,
         };
         let Some(a) = self.oneshot(req).await?.pop() else {
@@ -29,7 +29,7 @@ impl Bitget {
             tracing::error!("bitget multi_price from {} to {}", symbol.multi_price, multi_price);
             symbol.multi_price = multi_price;
         }
-        if symbol.multi_size != multi_size {
+        if symbol.multi_size.max(multi_size) / symbol.multi_size.min(multi_size) > 8.0 {
             tracing::error!("bitget multi_size from {} to {}", symbol.multi_size, multi_size);
             symbol.multi_size = multi_size;
         }

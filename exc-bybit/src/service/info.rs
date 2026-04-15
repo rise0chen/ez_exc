@@ -21,7 +21,7 @@ impl Bybit {
         let precision_size = -precision_size.log10().round() as i8;
         let precision_price = -a.price_filter.tick_size.log10().round() as i8;
 
-        if symbol.multi_size != multi_size {
+        if symbol.multi_size.max(multi_size) / symbol.multi_size.min(multi_size) > 8.0 {
             tracing::error!("bybit multi_size from {} to {}", symbol.multi_size, multi_size);
             symbol.multi_size = multi_size;
         }

@@ -51,7 +51,7 @@ impl Binance {
             tracing::error!("binance multi_price from {} to {}", symbol.multi_price, multi_price);
             symbol.multi_price = multi_price;
         }
-        if symbol.multi_size != multi_size {
+        if symbol.multi_size.max(multi_size) / symbol.multi_size.min(multi_size) > 8.0 {
             tracing::error!("binance multi_size from {} to {}", symbol.multi_size, multi_size);
             symbol.multi_size = multi_size;
         }

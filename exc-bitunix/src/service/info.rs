@@ -23,19 +23,19 @@ impl Bitunix {
         precision_price = a.quote_precision;
 
         if symbol.multi_price != multi_price {
-            tracing::error!("okx multi_price from {} to {}", symbol.multi_price, multi_price);
+            tracing::error!("bitunix multi_price from {} to {}", symbol.multi_price, multi_price);
             symbol.multi_price = multi_price;
         }
-        if symbol.multi_size != multi_size {
-            tracing::error!("okx multi_size from {} to {}", symbol.multi_size, multi_size);
+        if symbol.multi_size.max(multi_size) / symbol.multi_size.min(multi_size) > 8.0 {
+            tracing::error!("bitunix multi_size from {} to {}", symbol.multi_size, multi_size);
             symbol.multi_size = multi_size;
         }
         if symbol.precision != precision_size {
-            tracing::warn!("okx precision_size from {} to {}", symbol.precision, precision_size);
+            tracing::warn!("bitunix precision_size from {} to {}", symbol.precision, precision_size);
             symbol.precision = precision_size;
         }
         if symbol.precision_price != precision_price {
-            tracing::warn!("okx precision_price from {} to {}", symbol.precision_price, precision_price);
+            tracing::warn!("bitunix precision_price from {} to {}", symbol.precision_price, precision_price);
             symbol.precision_price = precision_price;
         }
         Ok(())
