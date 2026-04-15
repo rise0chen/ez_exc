@@ -1,6 +1,44 @@
 use exc_util::interface::{ApiKind, Method, Rest};
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DisplayFromStr};
+use serde_with::{serde_as, DefaultOnError, DisplayFromStr};
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetInfoRequest {
+    pub inst_type: &'static str,
+    pub inst_id: String,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetInfoResponse {
+    #[serde_as(as = "DefaultOnError<Option<DisplayFromStr>>")]
+    pub ct_val: Option<f64>,
+    #[serde_as(as = "DefaultOnError<Option<DisplayFromStr>>")]
+    pub ct_mult: Option<f64>,
+    #[serde_as(as = "DisplayFromStr")]
+    pub lot_sz: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub tick_sz: f64,
+}
+
+impl Rest for GetInfoRequest {
+    type Response = Vec<GetInfoResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::Common
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/api/v5/public/instruments".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        false
+    }
+}
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

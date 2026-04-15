@@ -6,6 +6,35 @@ use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
 
 impl Bybit {
+    pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
+        let symbol_id = crate::symnol::symbol_id(symbol);
+        use crate::api::http::info::GetInfoRequest;
+        let req = GetInfoRequest {
+            category: symbol.kind,
+            symbol: symbol_id,
+        };
+        let Some(a) = self.oneshot(req).await?.list.pop() else {
+            return Err(ExchangeError::OrderNotFound);
+        };
+        let multi_size = 1.0;
+        let precision_size = a.lot_size_filter.qty_step.or(a.lot_size_filter.base_precision).unwrap_or(1.0);
+        let precision_size = -precision_size.log10().round() as i8;
+        let precision_price = -a.price_filter.tick_size.log10().round() as i8;
+
+        if symbol.multi_size != multi_size {
+            tracing::error!("bybit multi_size from {} to {}", symbol.multi_size, multi_size);
+            symbol.multi_size = multi_size;
+        }
+        if symbol.precision != precision_size {
+            tracing::warn!("bybit precision_size from {} to {}", symbol.precision, precision_size);
+            symbol.precision = precision_size;
+        }
+        if symbol.precision_price != precision_price {
+            tracing::warn!("bybit precision_price from {} to {}", symbol.precision_price, precision_price);
+            symbol.precision_price = precision_price;
+        }
+        Ok(())
+    }
     pub async fn get_index_price(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
         if symbol.is_spot() {
             return Ok(0.0);

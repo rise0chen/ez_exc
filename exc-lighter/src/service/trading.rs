@@ -19,9 +19,6 @@ impl Lighter {
             dry_run: false,
         }
     }
-    pub async fn perfect_symbol(&mut self, _symbol: &mut Symbol) -> Result<(), ExchangeError> {
-        Ok(())
-    }
     pub async fn place_order(&mut self, symbol: &Symbol, data: PlaceOrderRequest) -> Result<OrderId, (OrderId, ExchangeError)> {
         let PlaceOrderRequest {
             size,
@@ -98,7 +95,7 @@ impl Lighter {
             custom_order_id,
         } = order_id;
         let symbol_id = crate::symnol::symbol_id(&symbol);
-        let order =  {
+        let order = {
             let order_id = if let Some(order_id) = order_id {
                 order_id
             } else {

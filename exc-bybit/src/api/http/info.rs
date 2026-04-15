@@ -6,6 +6,54 @@ use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct GetInfoRequest {
+    pub category: SymbolKind,
+    pub symbol: String,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LotSizeFilter {
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    pub qty_step: Option<f64>,
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    pub base_precision: Option<f64>,
+}
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PriceFilter {
+    #[serde_as(as = "DisplayFromStr")]
+    pub tick_size: f64,
+}
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetInfoResponse {
+    pub lot_size_filter: LotSizeFilter,
+    pub price_filter: PriceFilter,
+}
+
+impl Rest for GetInfoRequest {
+    type Response = List<GetInfoResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::Common
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/v5/market/instruments-info".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        false
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GetFundingRateRequest {
     pub category: SymbolKind,
     pub symbol: String,

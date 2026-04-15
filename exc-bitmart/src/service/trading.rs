@@ -8,9 +8,6 @@ use rust_decimal::Decimal;
 use tower::ServiceExt;
 
 impl Bitmart {
-    pub async fn perfect_symbol(&mut self, _symbol: &mut Symbol) -> Result<(), ExchangeError> {
-        Ok(())
-    }
     pub async fn place_order(&mut self, symbol: &Symbol, data: PlaceOrderRequest) -> Result<OrderId, (OrderId, ExchangeError)> {
         let PlaceOrderRequest {
             size,

@@ -5,23 +5,25 @@ use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "snake_case")]
-pub struct GetFundingRateRequest {
+pub struct GetInfoRequest {
     pub market_id: i16,
 }
 
 #[serde_as]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub struct GetFundingRateResponse {
-    #[serde_as(as = "DisplayFromStr")]
-    pub index_price: f64,
-    #[serde_as(as = "DisplayFromStr")]
-    pub last_funding_rate: f64,
-    pub next_funding_time: u64,
+pub struct Info {
+    pub supported_size_decimals: i8,
+    pub supported_price_decimals: i8,
+}
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct GetInfoResponse {
+    pub order_books: Vec<Info>,
 }
 
-impl Rest for GetFundingRateRequest {
-    type Response = GetFundingRateResponse;
+impl Rest for GetInfoRequest {
+    type Response = GetInfoResponse;
 
     fn api_kind(&self) -> ApiKind {
         ApiKind::FuturesApi
@@ -30,7 +32,7 @@ impl Rest for GetFundingRateRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/api/v1/perpsMarketStats".to_string()
+        "/api/v1/orderBooks".to_string()
     }
     fn need_sign(&self) -> bool {
         false

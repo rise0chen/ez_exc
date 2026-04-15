@@ -20,6 +20,7 @@ async fn main() -> anyhow::Result<()> {
 
     let mut symbol = Symbol::derivative(Asset::try_from("XAU").unwrap(), Asset::usdt());
     symbol.base_id = String::from("92");
+    lighter.perfect_symbol(&mut symbol).await.unwrap();
     let info = lighter.get_funding_rate_history(&symbol, 2).await.unwrap();
     assert!(info[0].time > info[1].time + 58 * 60 * 1000);
     tracing::info!("{:?}", info);

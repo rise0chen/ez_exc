@@ -4,6 +4,39 @@ use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "snake_case")]
+pub struct GetInfoRequest {
+    pub contract: String,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct GetInfoResponse {
+    #[serde_as(as = "DisplayFromStr")]
+    pub quanto_multiplier: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub order_price_round: f64,
+}
+
+impl Rest for GetInfoRequest {
+    type Response = GetInfoResponse;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        format!("/api/v4/futures/usdt/contracts/{}", self.contract)
+    }
+    fn need_sign(&self) -> bool {
+        false
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub struct GetFundingRateRequest {
     #[serde(skip)]
     pub contract: String,

@@ -14,6 +14,12 @@ pub struct GetIndexPriceRequest {
 pub struct SymbolInfo {
     #[serde_as(as = "DisplayFromStr")]
     pub index_price: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub contract_size: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub vol_precision: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub price_precision: f64,
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case")]

@@ -29,3 +29,4 @@ resolver = "2"
 dydx = {git = "https://github.com/rise0chen/dydx", branch = "main"}
 hypersdk = {git = "https://github.com/rise0chen/hypersdk", branch = "main"}
 lighter-rs = {git = "https://github.com/rise0chen/lighter-rs", branch = "rise"}
+paradex = {git = "https://github.com/rise0chen/paradex-rs", branch = "main"}

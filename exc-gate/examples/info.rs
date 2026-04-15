@@ -15,7 +15,8 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("GATE_KEY").unwrap_or_default()).unwrap();
     let mut gate = Gate::new(key);
 
-    let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
+    gate.perfect_symbol(&mut symbol).await.unwrap();
     let info = gate.get_funding_rate_history(&symbol, 2).await.unwrap();
     assert!(info[0].time > info[1].time + 58 * 60 * 1000);
     tracing::info!("{:?}", info);

@@ -4,6 +4,41 @@ use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct GetInfoRequest {
+    pub symbol: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Info {
+    pub price_precision: i8,
+    pub quantity_precision: i8,
+}
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetInfoResponse {
+    pub symbols: Vec<Info>,
+}
+
+impl Rest for GetInfoRequest {
+    type Response = GetInfoResponse;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/capi/v3/market/exchangeInfo".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        false
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GetFundingRateRequest {
     pub symbol: String,
 }

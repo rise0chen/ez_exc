@@ -36,7 +36,7 @@ pub struct Position {
 pub struct Account {
     #[serde_as(as = "DisplayFromStr")]
     pub cross_asset_value: f64,
-    pub assets:Vec<Asset>,
+    pub assets: Vec<Asset>,
     pub positions: Vec<Position>,
 }
 

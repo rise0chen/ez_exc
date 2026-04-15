@@ -7,6 +7,41 @@ use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
 
 impl Lighter {
+    #[allow(unused)]
+    pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
+        let mut multi_price = 1.0;
+        let mut multi_size = 1.0;
+        let mut precision_size = 0;
+        let mut precision_price = 2;
+
+        let symbol_id = crate::symnol::symbol_id(symbol);
+        use crate::futures_api::http::info::GetInfoRequest;
+        let req = GetInfoRequest { market_id: symbol_id };
+        let Some(a) = self.oneshot(req).await?.order_books.pop() else {
+            return Err(ExchangeError::OrderNotFound);
+        };
+        precision_size = a.supported_size_decimals;
+        precision_price = a.supported_price_decimals;
+
+        if symbol.multi_price != multi_price {
+            tracing::error!("lighter multi_price from {} to {}", symbol.multi_price, multi_price);
+            symbol.multi_price = multi_price;
+        }
+        if symbol.multi_size != multi_size {
+            tracing::error!("lighter multi_size from {} to {}", symbol.multi_size, multi_size);
+            symbol.multi_size = multi_size;
+        }
+        if symbol.precision != precision_size {
+            tracing::warn!("lighter precision_size from {} to {}", symbol.precision, precision_size);
+            symbol.precision = precision_size;
+        }
+        if symbol.precision_price != precision_price {
+            tracing::warn!("lighter precision_price from {} to {}", symbol.precision_price, precision_price);
+            symbol.precision_price = precision_price;
+        }
+        Ok(())
+    }
+
     pub async fn get_index_price(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
         if symbol.is_spot() {
             return Ok(0.0);

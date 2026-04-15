@@ -7,9 +7,6 @@ use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderSide, OrderSt
 use paradex::structs::{OrderInstruction, OrderUpdate, Side};
 
 impl Paradex {
-    pub async fn perfect_symbol(&mut self, _symbol: &mut Symbol) -> Result<(), ExchangeError> {
-        Ok(())
-    }
     pub async fn place_order(&mut self, symbol: &Symbol, data: PlaceOrderRequest) -> Result<OrderId, (OrderId, ExchangeError)> {
         let PlaceOrderRequest {
             size,

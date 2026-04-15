@@ -6,6 +6,66 @@ use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
 
 impl Binance {
+    #[allow(unused)]
+    pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
+        let mut multi_price = 1.0;
+        let mut multi_size = 1.0;
+        let mut precision_size = 0;
+        let mut precision_price = 2;
+
+        let symbol_id = crate::symnol::symbol_id(symbol);
+        if symbol.is_spot() {
+            use crate::spot_api::http::info::{Filter, GetInfoRequest};
+            let req = GetInfoRequest { symbol: symbol_id.clone() };
+            let Some(info) = self.oneshot(req).await?.symbols.into_iter().find(|x| x.symbol == symbol_id) else {
+                return Err(ExchangeError::OrderNotFound);
+            };
+            for f in info.filters {
+                match f {
+                    Filter::PriceFilter { tick_size } => {
+                        precision_price = -tick_size.log10().round() as i8;
+                    }
+                    Filter::LotSize { step_size } => {
+                        precision_size = -step_size.log10().round() as i8;
+                    }
+                }
+            }
+        } else {
+            use crate::futures_api::http::info::{Filter, GetInfoRequest};
+            let req = GetInfoRequest {};
+            let Some(info) = self.oneshot(req).await?.symbols.into_iter().find(|x| x.symbol == symbol_id) else {
+                return Err(ExchangeError::OrderNotFound);
+            };
+            for f in info.filters {
+                match f {
+                    Filter::PriceFilter { tick_size } => {
+                        precision_price = -tick_size.log10().round() as i8;
+                    }
+                    Filter::LotSize { step_size } => {
+                        precision_size = -step_size.log10().round() as i8;
+                    }
+                }
+            }
+        }
+        if symbol.multi_price != multi_price {
+            tracing::error!("binance multi_price from {} to {}", symbol.multi_price, multi_price);
+            symbol.multi_price = multi_price;
+        }
+        if symbol.multi_size != multi_size {
+            tracing::error!("binance multi_size from {} to {}", symbol.multi_size, multi_size);
+            symbol.multi_size = multi_size;
+        }
+        if symbol.precision != precision_size {
+            tracing::warn!("binance precision_size from {} to {}", symbol.precision, precision_size);
+            symbol.precision = precision_size;
+        }
+        if symbol.precision_price != precision_price {
+            tracing::warn!("binance precision_price from {} to {}", symbol.precision_price, precision_price);
+            symbol.precision_price = precision_price;
+        }
+        Ok(())
+    }
+
     pub async fn get_index_price(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
         if symbol.is_spot() {
             return Ok(0.0);

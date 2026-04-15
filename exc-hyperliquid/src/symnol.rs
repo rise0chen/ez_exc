@@ -12,3 +12,15 @@ pub fn symbol_id(symbol: &Symbol) -> String {
         _ => panic!("invaild symbol: {:?}", symbol),
     }
 }
+
+pub fn dex(symbol: &Symbol) -> Option<String> {
+    if symbol.is_spot() {
+        return None;
+    }
+    let mut symbol = symbol.base.split(':');
+    match (symbol.next(), symbol.next()) {
+        (Some(_), None) => None,
+        (Some(dex), Some(_)) => Some(dex.to_ascii_lowercase()),
+        _ => panic!("invaild symbol: {:?}", symbol),
+    }
+}

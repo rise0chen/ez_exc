@@ -26,10 +26,6 @@ impl Dex {
         let quote_decimals = quote.decimals().call().await.map_err(map_err)? as i8;
         let convert_decimals = quote_decimals - base_decimals;
         let multi_price = 10.0f64.powi(convert_decimals as i32);
-        if symbol.precision != base_decimals {
-            tracing::info!("dex precision from {} to {}", symbol.precision, base_decimals);
-            symbol.precision = base_decimals;
-        }
         if symbol.multi_price != multi_price {
             tracing::info!("dex multi_price from {} to {}", symbol.multi_price, multi_price);
             symbol.multi_price = multi_price;
@@ -37,6 +33,10 @@ impl Dex {
         if symbol.multi_size != 1.0 {
             tracing::info!("dex multi_size from {} to {}", symbol.multi_size, 1.0);
             symbol.multi_size = 1.0;
+        }
+        if symbol.precision != base_decimals {
+            tracing::info!("dex precision_size from {} to {}", symbol.precision, base_decimals);
+            symbol.precision = base_decimals;
         }
         Ok(())
     }
