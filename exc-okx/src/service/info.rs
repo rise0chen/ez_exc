@@ -55,7 +55,7 @@ impl Okx {
             limit: Some(day * 24),
         };
         let resp = self.oneshot(req).await?;
-        if resp.is_empty() {
+        if resp.len() < 2 {
             return Err(ExchangeError::OrderNotFound);
         }
         let interval = resp[0].funding_time - resp[1].funding_time;

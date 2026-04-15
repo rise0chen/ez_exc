@@ -41,7 +41,7 @@ impl Dydx {
             )
             .await?;
         resp.retain(|x| x.effective_at > start_time);
-        if resp.is_empty() {
+        if resp.len() < 2 {
             return Err(ExchangeError::OrderNotFound);
         }
         let interval = (resp[0].effective_at.timestamp_millis() - resp[1].effective_at.timestamp_millis()) as u64;

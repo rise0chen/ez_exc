@@ -48,7 +48,7 @@ impl Xt {
         };
         let mut resp = self.oneshot(req).await?.items;
         resp.retain(|x| x.created_time > start_time);
-        if resp.is_empty() {
+        if resp.len() < 2 {
             return Err(ExchangeError::OrderNotFound);
         }
         let interval = resp[0].created_time - resp[1].created_time;

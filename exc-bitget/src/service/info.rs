@@ -54,7 +54,7 @@ impl Bitget {
         };
         let mut resp = self.oneshot(req).await?.result_list;
         resp.retain(|x| x.funding_rate_timestamp > start_time);
-        if resp.is_empty() {
+        if resp.len() < 2 {
             return Err(ExchangeError::OrderNotFound);
         }
         let interval = resp[0].funding_rate_timestamp - resp[1].funding_rate_timestamp;

@@ -34,7 +34,7 @@ impl Paradex {
             .request_cursor::<GetFundingRateHistoryResponse>("/v1/funding/data".into(), Some(req), Some(start), None, false)
             .await
             .map_err(|e| ExchangeError::Other(e.into()))?;
-        if resp.is_empty() {
+        if resp.len() < 2 {
             return Err(ExchangeError::OrderNotFound);
         }
         let interval = resp[0].created_at - resp[1].created_at;

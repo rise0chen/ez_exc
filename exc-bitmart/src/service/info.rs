@@ -48,7 +48,7 @@ impl Bitmart {
         };
         let mut resp = self.oneshot(req).await?.list;
         resp.retain(|x| x.funding_time > start_time);
-        if resp.is_empty() {
+        if resp.len() < 2 {
             return Err(ExchangeError::OrderNotFound);
         }
         let interval = resp[0].funding_time - resp[1].funding_time;

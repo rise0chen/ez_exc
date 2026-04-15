@@ -51,7 +51,7 @@ impl Lighter {
             count_back: day * 24,
         };
         let mut resp = self.oneshot(req).await?.fundings;
-        if resp.is_empty() {
+        if resp.len() < 2 {
             return Err(ExchangeError::OrderNotFound);
         }
         resp.reverse();

@@ -48,7 +48,7 @@ impl Binance {
             limit: Some(day * 24),
         };
         let mut resp = self.oneshot(req).await?;
-        if resp.is_empty() {
+        if resp.len() < 2 {
             return Err(ExchangeError::OrderNotFound);
         }
         resp.reverse();

@@ -44,7 +44,7 @@ impl Mexc {
         };
         let mut resp = self.oneshot(req).await?.result_list;
         resp.retain(|x| x.settle_time > start_time);
-        if resp.is_empty() {
+        if resp.len() < 2 {
             return Err(ExchangeError::OrderNotFound);
         }
         let interval = resp[0].settle_time - resp[1].settle_time;

@@ -43,7 +43,7 @@ impl Hyperliquid {
         let coin = crate::symnol::symbol_id(symbol);
         let mut resp = self.http.funding_history(coin, start_time, None).await?;
         resp.retain(|x| x.time > start_time);
-        if resp.is_empty() {
+        if resp.len() < 2 {
             return Err(ExchangeError::OrderNotFound);
         }
         resp.reverse();
