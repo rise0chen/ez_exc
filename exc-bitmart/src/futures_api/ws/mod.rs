@@ -2,24 +2,20 @@ pub mod book;
 
 use core::time::Duration;
 use exc_util::types::book::{Depth, Order};
-use flate2::read::GzDecoder;
 use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, io::Read as _, sync::Arc};
+use std::collections::HashMap;
+use std::sync::Arc;
 use time::OffsetDateTime;
 use tokio::sync::watch;
 use tokio_tungstenite::tungstenite::Message;
 
-const HOST: &str = "wss://api.hbdm.vn/linear-swap-ws";
+const HOST: &str = "wss://openapi-ws-v2.bitmart.com/api?protocol=1.1";
 
 #[derive(Debug, Serialize)]
-pub struct Tx {
-    pub sub: String,
-    pub id: String,
-}
-#[derive(Debug, Serialize)]
-pub struct Pong {
-    pub pong: u64,
+pub struct TxRequest {
+    pub action: &'static str,
+    pub args: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -29,22 +25,8 @@ pub enum RxResponseData {
 }
 #[derive(Debug, Deserialize)]
 pub struct RxResponse {
-    pub ch: String,
-    pub ts: u64,
-    #[serde(flatten)]
+    pub group: String,
     pub data: RxResponseData,
-}
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-pub enum RxRequest {
-    Ping { ping: u64 },
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-pub enum Rx {
-    Request(RxRequest),
-    Response(RxResponse),
 }
 
 #[derive(Clone)]
@@ -67,9 +49,9 @@ impl Ws {
         tracing::info!(base_url = HOST, "WebSocket connected");
         let (mut write, mut read) = ws_stream.split();
         for s in &self.symbols {
-            let req_price = Tx {
-                sub: format!("market.{}.depth.step6", s),
-                id: format!("depth_{}", s),
+            let req_price = TxRequest {
+                action: "subscribe",
+                args: vec![format!("futures/depthAll20:{}@200ms", s)],
             };
             write.send(Message::Text(serde_json::to_string(&req_price)?.into())).await?;
         }
@@ -96,19 +78,11 @@ impl Ws {
                 }
             };
 
-            let text = if let Message::Binary(text) = message {
-                let mut decoder = GzDecoder::new(&text[..]);
-                let mut decompressed = Vec::new();
-
-                match decoder.read_to_end(&mut decompressed) {
-                    Ok(_) => decompressed,
-                    Err(e) => {
-                        eprintln!("gzip 解压失败: {}", e);
-                        continue;
-                    }
-                }
-            } else if let Message::Text(text) = message {
+            let text = if let Message::Text(text) = message {
                 (*text).into()
+            } else if let Message::Ping(m) = message {
+                write.send(Message::Pong(m)).await?;
+                continue;
             } else if let Message::Pong(_) = message {
                 last_time = OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000_000;
                 continue;
@@ -123,34 +97,21 @@ impl Ws {
                     continue;
                 }
             };
-            let m: Rx = match serde_json::from_str(&text) {
+            let m: RxResponse = match serde_json::from_str(&text) {
                 Ok(m) => m,
                 Err(e) => {
                     tracing::warn!(e = ?e, text = ?text, "Unhandled message");
                     continue;
                 }
             };
-            let m = match m {
-                Rx::Request(request) => {
-                    match request {
-                        RxRequest::Ping { ping } => {
-                            let req_ping = Pong { pong: ping };
-                            write.send(Message::Text(serde_json::to_string(&req_ping)?.into())).await?;
-                        }
-                    }
-                    continue;
-                }
-                Rx::Response(response) => response,
-            };
             match m.data {
                 RxResponseData::Book(d) => {
-                    let symbol = m.ch.split('.').nth(1).unwrap();
-                    if let Some(ch) = self.books.get(symbol) {
-                        let resp = d.tick;
+                    let symbol = d.symbol;
+                    if let Some(ch) = self.books.get(&symbol) {
                         ch.send_replace(Depth {
-                            bid: resp.bids.iter().map(|x| Order::new(x.0, x.1)).collect(),
-                            ask: resp.asks.iter().map(|x| Order::new(x.0, x.1)).collect(),
-                            version: resp.ts,
+                            bid: d.bids.iter().map(|x| Order::new(x.price, x.vol)).collect(),
+                            ask: d.asks.iter().map(|x| Order::new(x.price, x.vol)).collect(),
+                            version: d.ms_t,
                         });
                     } else {
                         tracing::warn!("Not init {}", symbol);

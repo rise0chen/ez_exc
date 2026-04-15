@@ -1,6 +1,7 @@
 use exc_bitmart::service::Bitmart;
 use exc_util::symbol::{Asset, Symbol};
 use std::env::var;
+use std::time::Duration;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -14,10 +15,15 @@ async fn main() -> anyhow::Result<()> {
 
     let key = serde_json::from_str(&var("BITMART_KEY").unwrap_or_default()).unwrap();
     let mut bitmart = Bitmart::new(key);
+    bitmart.run();
+    tokio::time::sleep(Duration::from_secs(2)).await;
 
     let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
-    let bid_ask = bitmart.get_depth(&symbol, 5).await.unwrap();
-    assert!(bid_ask.is_valid());
-    tracing::info!("{:?}", bid_ask);
-    Ok(())
+    loop {
+        let bid_ask = bitmart.get_depth(&symbol, 5).await.unwrap();
+        assert!(bid_ask.is_valid());
+        tracing::info!("{:?}", bid_ask);
+
+        tokio::time::sleep(Duration::from_secs(30)).await;
+    }
 }

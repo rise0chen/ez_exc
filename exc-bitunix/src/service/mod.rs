@@ -25,7 +25,7 @@ pub struct Bitunix {
 impl Bitunix {
     pub fn new(key: Key) -> Self {
         let http = ServiceBuilder::default().service(Client::new(None));
-        let ws = crate::futures_api::ws::Ws::new(vec![key.symbol.to_string()]);
+        let ws = crate::futures_api::ws::Ws::new(key.symbol.split(',').map(ToOwned::to_owned).collect());
         Self { key, http, ws }
     }
     pub fn run(&self) {

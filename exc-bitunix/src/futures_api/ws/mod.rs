@@ -72,12 +72,12 @@ impl Ws {
 
         // Message handling loop
         let mut last_time = OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000_000;
-        let mut interval = tokio::time::interval(Duration::from_secs(28));
+        let mut interval = tokio::time::interval(Duration::from_secs(8));
         loop {
             let message = match futures_util::future::select(Box::pin(interval.tick()), read.next()).await {
                 futures_util::future::Either::Left(_) => {
                     let now = OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000_000;
-                    if now - last_time > 120 {
+                    if now - last_time > 30 {
                         return Ok(());
                     }
                     let req_ping = Tx {

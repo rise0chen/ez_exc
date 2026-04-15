@@ -10,6 +10,11 @@ impl Bitmart {
         let bid_ask = if symbol.is_spot() {
             todo!();
         } else {
+            if let Some(ch) = self.ws.books.get(&symbol_id) {
+                return Ok(ch.borrow().clone());
+            } else {
+                tracing::warn!("bitmart get depth {} by http", symbol_id);
+            }
             use crate::futures_api::http::book::GetDepthRequest;
             let req = GetDepthRequest { symbol: symbol_id };
             let resp = self.oneshot(req).await?;

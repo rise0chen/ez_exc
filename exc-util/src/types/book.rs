@@ -17,7 +17,7 @@ pub struct Depth {
 }
 impl Depth {
     pub fn is_valid(&self) -> bool {
-        if self.bid.is_empty() || self.ask.is_empty() {
+        if self.bid.len() < 2 || self.ask.len() < 2 {
             return false;
         }
         self.bid[0].price <= self.ask[0].price && self.ask[0].price < self.ask[1].price && self.bid[0].price > self.bid[1].price
