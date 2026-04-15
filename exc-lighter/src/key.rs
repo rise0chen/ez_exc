@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Key {
     pub account_index: i64,
-    pub market_index: u32,
+    pub market_index: i16,
     pub key_index: u8,
     pub key: Str,
     pub read: Str,

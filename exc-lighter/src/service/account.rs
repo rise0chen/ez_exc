@@ -15,15 +15,17 @@ impl Lighter {
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
+        use crate::futures_api::http::account::GetAccountRequest;
+        let req = GetAccountRequest {
+            by: "index",
+            value: self.key.account_index,
+        };
+        let resp = self.oneshot(req).await?.accounts.pop();
         if symbol.is_spot() {
-            todo!()
+            let assets = resp.map(|resp| resp.assets).unwrap_or(Vec::new());
+            let balance = assets.iter().find(|x| x.symbol == *symbol.base).map(|x| x.balance).unwrap_or_default();
+            Ok((Position { size: balance, price: 0.0 }, Position { size: 0.0, price: 0.0 }))
         } else {
-            use crate::futures_api::http::account::GetAccountRequest;
-            let req = GetAccountRequest {
-                by: "index",
-                value: self.key.account_index,
-            };
-            let resp = self.oneshot(req).await?.accounts.pop();
             let positions = resp.map(|resp| resp.positions).unwrap_or(Vec::new());
             let (mut short_size, mut short_val) = (0.0, 0.0);
             let (mut long_size, mut long_val) = (0.0, 0.0);

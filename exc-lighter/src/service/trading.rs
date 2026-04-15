@@ -38,15 +38,13 @@ impl Lighter {
         };
 
         let symbol_id = crate::symnol::symbol_id(symbol);
-        let order_id = if symbol.is_spot() {
-            todo!();
-        } else {
+        let order_id = {
             let mut base_amount = size.abs();
             base_amount.set_scale(0).unwrap();
             let mut price = price;
             price.set_scale(0).unwrap();
             let req = CreateOrderTxReq {
-                market_index: symbol_id as u8,
+                market_index: symbol_id,
                 client_order_index: custom_id,
                 base_amount: base_amount.to_i64().unwrap(),
                 price: price.to_u32().unwrap(),
@@ -100,9 +98,7 @@ impl Lighter {
             custom_order_id,
         } = order_id;
         let symbol_id = crate::symnol::symbol_id(&symbol);
-        let order = if symbol.is_spot() {
-            todo!();
-        } else {
+        let order =  {
             let order_id = if let Some(order_id) = order_id {
                 order_id
             } else {
@@ -116,7 +112,7 @@ impl Lighter {
                 order.order_id
             };
             let req = CancelOrderTxReq {
-                market_index: symbol_id as u8,
+                market_index: symbol_id,
                 index: order_id.parse().unwrap(),
             };
             let req = match self.tx.cancel_order(&req, Some(self.get_transact_opts().await)).await {
@@ -142,9 +138,7 @@ impl Lighter {
             custom_order_id,
         } = order_id;
         let symbol_id = crate::symnol::symbol_id(&symbol);
-        let order = if symbol.is_spot() {
-            todo!();
-        } else {
+        let order = {
             use crate::futures_api::http::trading::GetOrderRequest;
             let req = GetOrderRequest {
                 auth: self.key.read.to_string(),
