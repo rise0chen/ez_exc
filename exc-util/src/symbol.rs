@@ -36,6 +36,10 @@ pub struct Symbol {
     pub precision_price: i8,
     /// 最小下单金额
     pub min_usd: f64,
+    /// 最小下单数量
+    pub min_size: f64,
+    /// 吃单手续费
+    pub fee: f64,
 }
 impl Symbol {
     pub fn unknown(base: Asset, quote: Asset) -> Self {
@@ -52,6 +56,8 @@ impl Symbol {
             precision: 0,
             precision_price: 2,
             min_usd: 5.0,
+            min_size: 0.0,
+            fee: 0.001,
         }
     }
     pub fn spot(base: Asset, quote: Asset) -> Self {
@@ -68,6 +74,8 @@ impl Symbol {
             precision: 0,
             precision_price: 2,
             min_usd: 5.0,
+            min_size: 0.0,
+            fee: 0.001,
         }
     }
     pub fn derivative(base: Asset, quote: Asset) -> Self {
@@ -84,6 +92,8 @@ impl Symbol {
             precision: 0,
             precision_price: 2,
             min_usd: 5.0,
+            min_size: 0.0,
+            fee: 0.0005,
         }
     }
     pub fn is_spot(&self) -> bool {

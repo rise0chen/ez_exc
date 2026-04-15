@@ -13,8 +13,9 @@ impl Hyperliquid {
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         if symbol.is_spot() {
             let resp = self.http.user_balances(self.key.user.parse().unwrap()).await?;
-            let resp = resp.iter().find(|x| x.coin == *symbol.base).ok_or(ExchangeError::OrderNotFound)?;
-            return Ok((Position::new(resp.total.as_f64()), Position::new(0.0)));
+            let resp = resp.iter().find(|x| x.coin == *symbol.base);
+            let size = resp.map(|x|x.total.as_f64()).unwrap_or_default();
+            return Ok((Position::new(size), Position::new(0.0)));
         }
         let coin = crate::symnol::symbol_id(symbol);
         let dex = match coin.split_once(':') {

@@ -12,6 +12,9 @@ impl Bitget {
         let mut multi_size = 1.0;
         let mut precision_size = 0;
         let mut precision_price = 2;
+        let mut min_size = 0.0;
+        let mut min_usd = 5.0;
+        let mut fee = 0.0005;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
         use crate::api::http::info::GetInfoRequest;
@@ -24,6 +27,9 @@ impl Bitget {
         };
         precision_size = a.quantity_precision;
         precision_price = a.price_precision;
+        min_size = a.min_order_qty;
+        min_usd = a.min_order_amount;
+        fee = a.taker_fee_rate;
 
         if symbol.multi_price != multi_price {
             tracing::error!("bitget multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -40,6 +46,18 @@ impl Bitget {
         if symbol.precision_price != precision_price {
             tracing::warn!("bitget precision_price from {} to {}", symbol.precision_price, precision_price);
             symbol.precision_price = precision_price;
+        }
+        if symbol.min_size != min_size {
+            tracing::warn!("bitget min_size from {} to {}", symbol.min_size, min_size);
+            symbol.min_size = min_size;
+        }
+        if symbol.min_usd != min_usd {
+            tracing::warn!("bitget min_usd from {} to {}", symbol.min_usd, min_usd);
+            symbol.min_usd = min_usd;
+        }
+        if symbol.fee != fee {
+            tracing::warn!("bitget fee from {} to {}", symbol.fee, fee);
+            symbol.fee = fee;
         }
         Ok(())
     }
