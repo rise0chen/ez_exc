@@ -21,8 +21,8 @@ pub struct GetInfoResponse {
     pub min_order_qty: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub min_order_amount: f64,
-    #[serde_as(as = "DisplayFromStr")]
-    pub taker_fee_rate: f64,
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    pub taker_fee_rate: Option<f64>,
 }
 
 impl Rest for GetInfoRequest {
