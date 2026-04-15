@@ -11,8 +11,8 @@ version = "0.7.0"
 
 [features]
 default = ["rustls-tls"]
-native-tls = ["tokio-tungstenite/native-tls"]
-rustls-tls = ["tokio-tungstenite/rustls-tls-native-roots"]
+native-tls = ["exc-util/native-tls"]
+rustls-tls = ["exc-util/rustls-tls"]
 
 [dependencies]
 anyhow = {version = "1"}

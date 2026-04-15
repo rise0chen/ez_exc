@@ -10,7 +10,9 @@ repository = ""
 version = "0.7.0"
 
 [features]
-default = []
+default = ["rustls-tls"]
+native-tls = ["exc-util/native-tls"]
+rustls-tls = ["exc-util/rustls-tls"]
 
 [dependencies]
 anyhow = {version = "1"}
@@ -39,7 +41,6 @@ tracing = {version = "0.1"}
 [dependencies.serde]
 features = ["derive"]
 version = "1"
-
 
 [dependencies.tower]
 features = ["util", "reconnect", "buffer", "timeout", "retry", "ready-cache"]

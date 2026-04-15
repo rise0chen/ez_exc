@@ -10,7 +10,9 @@ repository = ""
 version = "0.7.0"
 
 [features]
-default = []
+default = ["rustls-tls"]
+native-tls = ["exc-util/native-tls"]
+rustls-tls = ["exc-util/rustls-tls"]
 
 [dependencies]
 anyhow = {version = "1"}
