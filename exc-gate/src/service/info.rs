@@ -12,20 +12,40 @@ impl Gate {
         let mut multi_size = 1.0;
         let mut precision_size = 0;
         let mut precision_price = 2;
+        let mut min_size = 0.0;
+        let mut min_usd = 5.0;
+        let mut fee = 0.0;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
         if symbol.is_spot() {
             use crate::spot_api::http::info::GetInfoRequest;
-            let req = GetInfoRequest { currency_pair: symbol_id };
+            let req = GetInfoRequest {
+                currency_pair: symbol_id.clone(),
+            };
             let a = self.oneshot(req).await?;
             precision_size = a.amount_precision;
             precision_price = a.precision;
+            min_size = a.min_base_amount.unwrap_or_default();
+            min_usd = a.min_quote_amount.unwrap_or_default();
+            use crate::spot_api::http::account::GetFeeRequest;
+            let req = GetFeeRequest {
+                currency_pair: Some(symbol_id),
+            };
+            let a = self.oneshot(req).await?;
+            fee = a.gt_taker_fee;
         } else {
             use crate::futures_api::http::info::GetInfoRequest;
-            let req = GetInfoRequest { contract: symbol_id };
+            let req = GetInfoRequest { contract: symbol_id.clone() };
             let a = self.oneshot(req).await?;
             multi_size = a.quanto_multiplier;
             precision_price = -a.order_price_round.log10().round() as i8;
+            min_size = a.order_size_min;
+            use crate::spot_api::http::account::GetFeeRequest;
+            let req = GetFeeRequest {
+                currency_pair: Some(symbol_id),
+            };
+            let a = self.oneshot(req).await?;
+            fee = a.futures_taker_fee;
         }
         if symbol.multi_price != multi_price {
             tracing::error!("gate multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -42,6 +62,18 @@ impl Gate {
         if symbol.precision_price != precision_price {
             tracing::warn!("gate precision_price from {} to {}", symbol.precision_price, precision_price);
             symbol.precision_price = precision_price;
+        }
+        if symbol.min_size != min_size {
+            tracing::warn!("gate min_size from {} to {}", symbol.min_size, min_size);
+            symbol.min_size = min_size;
+        }
+        if symbol.min_usd != min_usd {
+            tracing::warn!("gate min_usd from {} to {}", symbol.min_usd, min_usd);
+            symbol.min_usd = min_usd;
+        }
+        if symbol.fee != fee && fee != 0.0 {
+            tracing::warn!("gate fee from {} to {}", symbol.fee, fee);
+            symbol.fee = fee;
         }
         Ok(())
     }

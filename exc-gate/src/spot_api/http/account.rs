@@ -38,3 +38,35 @@ impl Rest for GetBalanceRequest {
         true
     }
 }
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub struct GetFeeRequest {
+    pub currency_pair: Option<String>,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+pub struct GetFeeResponse {
+    #[serde_as(as = "DisplayFromStr")]
+    pub gt_taker_fee: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub futures_taker_fee: f64,
+}
+
+impl Rest for GetFeeRequest {
+    type Response = GetFeeResponse;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::SpotApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/api/v4/wallet/fee".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}

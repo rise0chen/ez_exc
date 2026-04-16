@@ -16,6 +16,7 @@ pub struct GetInfoResponse {
     pub quanto_multiplier: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub order_price_round: f64,
+    pub order_size_min: f64,
 }
 
 impl Rest for GetInfoRequest {
