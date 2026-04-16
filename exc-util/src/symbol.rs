@@ -59,7 +59,7 @@ impl Symbol {
             precision_price: 2,
             min_usd: 5.0,
             min_size: 0.0,
-            fee: 0.001,
+            fee: 0.0,
             fee_coin: 1.0,
         }
     }
@@ -78,7 +78,7 @@ impl Symbol {
             precision_price: 2,
             min_usd: 5.0,
             min_size: 0.0,
-            fee: 0.001,
+            fee: 0.0,
             fee_coin: 1.0,
         }
     }
@@ -97,7 +97,7 @@ impl Symbol {
             precision_price: 2,
             min_usd: 5.0,
             min_size: 0.0,
-            fee: 0.0005,
+            fee: 0.0,
             fee_coin: 1.0,
         }
     }
