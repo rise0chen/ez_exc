@@ -34,12 +34,12 @@ serde_urlencoded = "0.7"
 serde_with = {version = "3"}
 sha2 = {version = "0.10"}
 thiserror = {version = "2"}
+tokio-tungstenite = {version = "0.28"}
 tracing = {version = "0.1"}
 
 [dependencies.serde]
 features = ["derive"]
 version = "1"
-
 
 [dependencies.tower]
 features = ["util", "reconnect", "buffer", "timeout", "retry", "ready-cache"]
@@ -48,7 +48,6 @@ version = "0.5"
 [dependencies.tower-http]
 features = ["decompression-gzip"]
 version = "0.6"
-
 
 [dependencies.tokio]
 features = ["sync", "rt-multi-thread", "time", "macros"]

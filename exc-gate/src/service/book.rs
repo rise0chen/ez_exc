@@ -8,6 +8,13 @@ impl Gate {
     pub async fn get_depth(&mut self, symbol: &Symbol, limit: u16) -> Result<Depth, ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
         let bid_ask = if symbol.is_spot() {
+            if let Some(ch) = self.ws_spot.books.get(&symbol_id) {
+                let book = ch.borrow();
+                if book.is_valid() {
+                    return Ok(book.clone());
+                }
+            }
+            tracing::warn!("gate get depth spot:{} by http", symbol_id);
             use crate::spot_api::http::book::GetDepthRequest;
             let req = GetDepthRequest {
                 currency_pair: symbol_id,

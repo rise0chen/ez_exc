@@ -11,6 +11,7 @@ use exc_util::http::Client;
 use exc_util::interface::{ApiKind, Rest};
 use futures_util::future::{ready, BoxFuture};
 use futures_util::{FutureExt, TryFutureExt};
+use std::time::Duration;
 use tower::{Service, ServiceBuilder};
 
 /// Gate API.
@@ -18,12 +19,28 @@ use tower::{Service, ServiceBuilder};
 pub struct Gate {
     key: Key,
     http: Client,
+    ws_spot: crate::spot_api::ws::Ws,
 }
 
 impl Gate {
     pub fn new(key: Key) -> Self {
         let http = ServiceBuilder::default().service(Client::new(None));
-        Self { key, http }
+        let ws_spot = crate::spot_api::ws::Ws::new(key.symbol.split(',').map(ToOwned::to_owned).collect());
+        Self { key, http, ws_spot }
+    }
+    pub fn run(&self) {
+        if self.ws_spot.symbols[0].is_empty() {
+            return;
+        }
+        let ws = self.ws_spot.clone();
+        tokio::spawn(async move {
+            loop {
+                let ret = ws.run().await;
+                ws.clear();
+                tracing::info!("gate ws exit: {ret:?}");
+                tokio::time::sleep(Duration::from_secs(5)).await;
+            }
+        });
     }
 }
 

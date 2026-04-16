@@ -1,6 +1,7 @@
 use exc_gate::service::Gate;
 use exc_util::symbol::{Asset, Symbol};
 use std::env::var;
+use std::time::Duration;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -14,15 +15,20 @@ async fn main() -> anyhow::Result<()> {
 
     let key = serde_json::from_str(&var("GATE_KEY").unwrap_or_default()).unwrap();
     let mut gate = Gate::new(key);
+    gate.run();
+    tokio::time::sleep(Duration::from_secs(2)).await;
 
-    let symbol = Symbol::spot(Asset::try_from("BTC").unwrap(), Asset::usdt());
-    let bid_ask = gate.get_depth(&symbol, 4).await.unwrap();
-    assert!(bid_ask.is_valid());
-    tracing::info!("{:?}", bid_ask);
+    loop {
+        let symbol = Symbol::spot(Asset::try_from("BTC").unwrap(), Asset::usdt());
+        let bid_ask = gate.get_depth(&symbol, 4).await.unwrap();
+        assert!(bid_ask.is_valid());
+        tracing::info!("{:?}", bid_ask);
 
-    let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
-    let bid_ask = gate.get_depth(&symbol, 4).await.unwrap();
-    assert!(bid_ask.is_valid());
-    tracing::info!("{:?}", bid_ask);
-    Ok(())
+        let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
+        let bid_ask = gate.get_depth(&symbol, 4).await.unwrap();
+        assert!(bid_ask.is_valid());
+        tracing::info!("{:?}", bid_ask);
+
+        tokio::time::sleep(Duration::from_secs(30)).await;
+    }
 }

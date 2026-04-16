@@ -11,7 +11,7 @@ impl Gate {
                     rate: 1.0,
                     start_time: 0,
                     apy: 0.0,
-                })
+                });
             }
             _ => return Err(ExchangeError::OrderNotFound),
         };

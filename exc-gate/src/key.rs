@@ -18,6 +18,8 @@ pub enum ParamsFormat {
 pub struct Key {
     pub api_key: Str,
     pub secret_key: Str,
+    #[serde(default)]
+    pub symbol: Str,
 }
 
 impl Key {
@@ -26,6 +28,7 @@ impl Key {
         Self {
             api_key: Str::new(api_key),
             secret_key: Str::new(secret_key),
+            symbol: Str::default(),
         }
     }
     pub fn sign<'a, T: Rest>(&self, params: &'a T, format: ParamsFormat, kind: ApiKind) -> Result<SignedParams<'a, T>, anyhow::Error> {
@@ -67,8 +70,16 @@ impl<'a, T: Rest> SigningParams<'a, T> {
         let raw = match format {
             ParamsFormat::Common => {
                 if matches!(self.params.method(), Method::GET | Method::DELETE) {
-                    let body = serde_urlencoded::to_string(self.params)?;
-                    format!("{}\n{}\n{}\ncf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e\n{}", self.params.method().as_str(), self.params.path(), body, self.timestamp)
+                    let query = serde_urlencoded::to_string(self.params)?;
+                    let body="cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e";
+                    format!(
+                        "{}\n{}\n{}\n{}\n{}",
+                        self.params.method().as_str(),
+                        self.params.path(),
+                        query,
+                        body,
+                        self.timestamp
+                    )
                 } else {
                     let mut hasher = Sha512::new();
                     hasher.update(serde_json::to_string(self.params)?);
