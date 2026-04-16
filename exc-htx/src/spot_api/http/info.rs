@@ -12,6 +12,8 @@ pub struct GetInfoRequest {
 pub struct GetInfoResponse {
     pub ap: i8,
     pub pp: i8,
+    pub minoa: f64,
+    pub minov: f64,
 }
 
 impl Rest for GetInfoRequest {

@@ -46,3 +46,34 @@ impl Rest for GetBalanceRequest {
         true
     }
 }
+
+#[derive(Debug, Serialize)]
+pub struct GetFeeRequest {
+    pub symbols: String,
+}
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFeeResponse {
+    #[serde_as(as = "DisplayFromStr")]
+    pub taker_fee_rate: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub actual_taker_rate: f64,
+}
+
+impl Rest for GetFeeRequest {
+    type Response = Vec<GetFeeResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::SpotApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/v2/reference/transact-fee-rate".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}

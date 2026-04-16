@@ -12,24 +12,41 @@ impl Htx {
         let mut multi_size = 1.0;
         let mut precision_size = 0;
         let mut precision_price = 2;
+        let mut min_size = 0.0;
+        let mut min_usd = 5.0;
+        let mut fee = 0.0;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
         if symbol.is_spot() {
             use crate::spot_api::http::info::GetInfoRequest;
-            let req = GetInfoRequest { symbols: symbol_id };
+            let req = GetInfoRequest { symbols: symbol_id.clone() };
             let Some(a) = self.oneshot(req).await?.pop() else {
                 return Err(ExchangeError::OrderNotFound);
             };
             precision_size = a.ap;
             precision_price = a.pp;
+            min_size = a.minoa;
+            min_usd = a.minov;
+
+            use crate::spot_api::http::account::GetFeeRequest;
+            let req = GetFeeRequest { symbols: symbol_id };
+            fee = self.oneshot(req).await?.pop().map(|x| x.actual_taker_rate).unwrap_or(0.0);
         } else {
             use crate::futures_api::http::info::GetInfoRequest;
-            let req = GetInfoRequest { contract_code: symbol_id };
+            let req = GetInfoRequest {
+                contract_code: symbol_id.clone(),
+            };
             let Some(a) = self.oneshot(req).await?.pop() else {
                 return Err(ExchangeError::OrderNotFound);
             };
             multi_size = a.contract_size;
             precision_price = -a.price_tick.log10().round() as i8;
+            min_size = a.contract_size;
+            min_usd = 0.0;
+
+            use crate::futures_api::http::account::GetFeeRequest;
+            let req = GetFeeRequest { contract_code: symbol_id };
+            fee = self.oneshot(req).await?.pop().map(|x| x.open_taker_fee).unwrap_or(0.0);
         }
         if symbol.multi_price != multi_price {
             tracing::error!("htx multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -46,6 +63,18 @@ impl Htx {
         if symbol.precision_price != precision_price {
             tracing::warn!("htx precision_price from {} to {}", symbol.precision_price, precision_price);
             symbol.precision_price = precision_price;
+        }
+        if symbol.min_size != min_size {
+            tracing::warn!("htx min_size from {} to {}", symbol.min_size, min_size);
+            symbol.min_size = min_size;
+        }
+        if symbol.min_usd != min_usd {
+            tracing::warn!("htx min_usd from {} to {}", symbol.min_usd, min_usd);
+            symbol.min_usd = min_usd;
+        }
+        if symbol.fee != fee && fee != 0.0 {
+            tracing::warn!("htx fee from {} to {}", symbol.fee, fee);
+            symbol.fee = fee;
         }
         Ok(())
     }

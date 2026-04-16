@@ -65,3 +65,34 @@ impl Rest for GetPositionRequest {
         true
     }
 }
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub struct GetFeeRequest {
+    pub contract_code: String,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct GetFeeResponse {
+    #[serde_as(as = "DisplayFromStr")]
+    pub open_taker_fee: f64,
+}
+
+impl Rest for GetFeeRequest {
+    type Response = Vec<GetFeeResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::POST
+    }
+    fn path(&self) -> String {
+        "/linear-swap-api/v1/swap_fee".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
