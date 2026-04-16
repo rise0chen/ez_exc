@@ -9,17 +9,26 @@ use crate::key::Key;
 use alloy::primitives::Address;
 use alloy::providers::{DynProvider, Provider, ProviderBuilder, WsConnect};
 use alloy::signers::local::PrivateKeySigner;
+use rand::seq::IndexedRandom;
 
 async fn connect(key: &Key) -> anyhow::Result<DynProvider> {
     let signer: PrivateKeySigner = key.private_key.parse()?;
     let rpc = ProviderBuilder::new().with_simple_nonce_management().wallet(signer);
-    let rpc = if key.url.starts_with("http") {
-        rpc.connect_http(key.url.parse()?)
-    } else if key.url.starts_with("ws") {
-        let ws = WsConnect::new(key.url.as_str());
+
+    let url = if key.url.contains("://") {
+        key.url.to_string()
+    } else {
+        let chain_id = key.url.parse().unwrap();
+        let info = crate::three::chain::get_chain(chain_id).await.unwrap();
+        info.rpc.choose(&mut rand::rng()).unwrap().url.clone()
+    };
+    let rpc = if url.starts_with("http") {
+        rpc.connect_http(url.parse()?)
+    } else if url.starts_with("ws") {
+        let ws = WsConnect::new(url.as_str());
         rpc.connect_ws(ws).await?
     } else {
-        return Err(anyhow::anyhow!("Unknown rpc url: {}", key.url));
+        return Err(anyhow::anyhow!("Unknown rpc url: {}", url));
     };
     Ok(rpc.erased())
 }

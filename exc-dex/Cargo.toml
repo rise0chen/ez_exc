@@ -24,6 +24,8 @@ futures-util = {version = "0.3"}
 hex = "0.4"
 num_enum = {version = "0.7"}
 pin-project-lite = {version = "0.2"}
+rand = "0.10"
+reqwest = {version = "0.13", default-features = false}
 rust_decimal = {version = "1"}
 thiserror = {version = "2"}
 tracing = {version = "0.1"}
@@ -31,7 +33,6 @@ tracing = {version = "0.1"}
 [dependencies.serde]
 features = ["derive"]
 version = "1"
-
 
 [dependencies.tokio]
 features = ["sync", "rt-multi-thread", "time", "macros"]

@@ -1,6 +1,6 @@
 use super::Dex;
+use crate::abi::Cex;
 use crate::abi::Cex::Place;
-use crate::abi::{Cex, ERC20};
 use crate::error::map_err;
 use alloy::eips::BlockId;
 use alloy::primitives::utils::{format_units, parse_units};
@@ -12,34 +12,6 @@ use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderSide, OrderSt
 use rust_decimal::prelude::ToPrimitive;
 
 impl Dex {
-    pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
-        if self.key.gas_price == 0 {
-            self.key.gas_price = self.rpc.get_gas_price().await.map_err(|e| map_err(e.into()))? as u64;
-            tracing::info!("dex gas from 0 to {}", self.key.gas_price);
-        }
-        let base = ERC20::new(symbol.base_id.parse().unwrap(), &self.rpc);
-        if symbol.quote_id.is_empty() {
-            symbol.quote_id = self.quote.to_string();
-        }
-        let quote = ERC20::new(symbol.quote_id.parse().unwrap(), &self.rpc);
-        let base_decimals = base.decimals().call().await.map_err(map_err)? as i8;
-        let quote_decimals = quote.decimals().call().await.map_err(map_err)? as i8;
-        let convert_decimals = quote_decimals - base_decimals;
-        let multi_price = 10.0f64.powi(convert_decimals as i32);
-        if symbol.multi_price != multi_price {
-            tracing::info!("dex multi_price from {} to {}", symbol.multi_price, multi_price);
-            symbol.multi_price = multi_price;
-        }
-        if symbol.multi_size != 1.0 {
-            tracing::info!("dex multi_size from {} to {}", symbol.multi_size, 1.0);
-            symbol.multi_size = 1.0;
-        }
-        if symbol.precision != base_decimals {
-            tracing::info!("dex precision_size from {} to {}", symbol.precision, base_decimals);
-            symbol.precision = base_decimals;
-        }
-        Ok(())
-    }
     pub async fn place_order(&mut self, symbol: &Symbol, data: PlaceOrderRequest) -> Result<OrderId, (OrderId, ExchangeError)> {
         let PlaceOrderRequest {
             size,
@@ -121,7 +93,7 @@ impl Dex {
             vol: 0.0,
             deal_vol: 0.0,
             deal_avg_price: 0.0,
-            fee: Fee::Quote(0.013),
+            fee: Fee::Quote(0.0),
             state: OrderStatus::New,
             side: OrderSide::Buy,
         };
@@ -130,13 +102,14 @@ impl Dex {
             return Ok(order);
         }
         let Ok(tx) = order.order_id.parse() else {
-            order.fee = Fee::Quote(0.0);
             order.state = OrderStatus::Canceled;
             return Ok(order);
         };
         let Some(tx) = self.rpc.get_transaction_receipt(tx).await.map_err(|e| map_err(e.into()))? else {
             return Ok(order);
         };
+        let gas = tx.gas_used as u128 * tx.effective_gas_price + tx.blob_gas_used.unwrap_or(0) as u128 * tx.blob_gas_price.unwrap_or(0);
+        order.fee = Fee::Quote(gas as f64 * symbol.fee_coin);
         let Some(event) = tx.decoded_log::<Cex::Swap>() else {
             order.state = OrderStatus::Filled;
             return Ok(order);
