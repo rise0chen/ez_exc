@@ -12,6 +12,9 @@ impl Xt {
         let mut multi_size = 1.0;
         let mut precision_size = 0;
         let mut precision_price = 2;
+        let mut min_size = 0.0;
+        let mut min_usd = 0.0;
+        let mut fee = 0.0;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
         if symbol.is_spot() {
@@ -23,6 +26,9 @@ impl Xt {
             multi_size = a.contract_size;
             precision_size = a.quantity_precision;
             precision_price = a.price_precision;
+            min_size = a.min_qty;
+            min_usd = a.min_notional;
+            fee = a.taker_fee;
         }
 
         if symbol.multi_price != multi_price {
@@ -40,6 +46,18 @@ impl Xt {
         if symbol.precision_price != precision_price {
             tracing::warn!("xt precision_price from {} to {}", symbol.precision_price, precision_price);
             symbol.precision_price = precision_price;
+        }
+        if symbol.min_size != min_size {
+            tracing::warn!("xt min_size from {} to {}", symbol.min_size, min_size);
+            symbol.min_size = min_size;
+        }
+        if symbol.min_usd != min_usd {
+            tracing::warn!("xt min_usd from {} to {}", symbol.min_usd, min_usd);
+            symbol.min_usd = min_usd;
+        }
+        if symbol.fee != fee && fee != 0.0 {
+            tracing::warn!("xt fee from {} to {}", symbol.fee, fee);
+            symbol.fee = fee;
         }
         Ok(())
     }

@@ -19,6 +19,12 @@ pub struct LotSizeFilter {
     pub qty_step: Option<f64>,
     #[serde_as(as = "Option<DisplayFromStr>")]
     pub base_precision: Option<f64>,
+    #[serde_as(as = "DisplayFromStr")]
+    pub min_order_qty: f64,
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    pub min_order_amt: Option<f64>,
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    pub min_notional_value: Option<f64>,
 }
 #[serde_as]
 #[derive(Debug, Deserialize)]

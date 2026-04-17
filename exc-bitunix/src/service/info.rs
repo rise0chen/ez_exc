@@ -12,6 +12,7 @@ impl Bitunix {
         let mut multi_size = 1.0;
         let mut precision_size = 0;
         let mut precision_price = 2;
+        let mut min_size = 0.0;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
         use crate::futures_api::http::info::GetInfoRequest;
@@ -21,6 +22,7 @@ impl Bitunix {
         };
         precision_size = a.base_precision;
         precision_price = a.quote_precision;
+        min_size = a.min_trade_volume;
 
         if symbol.multi_price != multi_price {
             tracing::error!("bitunix multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -37,6 +39,10 @@ impl Bitunix {
         if symbol.precision_price != precision_price {
             tracing::warn!("bitunix precision_price from {} to {}", symbol.precision_price, precision_price);
             symbol.precision_price = precision_price;
+        }
+        if symbol.min_size != min_size {
+            tracing::warn!("bitunix min_size from {} to {}", symbol.min_size, min_size);
+            symbol.min_size = min_size;
         }
         Ok(())
     }

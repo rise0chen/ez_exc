@@ -15,6 +15,14 @@ pub struct GetInfoRequest {
 pub struct Info {
     pub supported_size_decimals: i8,
     pub supported_price_decimals: i8,
+    #[serde_as(as = "DisplayFromStr")]
+    pub min_base_amount: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub min_quote_amount: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub taker_fee: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub maker_fee: f64,
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case")]

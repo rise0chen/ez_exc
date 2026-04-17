@@ -13,6 +13,9 @@ impl Lighter {
         let mut multi_size = 1.0;
         let mut precision_size = 0;
         let mut precision_price = 2;
+        let mut min_size = 0.0;
+        let mut min_usd = 0.0;
+        let mut fee = 0.0;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
         use crate::futures_api::http::info::GetInfoRequest;
@@ -22,6 +25,9 @@ impl Lighter {
         };
         precision_size = a.supported_size_decimals;
         precision_price = a.supported_price_decimals;
+        min_size = a.min_base_amount;
+        min_usd = a.min_quote_amount;
+        fee = a.taker_fee;
 
         if symbol.multi_price != multi_price {
             tracing::error!("lighter multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -38,6 +44,18 @@ impl Lighter {
         if symbol.precision_price != precision_price {
             tracing::warn!("lighter precision_price from {} to {}", symbol.precision_price, precision_price);
             symbol.precision_price = precision_price;
+        }
+        if symbol.min_size != min_size {
+            tracing::warn!("lighter min_size from {} to {}", symbol.min_size, min_size);
+            symbol.min_size = min_size;
+        }
+        if symbol.min_usd != min_usd {
+            tracing::warn!("lighter min_usd from {} to {}", symbol.min_usd, min_usd);
+            symbol.min_usd = min_usd;
+        }
+        if symbol.fee != fee && fee != 0.0 {
+            tracing::warn!("lighter fee from {} to {}", symbol.fee, fee);
+            symbol.fee = fee;
         }
         Ok(())
     }

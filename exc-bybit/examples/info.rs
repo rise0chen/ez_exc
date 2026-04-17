@@ -15,7 +15,7 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("BYBIT_KEY").unwrap_or_default()).unwrap();
     let mut bybit = Bybit::new(key);
 
-    let mut symbol = Symbol::derivative(Asset::try_from("CL").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("XAUT").unwrap(), Asset::usdt());
     bybit.perfect_symbol(&mut symbol).await.unwrap();
     let info = bybit.get_funding_rate_history(&symbol, 5).await.unwrap();
     assert!(info[0].time > info[1].time + 58 * 60 * 1000);

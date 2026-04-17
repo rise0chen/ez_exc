@@ -14,11 +14,17 @@ impl Dydx {
         let mut multi_size = 1.0;
         let mut precision_size = 0;
         let mut precision_price = 2;
+        let mut min_size = 0.0;
+        let mut min_usd = 0.0;
+        let mut fee = 0.0;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
         let a = self.indexer().markets().get_perpetual_market(&symbol_id).await?;
         precision_size = -a.step_size.to_f64().unwrap().log10().round() as i8;
         precision_price = -a.tick_size.to_f64().unwrap().log10().round() as i8;
+        let account = self.wallet().account_offline(0)?;
+        let a = self.client().await.get_user_fee_tier(account.address().clone()).await?;
+        fee = a.taker_fee_ppm as f64 / 10e6;
 
         if symbol.multi_price != multi_price {
             tracing::error!("dydx multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -35,6 +41,18 @@ impl Dydx {
         if symbol.precision_price != precision_price {
             tracing::warn!("dydx precision_price from {} to {}", symbol.precision_price, precision_price);
             symbol.precision_price = precision_price;
+        }
+        if symbol.min_size != min_size {
+            tracing::warn!("dydx min_size from {} to {}", symbol.min_size, min_size);
+            symbol.min_size = min_size;
+        }
+        if symbol.min_usd != min_usd {
+            tracing::warn!("dydx min_usd from {} to {}", symbol.min_usd, min_usd);
+            symbol.min_usd = min_usd;
+        }
+        if symbol.fee != fee && fee != 0.0 {
+            tracing::warn!("dydx fee from {} to {}", symbol.fee, fee);
+            symbol.fee = fee;
         }
         Ok(())
     }

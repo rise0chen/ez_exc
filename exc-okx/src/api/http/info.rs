@@ -21,6 +21,8 @@ pub struct GetInfoResponse {
     pub lot_sz: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub tick_sz: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub min_sz: f64,
 }
 
 impl Rest for GetInfoRequest {

@@ -70,3 +70,33 @@ impl Rest for GetPositionRequest {
         true
     }
 }
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub struct GetFeeRequest {
+    pub symbol: String,
+}
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct GetFeeResponse {
+    #[serde_as(as = "DisplayFromStr")]
+    pub taker_fee_rate: f64,
+}
+
+impl Rest for GetFeeRequest {
+    type Response = GetFeeResponse;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/contract/private/trade-fee-rate".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}

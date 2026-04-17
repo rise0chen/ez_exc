@@ -12,10 +12,13 @@ impl Bitmart {
         let mut multi_size = 1.0;
         let mut precision_size = 0;
         let mut precision_price = 2;
+        let mut min_size = 0.0;
+        let mut min_usd = 5.0;
+        let mut fee = 0.0;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
         use crate::futures_api::http::info::GetIndexPriceRequest;
-        let req = GetIndexPriceRequest { symbol: symbol_id };
+        let req = GetIndexPriceRequest { symbol: symbol_id.clone() };
         let Some(a) = self.oneshot(req).await?.symbols.pop() else {
             return Err(ExchangeError::OrderNotFound);
         };
@@ -23,6 +26,11 @@ impl Bitmart {
         multi_size = a.contract_size;
         precision_size = -a.vol_precision.log10().round() as i8;
         precision_price = -a.price_precision.log10().round() as i8;
+        min_size = a.min_volume;
+
+        use crate::futures_api::http::account::GetFeeRequest;
+        let req = GetFeeRequest { symbol: symbol_id };
+        fee = self.oneshot(req).await?.taker_fee_rate;
 
         if symbol.multi_price != multi_price {
             tracing::error!("bitmart multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -39,6 +47,18 @@ impl Bitmart {
         if symbol.precision_price != precision_price {
             tracing::warn!("bitmart precision_price from {} to {}", symbol.precision_price, precision_price);
             symbol.precision_price = precision_price;
+        }
+        if symbol.min_size != min_size {
+            tracing::warn!("bitmart min_size from {} to {}", symbol.min_size, min_size);
+            symbol.min_size = min_size;
+        }
+        if symbol.min_usd != min_usd {
+            tracing::warn!("bitmart min_usd from {} to {}", symbol.min_usd, min_usd);
+            symbol.min_usd = min_usd;
+        }
+        if symbol.fee != fee && fee != 0.0 {
+            tracing::warn!("bitmart fee from {} to {}", symbol.fee, fee);
+            symbol.fee = fee;
         }
         Ok(())
     }

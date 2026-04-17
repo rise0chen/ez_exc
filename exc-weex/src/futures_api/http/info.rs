@@ -13,6 +13,9 @@ pub struct GetInfoRequest {
 pub struct Info {
     pub price_precision: i8,
     pub quantity_precision: i8,
+    pub min_order_size: f64,
+    pub taker_fee_rate: f64,
+    pub maker_fee_rate: f64,
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]

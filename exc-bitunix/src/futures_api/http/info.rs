@@ -14,6 +14,8 @@ pub struct GetInfoRequest {
 pub struct GetInfoResponse {
     pub base_precision: i8,
     pub quote_precision: i8,
+    #[serde_as(as = "DisplayFromStr")]
+    pub min_trade_volume: f64,
 }
 
 impl Rest for GetInfoRequest {

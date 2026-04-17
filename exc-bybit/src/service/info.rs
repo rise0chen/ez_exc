@@ -11,7 +11,7 @@ impl Bybit {
         use crate::api::http::info::GetInfoRequest;
         let req = GetInfoRequest {
             category: symbol.kind,
-            symbol: symbol_id,
+            symbol: symbol_id.clone(),
         };
         let Some(a) = self.oneshot(req).await?.list.pop() else {
             return Err(ExchangeError::OrderNotFound);
@@ -20,6 +20,14 @@ impl Bybit {
         let precision_size = a.lot_size_filter.qty_step.or(a.lot_size_filter.base_precision).unwrap_or(1.0);
         let precision_size = -precision_size.log10().round() as i8;
         let precision_price = -a.price_filter.tick_size.log10().round() as i8;
+        let min_size = a.lot_size_filter.min_order_qty;
+        let min_usd = a.lot_size_filter.min_notional_value.or(a.lot_size_filter.min_order_amt).unwrap_or(0.0);
+        use crate::api::http::account::GetFeeRequest;
+        let req = GetFeeRequest {
+            category: symbol.kind,
+            symbol: symbol_id,
+        };
+        let fee = self.oneshot(req).await?.list.pop().map(|x| x.taker_fee_rate).unwrap_or(0.0);
 
         if symbol.multi_size.max(multi_size) / symbol.multi_size.min(multi_size) > 8.0 {
             tracing::error!("bybit multi_size from {} to {}", symbol.multi_size, multi_size);
@@ -32,6 +40,18 @@ impl Bybit {
         if symbol.precision_price != precision_price {
             tracing::warn!("bybit precision_price from {} to {}", symbol.precision_price, precision_price);
             symbol.precision_price = precision_price;
+        }
+        if symbol.min_size != min_size {
+            tracing::warn!("bybit min_size from {} to {}", symbol.min_size, min_size);
+            symbol.min_size = min_size;
+        }
+        if symbol.min_usd != min_usd {
+            tracing::warn!("bybit min_usd from {} to {}", symbol.min_usd, min_usd);
+            symbol.min_usd = min_usd;
+        }
+        if symbol.fee != fee && fee != 0.0 {
+            tracing::warn!("bybit fee from {} to {}", symbol.fee, fee);
+            symbol.fee = fee;
         }
         Ok(())
     }

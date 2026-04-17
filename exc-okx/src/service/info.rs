@@ -13,12 +13,15 @@ impl Okx {
         let mut multi_size = 1.0;
         let mut precision_size = 0;
         let mut precision_price = 2;
+        let mut min_size = 0.0;
+        let mut min_usd = 0.0;
+        let mut fee = 0.0;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
         use crate::api::http::info::GetInfoRequest;
         let req = GetInfoRequest {
             inst_type: if symbol.is_spot() { "SPOT" } else { "SWAP" },
-            inst_id: symbol_id,
+            inst_id: symbol_id.clone(),
         };
         let Some(a) = self.oneshot(req).await?.pop() else {
             return Err(ExchangeError::OrderNotFound);
@@ -27,6 +30,25 @@ impl Okx {
         multi_size = a.ct_val.unwrap_or(1.0);
         precision_size = -a.lot_sz.log10().round() as i8;
         precision_price = -a.tick_sz.log10().round() as i8;
+        min_size = a.min_sz;
+        use crate::api::http::account::GetFeeRequest;
+        let req = if symbol.is_spot() {
+            GetFeeRequest {
+                inst_type: "SPOT",
+                inst_id: Some(crate::symnol::symbol_id(symbol)),
+                inst_family: None,
+            }
+        } else {
+            GetFeeRequest {
+                inst_type: "SWAP",
+                inst_id: None,
+                inst_family: Some(crate::symnol::symbol_id(&Symbol::spot(symbol.base.clone(), symbol.quote.clone()))),
+            }
+        };
+        let Some(a) = self.oneshot(req).await?.pop() else {
+            return Err(ExchangeError::OrderNotFound);
+        };
+        fee = -a.fee_group[0].taker;
 
         if symbol.multi_price != multi_price {
             tracing::error!("okx multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -43,6 +65,18 @@ impl Okx {
         if symbol.precision_price != precision_price {
             tracing::warn!("okx precision_price from {} to {}", symbol.precision_price, precision_price);
             symbol.precision_price = precision_price;
+        }
+        if symbol.min_size != min_size {
+            tracing::warn!("okx min_size from {} to {}", symbol.min_size, min_size);
+            symbol.min_size = min_size;
+        }
+        if symbol.min_usd != min_usd {
+            tracing::warn!("okx min_usd from {} to {}", symbol.min_usd, min_usd);
+            symbol.min_usd = min_usd;
+        }
+        if symbol.fee != fee && fee != 0.0 {
+            tracing::warn!("okx fee from {} to {}", symbol.fee, fee);
+            symbol.fee = fee;
         }
         Ok(())
     }

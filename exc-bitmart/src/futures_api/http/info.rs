@@ -20,6 +20,8 @@ pub struct SymbolInfo {
     pub vol_precision: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub price_precision: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub min_volume: f64,
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case")]

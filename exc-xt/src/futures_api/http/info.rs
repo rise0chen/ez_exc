@@ -16,6 +16,14 @@ pub struct GetInfoResponse {
     pub contract_size: f64,
     pub quantity_precision: i8,
     pub price_precision: i8,
+    #[serde_as(as = "DisplayFromStr")]
+    pub min_notional: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub min_qty: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub taker_fee: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub maker_fee: f64,
 }
 
 impl Rest for GetInfoRequest {

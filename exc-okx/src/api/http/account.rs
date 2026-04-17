@@ -78,3 +78,43 @@ impl Rest for GetPositionRequest {
         true
     }
 }
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFeeRequest {
+    pub inst_type: &'static str,
+    pub inst_id: Option<String>,
+    pub inst_family: Option<String>,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FeeGroup {
+    #[serde_as(as = "DisplayFromStr")]
+    pub taker: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub maker: f64,
+}
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFeeResponse {
+    pub fee_group: Vec<FeeGroup>,
+}
+
+impl Rest for GetFeeRequest {
+    type Response = Vec<GetFeeResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::Common
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/api/v5/account/trade-fee".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
