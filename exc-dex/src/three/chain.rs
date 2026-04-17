@@ -3,11 +3,6 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Rpc {
-    pub url: String,
-}
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct NativeToken {
     pub symbol: String,
     pub decimals: i32,
@@ -16,7 +11,7 @@ pub struct NativeToken {
 #[serde(rename_all = "camelCase")]
 pub struct Chain {
     pub chain: String,
-    pub rpc: Vec<Rpc>,
+    pub rpc: Vec<String>,
     pub native_currency: NativeToken,
 }
 #[derive(Debug, Deserialize)]
@@ -26,13 +21,18 @@ pub struct ChainData {
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ResponseResult {
+    pub data: ChainData,
+}
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Response {
-    pub page_props: ChainData,
+    pub result: ResponseResult,
 }
 
 pub async fn get_chain(id: u64) -> Result<Chain> {
-    let url = format!("https://chainlist.org/_next/data/vKZl0OZPblRJq2J9xzw4h/chain/{id}.json");
+    let url = format!("https://chainid.network/page-data/chain/{id}/page-data.json");
     let resp = reqwest::get(url).await?;
     let data: Response = resp.json().await?;
-    Ok(data.page_props.chain)
+    Ok(data.result.data.chain)
 }

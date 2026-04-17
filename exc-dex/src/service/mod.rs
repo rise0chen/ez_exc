@@ -20,7 +20,7 @@ async fn connect(key: &Key) -> anyhow::Result<DynProvider> {
     } else {
         let chain_id = key.url.parse().unwrap();
         let info = crate::three::chain::get_chain(chain_id).await.unwrap();
-        info.rpc.choose(&mut rand::rng()).unwrap().url.clone()
+        info.rpc.choose(&mut rand::rng()).unwrap().clone()
     };
     let rpc = if url.starts_with("http") {
         rpc.connect_http(url.parse()?)
