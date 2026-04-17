@@ -1,11 +1,14 @@
 use super::Bybit;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::earn::StRate;
+use exc_util::types::earn::{common_st_rate, StRate};
 use tower::ServiceExt;
 
 impl Bybit {
     pub async fn get_st_rate(&mut self, symbol: &Symbol) -> Result<StRate, ExchangeError> {
+        if let Some(rate) = common_st_rate(symbol) {
+            return Ok(rate);
+        }
         use crate::api::http::earn::GetStRateRequest;
         let coin: String = match symbol.base.as_str() {
             "" => {
