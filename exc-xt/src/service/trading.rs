@@ -114,7 +114,7 @@ impl Xt {
                 vol: resp.orig_qty,
                 deal_vol: resp.executed_qty.unwrap_or_default(),
                 deal_avg_price: resp.avg_price.unwrap_or_default(),
-                fee: Fee::Quote(0.0006 * resp.avg_price.unwrap_or_default() * resp.executed_qty.unwrap_or_default() * resp.contract_size),
+                fee: Fee::Quote(symbol.fee * resp.avg_price.unwrap_or_default() * resp.executed_qty.unwrap_or_default() * resp.contract_size),
                 state: resp.state.into(),
                 side: resp.order_side,
             }

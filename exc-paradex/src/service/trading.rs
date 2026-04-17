@@ -76,10 +76,15 @@ impl Paradex {
         Ok(order_id)
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
-        let symbol = crate::symnol::symbol_id(&order_id.symbol);
+        let OrderId {
+            symbol,
+            order_id,
+            custom_order_id,
+        } = order_id;
+        let symbol_id = crate::symnol::symbol_id(&symbol);
         let start = chrono::Utc::now() - Duration::from_hours(24);
-        let mut req = vec![("market".into(), symbol.clone())];
-        if let Some(id) = order_id.custom_order_id {
+        let mut req = vec![("market".into(), symbol_id)];
+        if let Some(id) = custom_order_id {
             req.push(("client_id".into(), id));
         }
         let mut resp = self
@@ -87,7 +92,7 @@ impl Paradex {
             .request_cursor::<OrderUpdate>("/v1/orders-history".into(), Some(req), Some(start), None, true)
             .await
             .map_err(|e| ExchangeError::Other(e.into()))?;
-        if let Some(id) = order_id.order_id {
+        if let Some(id) = order_id {
             resp.retain(|x| x.id == id);
         }
         let Some(resp) = resp.pop() else {
@@ -100,7 +105,7 @@ impl Paradex {
             vol: resp.size.as_f64(),
             deal_vol,
             deal_avg_price: avg_price,
-            fee: Fee::Quote(deal_vol * avg_price * 0.000075),
+            fee: Fee::Quote(symbol.fee * deal_vol * avg_price),
             state: if matches!(resp.status, paradex::structs::OrderStatus::CLOSED) {
                 OrderStatus::Filled
             } else {

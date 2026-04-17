@@ -103,7 +103,7 @@ impl Aster {
                 vol: resp.orig_qty,
                 deal_vol: resp.executed_qty,
                 deal_avg_price: resp.avg_price.unwrap_or_default(),
-                fee: Fee::Quote(0.0004 * resp.avg_price.unwrap_or_default() * resp.executed_qty),
+                fee: Fee::Quote(symbol.fee * resp.avg_price.unwrap_or_default() * resp.executed_qty),
                 state: resp.status.into(),
                 side: resp.side,
             }

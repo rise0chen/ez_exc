@@ -143,7 +143,7 @@ impl Bitget {
             } else if fee_detail.fee_coin == "USDT" {
                 Fee::Quote(fee_detail.fee.parse().unwrap_or(0.0))
             } else {
-                Fee::Quote(0.0006 * resp.cum_exec_value)
+                Fee::Quote(symbol.fee * resp.cum_exec_value)
             };
             Order {
                 order_id: resp.order_id.to_string(),
@@ -173,7 +173,7 @@ impl Bitget {
             } else if fee_detail.fee_coin == "USDT" {
                 Fee::Quote(fee_detail.fee.parse().unwrap_or(0.0))
             } else {
-                Fee::Quote(0.0006 * resp.cum_exec_value)
+                Fee::Quote(symbol.fee * resp.cum_exec_value)
             };
             Order {
                 order_id: resp.order_id.to_string(),

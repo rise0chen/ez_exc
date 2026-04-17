@@ -128,7 +128,7 @@ impl Weex {
                 vol: resp.orig_qty,
                 deal_vol: resp.executed_qty,
                 deal_avg_price: resp.avg_price.unwrap_or_default(),
-                fee: Fee::Quote(0.0008 * resp.cum_quote),
+                fee: Fee::Quote(symbol.fee * resp.cum_quote),
                 state: resp.status.into(),
                 side: resp.side.into(),
             }
