@@ -14,6 +14,11 @@ pub fn common_st_rate(symbol: &Symbol) -> Option<StRate> {
             start_time: 0,
             apy: 0.0,
         },
+        "XAUT0" => StRate {
+            rate: 0.9975,
+            start_time: 0,
+            apy: 0.0,
+        },
         "PAXG" => StRate {
             rate: 0.99875,
             start_time: 0,
