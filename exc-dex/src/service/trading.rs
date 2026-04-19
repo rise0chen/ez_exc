@@ -20,7 +20,7 @@ impl Dex {
             leverage: _,
             open_type: _,
         } = data;
-        let price = price.to_f64().unwrap() * symbol.multi_price;
+        let price = price.to_f64().unwrap() * 10.0f64.powi((symbol.precision_price - 2 * symbol.precision) as i32);
         let mut ret = OrderId {
             symbol: symbol.clone(),
             order_id: None,
@@ -131,11 +131,13 @@ impl Dex {
         order.deal_avg_price = if self.key.pool_cfg.base_is_0 {
             let quote = format_units(event.data.amount1, symbol.precision as u8).unwrap();
             let size = format_units(event.data.amount0, symbol.precision as u8).unwrap();
-            quote.parse::<f64>().unwrap().abs() / size.parse::<f64>().unwrap().abs() / symbol.multi_price
+            let p = quote.parse::<f64>().unwrap().abs() / size.parse::<f64>().unwrap().abs();
+            p / 10.0f64.powi((symbol.precision_price - 2 * symbol.precision) as i32)
         } else {
             let quote = format_units(event.data.amount0, symbol.precision as u8).unwrap();
             let size = format_units(event.data.amount1, symbol.precision as u8).unwrap();
-            quote.parse::<f64>().unwrap().abs() / size.parse::<f64>().unwrap().abs() / symbol.multi_price
+            let p = quote.parse::<f64>().unwrap().abs() / size.parse::<f64>().unwrap().abs();
+            p / 10.0f64.powi((symbol.precision_price - 2 * symbol.precision) as i32)
         };
         order.state = OrderStatus::Filled;
         order.side = if self.key.pool_cfg.base_is_0 {

@@ -24,7 +24,7 @@ impl Dydx {
         precision_price = -a.tick_size.to_f64().unwrap().log10().round() as i8;
         let account = self.wallet().account_offline(0)?;
         let a = self.client().await.get_user_fee_tier(account.address().clone()).await?;
-        fee = a.taker_fee_ppm as f64 / 10e6;
+        fee = a.taker_fee_ppm as f64 / 1e6;
 
         if symbol.multi_price != multi_price {
             tracing::error!("dydx multi_price from {} to {}", symbol.multi_price, multi_price);

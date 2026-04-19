@@ -8,9 +8,10 @@ use exc_util::types::info::FundingRate;
 
 impl Dex {
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
-        if self.key.gas_price == 0 {
-            self.key.gas_price = self.rpc.get_gas_price().await.map_err(|e| map_err(e.into()))? as u64;
-            tracing::info!("dex gas from 0 to {}", self.key.gas_price);
+        let gas = self.rpc.get_gas_price().await.map_err(|e| map_err(e.into()))? as u64;
+        if self.key.gas_price < gas {
+            self.key.gas_price = gas;
+            tracing::info!("dex gas price from {} to {}", self.key.gas_price, self.key.gas_price);
         }
         let chain_id = self.rpc.get_chain_id().await.map_err(|e| map_err(e.into()))?;
         let chain_info = crate::three::chain::get_chain(chain_id).await.unwrap();
@@ -32,11 +33,10 @@ impl Dex {
         let quote = ERC20::new(symbol.quote_id.parse().unwrap(), &self.rpc);
         let base_decimals = base.decimals().call().await.map_err(map_err)? as i8;
         let quote_decimals = quote.decimals().call().await.map_err(map_err)? as i8;
-        let convert_decimals = quote_decimals - base_decimals;
-        let multi_price = 10.0f64.powi(convert_decimals as i32);
-        if symbol.multi_price != multi_price {
-            tracing::info!("dex multi_price from {} to {}", symbol.multi_price, multi_price);
-            symbol.multi_price = multi_price;
+        let precision_price = base_decimals + quote_decimals;
+        if symbol.multi_price != 1.0 {
+            tracing::info!("dex multi_price from {} to {}", symbol.multi_price, 1.0);
+            symbol.multi_price = 1.0;
         }
         if symbol.multi_size != 1.0 {
             tracing::info!("dex multi_size from {} to {}", symbol.multi_size, 1.0);
@@ -45,6 +45,10 @@ impl Dex {
         if symbol.precision != base_decimals {
             tracing::info!("dex precision_size from {} to {}", symbol.precision, base_decimals);
             symbol.precision = base_decimals;
+        }
+        if symbol.precision_price != precision_price {
+            tracing::info!("dex precision_price from {} to {}", symbol.precision_price, precision_price);
+            symbol.precision_price = precision_price;
         }
         Ok(())
     }

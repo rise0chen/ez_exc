@@ -16,16 +16,18 @@ fn map_order0(x: &Cex::Order, symbol: &Symbol) -> Option<Order> {
         return None;
     }
     let price = price(x.price);
+    let price = price / 10.0f64.powi((symbol.precision_price - 2 * symbol.precision) as i32);
     let size = format_units(x.amount0, symbol.precision as u8).unwrap();
-    Some(Order::new(price / symbol.multi_price, size.parse().unwrap()))
+    Some(Order::new(price, size.parse().unwrap()))
 }
 fn map_order1(x: &Cex::Order, symbol: &Symbol) -> Option<Order> {
     if x.amount1 == 0 {
         return None;
     }
     let price = 1.0 / price(x.price);
+    let price = price / 10.0f64.powi((symbol.precision_price - 2 * symbol.precision) as i32);
     let size = format_units(x.amount1, symbol.precision as u8).unwrap();
-    Some(Order::new(price / symbol.multi_price, size.parse().unwrap()))
+    Some(Order::new(price, size.parse().unwrap()))
 }
 
 impl Dex {
