@@ -26,7 +26,7 @@ impl Hyperliquid {
             orders: vec![OrderRequest {
                 asset: symbol.base_id.parse().unwrap(),
                 is_buy: size.is_sign_positive(),
-                limit_px: price,
+                limit_px: price.round_sf(5).unwrap(),
                 sz: size.abs(),
                 reduce_only: false,
                 order_type: OrderTypePlacement::Limit {
