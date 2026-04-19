@@ -1,6 +1,8 @@
+pub mod book;
 pub mod info;
 
 use core::time::Duration;
+use exc_util::types::book::{Depth, Order};
 use futures_util::{SinkExt, StreamExt};
 use std::{collections::HashMap, sync::Arc};
 use time::OffsetDateTime;
@@ -24,9 +26,10 @@ pub struct Tx {
 
 #[derive(Debug, Deserialize)]
 #[serde(tag = "ch", content = "data")]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub enum RxResponseData {
     Price(info::GetIndexPriceResponse),
+    DepthBook15(book::GetDepthResponse),
 }
 #[derive(Debug, Deserialize)]
 pub struct RxResponse {
@@ -54,15 +57,24 @@ pub enum Rx {
 pub struct Ws {
     pub symbols: Vec<String>,
     pub index_prices: Arc<HashMap<String, watch::Sender<f64>>>,
+    pub books: Arc<HashMap<String, watch::Sender<Depth>>>,
 }
 impl Ws {
     pub fn new(symbols: Vec<String>) -> Ws {
         let index_prices = Arc::new(symbols.iter().map(|s| (s.clone(), watch::channel(0.0).0)).collect());
-        Ws { symbols, index_prices }
+        let books = Arc::new(symbols.iter().map(|s| (s.clone(), watch::channel(Depth::default()).0)).collect());
+        Ws {
+            symbols,
+            index_prices,
+            books,
+        }
     }
     pub fn clear(&self) {
         self.index_prices.values().for_each(|x| {
             x.send_replace(0.0);
+        });
+        self.books.values().for_each(|x| {
+            x.send_replace(Depth::default());
         });
     }
     pub async fn run(&self) -> Result<(), anyhow::Error> {
@@ -110,16 +122,17 @@ impl Ws {
                     Rx::Request(request) => {
                         match request {
                             RxRequest::Connect {} => {
+                                let sub_price = self.symbols.iter().map(|s| TxArg {
+                                    ch: "price",
+                                    symbol: s.clone(),
+                                });
+                                let sub_book = self.symbols.iter().map(|s| TxArg {
+                                    ch: "depth_book15",
+                                    symbol: s.clone(),
+                                });
                                 let req_price = Tx {
                                     op: "subscribe",
-                                    args: self
-                                        .symbols
-                                        .iter()
-                                        .map(|s| TxArg {
-                                            ch: "price",
-                                            symbol: s.clone(),
-                                        })
-                                        .collect(),
+                                    args: sub_price.chain(sub_book).collect(),
                                     ping: 0,
                                 };
                                 write.send(Message::Text(serde_json::to_string(&req_price)?.into())).await?;
@@ -138,6 +151,19 @@ impl Ws {
                             ch.send_replace(d.ip);
                         } else {
                             tracing::warn!("Not init {}", m.symbol);
+                        }
+                    }
+                    RxResponseData::DepthBook15(d) => {
+                        if let Some(ch) = self.books.get(&m.symbol) {
+                            let bid = d.b.iter().map(|x| Order { price: x.0, size: x.1 }).collect();
+                            let ask = d.a.iter().map(|x| Order { price: x.0, size: x.1 }).collect();
+                            ch.send_replace(Depth {
+                                bid,
+                                ask,
+                                version: (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64,
+                            });
+                        } else {
+                            tracing::warn!("Not init {} book", m.symbol);
                         }
                     }
                 }
