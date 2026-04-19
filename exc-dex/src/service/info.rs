@@ -33,7 +33,6 @@ impl Dex {
         let quote = ERC20::new(symbol.quote_id.parse().unwrap(), &self.rpc);
         let base_decimals = base.decimals().call().await.map_err(map_err)? as i8;
         let quote_decimals = quote.decimals().call().await.map_err(map_err)? as i8;
-        let precision_price = base_decimals + quote_decimals;
         if symbol.multi_price != 1.0 {
             tracing::info!("dex multi_price from {} to {}", symbol.multi_price, 1.0);
             symbol.multi_price = 1.0;
@@ -46,9 +45,9 @@ impl Dex {
             tracing::info!("dex precision_size from {} to {}", symbol.precision, base_decimals);
             symbol.precision = base_decimals;
         }
-        if symbol.precision_price != precision_price {
-            tracing::info!("dex precision_price from {} to {}", symbol.precision_price, precision_price);
-            symbol.precision_price = precision_price;
+        if symbol.precision_price != quote_decimals {
+            tracing::info!("dex precision_price from {} to {}", symbol.precision_price, quote_decimals);
+            symbol.precision_price = quote_decimals;
         }
         Ok(())
     }
