@@ -9,6 +9,22 @@ impl Order {
     }
 }
 
+pub fn depth_price(book: &[Order], depth: f64) -> f64 {
+    let mut remain = depth;
+    let mut size = 0.0;
+    for order in book {
+        let val = order.size * order.price;
+        if val >= remain {
+            size += remain / order.price;
+            break;
+        } else {
+            size += order.size;
+            remain -= val;
+        }
+    }
+    depth / size
+}
+
 #[derive(Debug, Default, Clone)]
 pub struct Depth {
     pub bid: Vec<Order>,
@@ -21,5 +37,8 @@ impl Depth {
             return false;
         }
         self.bid[0].price <= self.ask[0].price && self.ask[0].price < self.ask[1].price && self.bid[0].price > self.bid[1].price
+    }
+    pub fn depth_price(&self, depth: f64) -> (f64, f64) {
+        (depth_price(&self.bid, depth), depth_price(&self.ask, depth))
     }
 }

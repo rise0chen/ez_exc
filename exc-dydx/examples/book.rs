@@ -20,5 +20,6 @@ async fn main() -> anyhow::Result<()> {
     let bid_ask = dydx.get_depth(&symbol, 4).await.unwrap();
     assert!(bid_ask.is_valid());
     tracing::info!("{:?}", bid_ask);
+    tracing::info!("{:?}", bid_ask.depth_price(500.0));
     Ok(())
 }

@@ -24,6 +24,7 @@ async fn main() -> anyhow::Result<()> {
     let bid_ask = hyperliquid.get_depth(&symbol, 4).await.unwrap();
     assert!(bid_ask.is_valid());
     tracing::info!("{:?}", bid_ask);
+    tracing::info!("{:?}", bid_ask.depth_price(500.0));
 
     let mut symbol = Symbol::derivative(Asset::try_from("xyz:GOLD").unwrap(), Asset::usd());
     symbol.base_id = "110003".into();
@@ -31,5 +32,6 @@ async fn main() -> anyhow::Result<()> {
     let bid_ask = hyperliquid.get_depth(&symbol, 4).await.unwrap();
     assert!(bid_ask.is_valid());
     tracing::info!("{:?}", bid_ask);
+    tracing::info!("{:?}", bid_ask.depth_price(500.0));
     Ok(())
 }

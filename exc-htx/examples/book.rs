@@ -23,11 +23,13 @@ async fn main() -> anyhow::Result<()> {
         let bid_ask = htx.get_depth(&symbol, 5).await.unwrap();
         assert!(bid_ask.is_valid());
         tracing::info!("{:?}", bid_ask);
+        tracing::info!("{:?}", bid_ask.depth_price(500.0));
 
         let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
         let bid_ask = htx.get_depth(&symbol, 5).await.unwrap();
         assert!(bid_ask.is_valid());
         tracing::info!("{:?}", bid_ask);
+        tracing::info!("{:?}", bid_ask.depth_price(500.0));
 
         tokio::time::sleep(Duration::from_secs(30)).await;
     }

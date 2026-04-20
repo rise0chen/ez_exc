@@ -18,5 +18,6 @@ async fn main() -> anyhow::Result<()> {
     let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
     let bid_ask = kcex.get_depth(&symbol, 4).await.unwrap();
     tracing::info!("{:?}", bid_ask);
+    tracing::info!("{:?}", bid_ask.depth_price(500.0));
     Ok(())
 }
