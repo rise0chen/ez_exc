@@ -86,6 +86,19 @@ impl Order {
         }
     }
 }
+impl Default for Order {
+    fn default() -> Self {
+        Self {
+            order_id: String::new(),
+            vol: 0.0,
+            deal_vol: 0.0,
+            deal_avg_price: 0.0,
+            fee: Fee::Quote(0.0),
+            state: OrderStatus::New,
+            side: OrderSide::Buy,
+        }
+    }
+}
 
 #[derive(FromPrimitive, IntoPrimitive)]
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]

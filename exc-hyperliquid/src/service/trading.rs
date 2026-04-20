@@ -98,7 +98,7 @@ impl Hyperliquid {
                 match self.http.cancel(&signer, batch, nonce, None, None).await {
                     Ok(mut d) => d.pop(),
                     Err(e) => {
-                        return Err(ExchangeError::Other(anyhow::anyhow!("{}", e.message())));
+                        return Err(ExchangeError::Other(anyhow::anyhow!("{}", e)));
                     }
                 }
             }
@@ -121,7 +121,12 @@ impl Hyperliquid {
         let oid = match (&order_id.order_id, &order_id.custom_order_id) {
             (_, Some(custom_order_id)) => OidOrCloid::Right(custom_order_id.parse::<i128>().unwrap().to_be_bytes().into()),
             (Some(order_id), None) => OidOrCloid::Left(order_id.parse().unwrap()),
-            (None, None) => return Err(ExchangeError::OrderNotFound),
+            (None, None) => {
+                return Ok(Order {
+                    state: OrderStatus::Canceled,
+                    ..Default::default()
+                })
+            }
         };
         let resp = self.http.order_status(self.key.user.parse().unwrap(), oid).await?;
         let Some(resp) = resp else {
