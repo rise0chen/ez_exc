@@ -39,6 +39,8 @@ impl Dydx {
             leverage: _,
             open_type: _,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let mut client = self.client().await;
         let custom_id = ClientId::random();
         let mut ret = OrderId {

@@ -1,7 +1,7 @@
 use super::Gate;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::book::{Depth, Order};
+use exc_util::types::book::Depth;
 use tower::ServiceExt;
 
 impl Gate {
@@ -9,9 +9,13 @@ impl Gate {
         let symbol_id = crate::symnol::symbol_id(symbol);
         let bid_ask = if symbol.is_spot() {
             if let Some(ch) = self.ws_spot.books.get(&symbol_id) {
-                let book = ch.borrow();
+                let mut book = ch.borrow().clone();
                 if book.is_valid() {
-                    return Ok(book.clone());
+                    book.ask.iter_mut().for_each(|x| {
+                        x.price = symbol.token_price(x.price);
+                        x.size = symbol.token_size(x.size);
+                    });
+                    return Ok(book);
                 }
             }
             tracing::warn!("gate get depth spot:{} by http", symbol_id);
@@ -22,8 +26,8 @@ impl Gate {
             };
             let resp = self.oneshot(req).await?;
             Depth {
-                bid: resp.bids.iter().map(|x| Order::new(x.0, x.1)).collect(),
-                ask: resp.asks.iter().map(|x| Order::new(x.0, x.1)).collect(),
+                bid: resp.bids.iter().map(|x| symbol.order(x.0, x.1)).collect(),
+                ask: resp.asks.iter().map(|x| symbol.order(x.0, x.1)).collect(),
                 version: resp.update,
             }
         } else {
@@ -31,8 +35,8 @@ impl Gate {
             let req = GetDepthRequest { contract: symbol_id, limit };
             let resp = self.oneshot(req).await?;
             Depth {
-                bid: resp.bids.iter().map(|x| Order::new(x.p, x.s)).collect(),
-                ask: resp.asks.iter().map(|x| Order::new(x.p, x.s)).collect(),
+                bid: resp.bids.iter().map(|x| symbol.order(x.p, x.s)).collect(),
+                ask: resp.asks.iter().map(|x| symbol.order(x.p, x.s)).collect(),
                 version: (resp.update * 1000.0) as u64,
             }
         };

@@ -15,6 +15,8 @@ impl Binance {
             leverage: _,
             open_type: _,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!(
             "t-{:08x?}{:04x?}{:016x?}",
             price.to_f32().unwrap().ln().to_bits(),
@@ -130,12 +132,12 @@ impl Binance {
             let fee = Fee::Quote(symbol.fee * resp.cummulative_quote_qty);
             Order {
                 order_id: resp.order_id.to_string(),
-                vol: resp.orig_qty.abs(),
-                deal_vol: (resp.executed_qty).abs(),
+                vol: symbol.token_size(resp.orig_qty.abs()),
+                deal_vol: symbol.token_size((resp.executed_qty).abs()),
                 deal_avg_price: if resp.executed_qty == 0.0 {
                     0.0
                 } else {
-                    resp.cummulative_quote_qty / resp.executed_qty
+                    symbol.token_price(resp.cummulative_quote_qty / resp.executed_qty)
                 },
                 fee,
                 state: resp.status,
@@ -152,12 +154,12 @@ impl Binance {
             let fee = Fee::Quote(symbol.fee * resp.cum_quote);
             Order {
                 order_id: resp.order_id.to_string(),
-                vol: resp.orig_qty.abs(),
-                deal_vol: (resp.executed_qty).abs(),
+                vol: symbol.token_size(resp.orig_qty.abs()),
+                deal_vol: symbol.token_size((resp.executed_qty).abs()),
                 deal_avg_price: if resp.executed_qty == 0.0 {
                     0.0
                 } else {
-                    resp.cum_quote / resp.executed_qty
+                    symbol.token_price(resp.cum_quote / resp.executed_qty)
                 },
                 fee,
                 state: resp.status,

@@ -38,12 +38,20 @@ impl Okx {
             }
             Ok((
                 Position {
-                    size: long_size,
-                    price: if long_size == 0.0 { 0.0 } else { long_val / long_size },
+                    size: symbol.token_size(long_size),
+                    price: if long_size == 0.0 {
+                        0.0
+                    } else {
+                        symbol.token_price(long_val / long_size)
+                    },
                 },
                 Position {
-                    size: short_size,
-                    price: if short_size == 0.0 { 0.0 } else { short_val / short_size },
+                    size: symbol.token_size(short_size),
+                    price: if short_size == 0.0 {
+                        0.0
+                    } else {
+                        symbol.token_price(short_val / short_size)
+                    },
                 },
             ))
         }

@@ -2,7 +2,6 @@ use core::time::Duration;
 use exc_lighter::service::Lighter;
 use exc_util::symbol::{Asset, Symbol};
 use exc_util::types::order::{OrderType, PlaceOrderRequest};
-use rust_decimal::Decimal;
 use std::env::var;
 
 #[tokio::main]
@@ -22,9 +21,10 @@ async fn main() -> anyhow::Result<()> {
 
     let mut symbol = Symbol::derivative(Asset::try_from("XAU").unwrap(), Asset::usdt());
     symbol.base_id = String::from("92");
-    let mut order_req = PlaceOrderRequest::new(Decimal::new(-30, 4), Decimal::new(530000, 2), OrderType::Limit);
+    lighter.perfect_symbol(&mut symbol).await.unwrap();
+    let mut order_req = PlaceOrderRequest::new(-0.003, 5300.0, OrderType::Limit);
     order_req.set_leverage(20.0);
-    let order_id = lighter.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
+    let order_id = lighter.place_order(&symbol, order_req).await.unwrap();
     let order = lighter.get_order(order_id.clone()).await;
     tracing::info!("{:?}", order);
     tokio::time::sleep(Duration::from_secs(32)).await;

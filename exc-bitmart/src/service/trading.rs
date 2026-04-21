@@ -16,6 +16,8 @@ impl Bitmart {
             leverage,
             open_type: _,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!(
             "{:08x?}{:08x?}{:016x?}",
             price.to_f32().unwrap().ln().to_bits(),
@@ -130,9 +132,9 @@ impl Bitmart {
 
             Order {
                 order_id: resp.order_id,
-                vol: resp.size,
-                deal_vol: resp.deal_size,
-                deal_avg_price: resp.deal_avg_price,
+                vol: symbol.token_size(resp.size),
+                deal_vol: symbol.token_size(resp.deal_size),
+                deal_avg_price: symbol.token_price(resp.deal_avg_price),
                 fee: Fee::Quote(fee),
                 state: resp.state.into(),
                 side: resp.side.into(),

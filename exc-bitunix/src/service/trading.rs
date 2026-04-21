@@ -15,6 +15,8 @@ impl Bitunix {
             leverage: _,
             open_type: _,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!(
             "{:08x?}{:08x?}{:016x?}",
             price.to_f32().unwrap().ln().to_bits(),
@@ -112,9 +114,9 @@ impl Bitunix {
             let resp = self.oneshot(req).await?;
             Order {
                 order_id: resp.order_id,
-                vol: resp.qty,
-                deal_vol: resp.trade_qty,
-                deal_avg_price: resp.price,
+                vol: symbol.token_size(resp.qty),
+                deal_vol: symbol.token_size(resp.trade_qty),
+                deal_avg_price: symbol.token_price(resp.price),
                 fee: Fee::Quote(resp.fee),
                 state: resp.status.into(),
                 side: resp.side.into(),

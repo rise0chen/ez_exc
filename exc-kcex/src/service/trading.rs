@@ -17,6 +17,8 @@ impl Kcex {
             leverage,
             open_type,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!(
             "{:08x?}{:08x?}{:016x?}",
             price.to_f32().unwrap().ln().to_bits(),
@@ -112,9 +114,9 @@ impl Kcex {
             let resp = self.oneshot(req).await?;
             Order {
                 order_id: resp.order_id,
-                vol: resp.vol,
-                deal_vol: resp.deal_vol,
-                deal_avg_price: resp.deal_avg_price,
+                vol: symbol.token_size(resp.vol),
+                deal_vol: symbol.token_size(resp.deal_vol),
+                deal_avg_price: symbol.token_price(resp.deal_avg_price),
                 fee: Fee::Quote(resp.maker_fee + resp.taker_fee),
                 state: resp.state,
                 side: resp.side,

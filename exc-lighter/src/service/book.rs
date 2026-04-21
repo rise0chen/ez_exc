@@ -1,7 +1,7 @@
 use super::Lighter;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::book::{Depth, Order};
+use exc_util::types::book::Depth;
 use std::collections::BTreeMap;
 use time::OffsetDateTime;
 
@@ -22,10 +22,10 @@ impl Lighter {
                 .and_modify(|curr| *curr += x.size.parse::<f64>().unwrap())
                 .or_insert(x.size.parse::<f64>().unwrap());
         });
-        let mut bid: Vec<Order> = bids.into_iter().map(|(p, n)| Order::new(p.parse().unwrap(), n)).collect();
+        let mut bid: Vec<_> = bids.into_iter().map(|(p, s)| symbol.order(p.parse().unwrap(), s)).collect();
         bid.sort_by(|a, b| b.price.total_cmp(&a.price));
         bid.truncate(limit as usize);
-        let mut ask: Vec<Order> = asks.into_iter().map(|(p, n)| Order::new(p.parse().unwrap(), n)).collect();
+        let mut ask: Vec<_> = asks.into_iter().map(|(p, s)| symbol.order(p.parse().unwrap(), s)).collect();
         ask.sort_by(|a, b| a.price.total_cmp(&b.price));
         ask.truncate(limit as usize);
         let bid_ask = Depth {

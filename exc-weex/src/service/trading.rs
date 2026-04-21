@@ -16,6 +16,8 @@ impl Weex {
             leverage: _,
             open_type: _,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!(
             "{:08x?}{:08x?}{:016x?}",
             price.to_f32().unwrap().ln().to_bits(),
@@ -125,9 +127,9 @@ impl Weex {
             let Some(resp) = order else { return Err(ExchangeError::OrderNotFound) };
             Order {
                 order_id: resp.order_id.to_string(),
-                vol: resp.orig_qty,
-                deal_vol: resp.executed_qty,
-                deal_avg_price: resp.avg_price.unwrap_or_default(),
+                vol: symbol.token_size(resp.orig_qty),
+                deal_vol: symbol.token_size(resp.executed_qty),
+                deal_avg_price: symbol.token_price(resp.avg_price.unwrap_or_default()),
                 fee: Fee::Quote(symbol.fee * resp.cum_quote),
                 state: resp.status.into(),
                 side: resp.side.into(),

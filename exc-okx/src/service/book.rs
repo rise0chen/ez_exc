@@ -1,7 +1,7 @@
 use super::Okx;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::book::{Depth, Order};
+use exc_util::types::book::Depth;
 use tower::ServiceExt;
 
 impl Okx {
@@ -14,8 +14,8 @@ impl Okx {
         };
         let resp = self.oneshot(req).await?.pop();
         resp.map(|resp| Depth {
-            bid: resp.bids.iter().map(|x| Order::new(x.0, x.1)).collect(),
-            ask: resp.asks.iter().map(|x| Order::new(x.0, x.1)).collect(),
+            bid: resp.bids.iter().map(|x| symbol.order(x.0, x.1)).collect(),
+            ask: resp.asks.iter().map(|x| symbol.order(x.0, x.1)).collect(),
             version: resp.ts,
         })
         .ok_or(ExchangeError::OrderNotFound)

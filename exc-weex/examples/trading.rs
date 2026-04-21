@@ -2,7 +2,6 @@ use core::time::Duration;
 use exc_util::symbol::{Asset, Symbol};
 use exc_util::types::order::{OrderType, PlaceOrderRequest};
 use exc_weex::service::Weex;
-use rust_decimal::Decimal;
 use std::env::var;
 
 #[tokio::main]
@@ -19,7 +18,7 @@ async fn main() -> anyhow::Result<()> {
     let mut weex = Weex::new(key);
 
     let symbol = Symbol::derivative(Asset::try_from("PAXG").unwrap(), Asset::usdt());
-    let mut order_req = PlaceOrderRequest::new(Decimal::new(1, 3), Decimal::new(4000, 0), OrderType::ImmediateOrCancel);
+    let mut order_req = PlaceOrderRequest::new(0.001, 4000.0, OrderType::ImmediateOrCancel);
     order_req.set_leverage(20.0);
     let order_id = weex.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     tokio::time::sleep(Duration::from_secs(32)).await;

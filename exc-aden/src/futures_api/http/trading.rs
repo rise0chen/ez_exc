@@ -46,8 +46,8 @@ pub struct AmendOrderRequest {
     pub order_id: Option<String>,
     #[serde(skip)]
     pub external_oid: Option<String>,
-    pub size: Option<i64>,
-    pub price: Option<f64>,
+    pub size: Decimal,
+    pub price: Option<Decimal>,
 }
 
 #[derive(Debug, Deserialize)]

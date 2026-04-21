@@ -1,7 +1,7 @@
 use super::Aden;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::book::{Depth, Order};
+use exc_util::types::book::Depth;
 use tower::ServiceExt;
 
 impl Aden {
@@ -14,8 +14,8 @@ impl Aden {
             let req = GetDepthRequest { contract: symbol_id, limit };
             let resp = self.oneshot(req).await?;
             Depth {
-                bid: resp.bids.iter().map(|x| Order::new(x.p, x.s)).collect(),
-                ask: resp.asks.iter().map(|x| Order::new(x.p, x.s)).collect(),
+                bid: resp.bids.iter().map(|x| symbol.order(x.p, x.s)).collect(),
+                ask: resp.asks.iter().map(|x| symbol.order(x.p, x.s)).collect(),
                 version: (resp.update * 1000.0) as u64,
             }
         };

@@ -8,9 +8,9 @@ impl Paradex {
         Ok(resp.total_collateral)
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
-        let symbol = crate::symnol::symbol_id(symbol);
+        let symbol_id = crate::symnol::symbol_id(symbol);
         let resp = self.http.positions().await.map_err(|e| ExchangeError::Other(e.into()))?;
-        let resp = resp.results.iter().filter(|x| x.market == symbol);
+        let resp = resp.results.iter().filter(|x| x.market == symbol_id);
 
         let (mut short_size, mut short_val) = (0.0, 0.0);
         let (mut long_size, mut long_val) = (0.0, 0.0);
@@ -27,12 +27,20 @@ impl Paradex {
         }
         Ok((
             Position {
-                size: long_size,
-                price: if long_size == 0.0 { 0.0 } else { long_val / long_size },
+                size: symbol.token_size(long_size),
+                price: if long_size == 0.0 {
+                    0.0
+                } else {
+                    symbol.token_price(long_val / long_size)
+                },
             },
             Position {
-                size: short_size,
-                price: if short_size == 0.0 { 0.0 } else { short_val / short_size },
+                size: symbol.token_size(short_size),
+                price: if short_size == 0.0 {
+                    0.0
+                } else {
+                    symbol.token_price(short_val / short_size)
+                },
             },
         ))
     }

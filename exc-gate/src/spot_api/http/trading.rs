@@ -51,10 +51,8 @@ pub struct AmendOrderRequest {
     #[serde(skip)]
     pub text: Option<String>,
     pub currency_pair: String,
-    #[serde_as(as = "Option<DisplayFromStr>")]
-    pub amount: Option<f64>,
-    #[serde_as(as = "Option<DisplayFromStr>")]
-    pub price: Option<f64>,
+    pub amount: Decimal,
+    pub price: Option<Decimal>,
 }
 
 #[derive(Debug, Deserialize)]

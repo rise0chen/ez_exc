@@ -15,6 +15,8 @@ impl Bybit {
             leverage,
             open_type: _,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!(
             "{:08x?}{:08x?}{:016x?}",
             price.to_f32().unwrap().ln().to_bits(),
@@ -61,8 +63,8 @@ impl Bybit {
             symbol: symbol_id,
             order_id,
             order_link_id: custom_order_id,
-            qty: order.size,
-            price: order.price,
+            qty: symbol.contract_size(order.size),
+            price: order.price.map(|x| symbol.contract_price(x, order.size > 0.0)),
         };
         let resp = self.oneshot(req).await?;
         Ok(OrderId {
@@ -107,12 +109,12 @@ impl Bybit {
         let resp = self.oneshot(req).await?.list.pop();
         resp.map(|resp| Order {
             order_id: resp.order_id,
-            vol: resp.qty,
-            deal_vol: resp.cum_exec_qty,
+            vol: symbol.token_size(resp.qty),
+            deal_vol: symbol.token_size(resp.cum_exec_qty),
             deal_avg_price: if resp.cum_exec_qty == 0.0 {
                 0.0
             } else {
-                resp.cum_exec_value / resp.cum_exec_qty
+                symbol.token_price(resp.cum_exec_value / resp.cum_exec_qty)
             },
             fee: if symbol.is_spot() && matches!(resp.side, OrderSide::Buy) {
                 Fee::Base(resp.cum_exec_fee)

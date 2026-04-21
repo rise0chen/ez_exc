@@ -83,9 +83,9 @@ impl Rest for PlaceOrderRequest {
 #[serde(rename_all = "camelCase")]
 pub struct AmendOrderRequest {
     pub order_id: Option<String>,
-    pub quantity: Option<f64>,
+    pub quantity: Decimal,
     //pub amount: Option<f64>,
-    pub price: Option<f64>,
+    pub price: Option<Decimal>,
     pub client_order_id: Option<String>,
 }
 

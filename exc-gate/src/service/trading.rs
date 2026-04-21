@@ -16,6 +16,8 @@ impl Gate {
             leverage,
             open_type: _,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!(
             "t-{:08x?}{:04x?}{:016x?}",
             price.to_f32().unwrap().ln().to_bits(),
@@ -83,8 +85,8 @@ impl Gate {
                 order_id,
                 text: custom_order_id,
                 currency_pair: symbol_id,
-                amount: order.size,
-                price: order.price,
+                amount: symbol.contract_size(order.size),
+                price: order.price.map(|x| symbol.contract_price(x, order.size > 0.0)),
             };
             let resp = self.oneshot(req).await?;
             OrderId {
@@ -96,8 +98,8 @@ impl Gate {
             let req = crate::futures_api::http::trading::AmendOrderRequest {
                 order_id,
                 external_oid: custom_order_id,
-                size: order.size.map(|x| x as i64),
-                price: order.price,
+                size: symbol.contract_size(order.size),
+                price: order.price.map(|x| symbol.contract_price(x, order.size > 0.0)),
             };
             let resp = self.oneshot(req).await?;
             OrderId {
@@ -168,12 +170,12 @@ impl Gate {
             };
             Order {
                 order_id: resp.id.to_string(),
-                vol: resp.amount.abs(),
-                deal_vol: (resp.filled_amount).abs(),
+                vol: symbol.token_size(resp.amount.abs()),
+                deal_vol: symbol.token_size((resp.filled_amount).abs()),
                 deal_avg_price: if resp.filled_amount == 0.0 {
                     0.0
                 } else {
-                    resp.filled_total / resp.filled_amount
+                    symbol.token_price(resp.filled_total / resp.filled_amount)
                 },
                 fee,
                 state: resp.status.into(),
@@ -190,9 +192,9 @@ impl Gate {
             let fee = 0.0005 * deal_vol * symbol.multi_size * resp.fill_price;
             Order {
                 order_id: resp.id.to_string(),
-                vol: resp.size.abs(),
-                deal_vol,
-                deal_avg_price: resp.fill_price,
+                vol: symbol.token_size(resp.size.abs()),
+                deal_vol: symbol.token_size(deal_vol),
+                deal_avg_price: symbol.token_price(resp.fill_price),
                 fee: Fee::Quote(fee),
                 state: match resp.finish_as.as_deref() {
                     None => OrderStatus::New,

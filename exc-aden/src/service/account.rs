@@ -20,8 +20,8 @@ impl Aden {
             let resp = self.oneshot(req).await?;
             let size = resp.size.unwrap_or(0.0);
             Position {
-                size,
-                price: resp.entry_price.unwrap_or(0.0),
+                size: symbol.token_size(size),
+                price: symbol.token_price(resp.entry_price.unwrap_or(0.0)),
             }
         };
         Ok(position)

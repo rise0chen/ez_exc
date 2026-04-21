@@ -2,7 +2,6 @@ use core::time::Duration;
 use exc_aden::service::Aden;
 use exc_util::symbol::{Asset, Symbol};
 use exc_util::types::order::{OrderType, PlaceOrderRequest};
-use rust_decimal::Decimal;
 use std::env::var;
 
 #[tokio::main]
@@ -19,7 +18,7 @@ async fn main() -> anyhow::Result<()> {
     let mut aden = Aden::new(key);
 
     let symbol = Symbol::derivative(Asset::try_from("XAU").unwrap(), Asset::usdt());
-    let mut order_req = PlaceOrderRequest::new(Decimal::new(1, 0), Decimal::new(5000, 0), OrderType::Limit);
+    let mut order_req = PlaceOrderRequest::new(1.0, 5000.0, OrderType::Limit);
     order_req.set_leverage(20.0);
     let order_id = aden.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     let order = aden.get_order(order_id.clone()).await.unwrap();

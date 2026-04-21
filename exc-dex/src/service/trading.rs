@@ -20,6 +20,8 @@ impl Dex {
             leverage: _,
             open_type: _,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let price = price.to_f64().unwrap() * 10.0f64.powi((symbol.precision_price - symbol.precision) as i32);
         let mut ret = OrderId {
             symbol: symbol.clone(),

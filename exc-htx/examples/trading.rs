@@ -2,7 +2,6 @@ use core::time::Duration;
 use exc_htx::service::Htx;
 use exc_util::symbol::{Asset, Symbol};
 use exc_util::types::order::{OrderType, PlaceOrderRequest};
-use rust_decimal::Decimal;
 use std::env::var;
 
 #[tokio::main]
@@ -21,7 +20,7 @@ async fn main() -> anyhow::Result<()> {
     tokio::time::sleep(Duration::from_secs(2)).await;
 
     let symbol = Symbol::derivative(Asset::try_from("XAUT").unwrap(), Asset::usdt());
-    let order_req = PlaceOrderRequest::new(Decimal::new(1, 0), Decimal::new(4000, 0), OrderType::Limit);
+    let order_req = PlaceOrderRequest::new(1.0, 4000.0, OrderType::Limit);
     let order_id = htx.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     tokio::time::sleep(Duration::from_secs(10)).await;
     let order_id = htx.cancel_order(order_id).await.unwrap();

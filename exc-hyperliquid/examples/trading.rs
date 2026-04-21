@@ -2,7 +2,6 @@ use core::time::Duration;
 use exc_hyperliquid::service::Hyperliquid;
 use exc_util::symbol::{Asset, Symbol};
 use exc_util::types::order::{OrderType, PlaceOrderRequest};
-use rust_decimal::Decimal;
 use std::env::var;
 
 #[tokio::main]
@@ -23,7 +22,7 @@ async fn main() -> anyhow::Result<()> {
     let mut symbol = Symbol::spot(Asset::try_from("FLR").unwrap(), Asset::usd());
     symbol.base_id = "10225".into();
     hyperliquid.perfect_symbol(&mut symbol).await.unwrap();
-    let order_req = PlaceOrderRequest::new(Decimal::new(2000, 0), Decimal::new(7, 3), OrderType::Limit);
+    let order_req = PlaceOrderRequest::new(2000.0, 0.007, OrderType::Limit);
     let order_id = hyperliquid.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     let order = hyperliquid.get_order(order_id.clone()).await;
     tracing::info!("{:?}", order);

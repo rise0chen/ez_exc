@@ -14,6 +14,8 @@ impl Hyperliquid {
             leverage: _,
             open_type: _,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = OffsetDateTime::now_utc().unix_timestamp_nanos();
         let mut ret = OrderId {
             symbol: symbol.clone(),
@@ -117,8 +119,13 @@ impl Hyperliquid {
         Ok(order_id)
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
+        let OrderId {
+            symbol,
+            order_id,
+            custom_order_id,
+        } = order_id;
         use hypersdk::hypercore::OidOrCloid;
-        let oid = match (&order_id.order_id, &order_id.custom_order_id) {
+        let oid = match (&order_id, &custom_order_id) {
             (_, Some(custom_order_id)) => OidOrCloid::Right(custom_order_id.parse::<i128>().unwrap().to_be_bytes().into()),
             (Some(order_id), None) => OidOrCloid::Left(order_id.parse().unwrap()),
             (None, None) => {
@@ -139,9 +146,9 @@ impl Hyperliquid {
             .fold((0.0, 0.0), |(val, size), x| (val + (x.px * x.sz).as_f64(), size + x.sz.as_f64()));
         Ok(Order {
             order_id: resp.order.oid.to_string(),
-            vol: resp.order.orig_sz.as_f64(),
-            deal_vol: size,
-            deal_avg_price: if size == 0.0 { 0.0 } else { val / size },
+            vol: symbol.token_size(resp.order.orig_sz.as_f64()),
+            deal_vol: symbol.token_size(size),
+            deal_avg_price: if size == 0.0 { 0.0 } else { symbol.token_price(val / size) },
             fee: Fee::Quote(fills.iter().map(|x| x.fee.as_f64()).sum()),
             state: if resp.status.is_finished() {
                 OrderStatus::Filled

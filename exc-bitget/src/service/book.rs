@@ -1,7 +1,7 @@
 use super::Bitget;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::book::{Depth, Order};
+use exc_util::types::book::Depth;
 use tower::ServiceExt;
 
 impl Bitget {
@@ -16,8 +16,8 @@ impl Bitget {
             };
             let resp = self.oneshot(req).await?;
             Depth {
-                bid: resp.b.iter().map(|x| Order::new(x.0, x.1)).collect(),
-                ask: resp.a.iter().map(|x| Order::new(x.0, x.1)).collect(),
+                bid: resp.b.iter().map(|x| symbol.order(x.0, x.1)).collect(),
+                ask: resp.a.iter().map(|x| symbol.order(x.0, x.1)).collect(),
                 version: resp.ts,
             }
         } else {
@@ -29,8 +29,8 @@ impl Bitget {
             };
             let resp = self.oneshot(req).await?;
             Depth {
-                bid: resp.b.iter().map(|x| Order::new(x.0, x.1)).collect(),
-                ask: resp.a.iter().map(|x| Order::new(x.0, x.1)).collect(),
+                bid: resp.b.iter().map(|x| symbol.order(x.0, x.1)).collect(),
+                ask: resp.a.iter().map(|x| symbol.order(x.0, x.1)).collect(),
                 version: resp.ts,
             }
         };

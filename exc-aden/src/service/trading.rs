@@ -17,6 +17,8 @@ impl Aden {
             leverage: _,
             open_type: _,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!(
             "t-{:08x?}{:04x?}{:016x?}",
             price.to_f32().unwrap().ln().to_bits(),
@@ -64,8 +66,8 @@ impl Aden {
             let req = crate::futures_api::http::trading::AmendOrderRequest {
                 order_id,
                 external_oid: custom_order_id,
-                size: order.size.map(|x| x as i64),
-                price: order.price,
+                size: symbol.contract_size(order.size),
+                price: order.price.map(|x| symbol.contract_price(x, order.size > 0.0)),
             };
             let resp = self.oneshot(req).await?;
             OrderId {
@@ -118,9 +120,9 @@ impl Aden {
             let fee = 0.0005 * deal_vol * symbol.multi_size * resp.fill_price;
             Order {
                 order_id: resp.id.to_string(),
-                vol: resp.size.abs(),
-                deal_vol,
-                deal_avg_price: resp.fill_price,
+                vol: symbol.token_size(resp.size.abs()),
+                deal_vol: symbol.token_size(deal_vol),
+                deal_avg_price: symbol.token_price(resp.fill_price),
                 fee: Fee::Quote(fee),
                 state: match resp.finish_as.as_deref() {
                     None => OrderStatus::New,

@@ -24,6 +24,7 @@ impl Lighter {
             return Err(ExchangeError::OrderNotFound);
         };
         precision_size = a.supported_size_decimals;
+        assert!(precision_size >= 0);
         precision_price = a.supported_price_decimals;
         min_size = a.min_base_amount;
         min_usd = a.min_quote_amount;

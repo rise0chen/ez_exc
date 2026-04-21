@@ -27,6 +27,8 @@ impl Mexc {
             leverage,
             open_type,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!(
             "{:08x?}{:08x?}{:016x?}",
             price.to_f32().unwrap().ln().to_bits(),
@@ -104,8 +106,8 @@ impl Mexc {
             let req = AmendOrderRequest {
                 order_id,
                 client_order_id: custom_order_id.clone(),
-                quantity: order.size,
-                price: order.price,
+                quantity: symbol.contract_size(order.size),
+                price: order.price.map(|x| symbol.contract_price(x, order.size > 0.0)),
             };
             let resp = self.oneshot(req).await?;
             OrderId {
@@ -166,12 +168,12 @@ impl Mexc {
             let resp = self.oneshot(req).await?;
             Order {
                 order_id: resp.order_id,
-                vol: resp.orig_qty,
-                deal_vol: resp.executed_qty,
+                vol: symbol.token_size(resp.orig_qty),
+                deal_vol: symbol.token_size(resp.executed_qty),
                 deal_avg_price: if resp.executed_qty == 0.0 {
                     0.0
                 } else {
-                    resp.cummulative_quote_qty / resp.executed_qty
+                    symbol.token_price(resp.cummulative_quote_qty / resp.executed_qty)
                 },
                 fee: Fee::Quote(0.00025 * resp.cummulative_quote_qty),
                 state: resp.status,
@@ -187,9 +189,9 @@ impl Mexc {
             let resp = self.oneshot(req).await?;
             Order {
                 order_id: resp.order_id,
-                vol: resp.vol,
-                deal_vol: resp.deal_vol,
-                deal_avg_price: resp.deal_avg_price,
+                vol: symbol.token_size(resp.vol),
+                deal_vol: symbol.token_size(resp.deal_vol),
+                deal_avg_price: symbol.token_price(resp.deal_avg_price),
                 fee: Fee::Quote(resp.maker_fee + resp.taker_fee),
                 state: resp.state,
                 side: resp.side,

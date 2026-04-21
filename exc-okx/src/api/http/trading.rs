@@ -51,8 +51,8 @@ pub struct AmendOrderRequest {
     pub inst_id: String,
     pub ord_id: Option<String>,
     pub cl_ord_id: Option<String>,
-    pub new_sz: Option<f64>,
-    pub new_px: Option<f64>,
+    pub new_sz: Decimal,
+    pub new_px: Option<Decimal>,
 }
 
 #[derive(Debug, Deserialize)]

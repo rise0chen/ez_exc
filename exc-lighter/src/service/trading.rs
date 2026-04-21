@@ -27,6 +27,8 @@ impl Lighter {
             leverage: _,
             open_type: _,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = (time::OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as i64;
         let ret = OrderId {
             symbol: symbol.clone(),
@@ -167,12 +169,12 @@ impl Lighter {
             order
                 .map(|x| Order {
                     order_id: x.order_index.to_string(),
-                    vol: x.initial_base_amount,
-                    deal_vol: x.filled_base_amount,
+                    vol: symbol.token_size(x.initial_base_amount),
+                    deal_vol: symbol.token_size(x.filled_base_amount),
                     deal_avg_price: if x.filled_base_amount == 0.0 {
                         0.0
                     } else {
-                        x.filled_quote_amount / x.filled_base_amount
+                        symbol.token_price(x.filled_quote_amount / x.filled_base_amount)
                     },
                     fee: Fee::Quote(0.0),
                     state: x.status.into(),

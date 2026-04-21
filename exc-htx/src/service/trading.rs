@@ -14,6 +14,8 @@ impl Htx {
             leverage: _,
             open_type,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!("{}", time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64);
         let mut ret = OrderId {
             symbol: symbol.clone(),
@@ -122,12 +124,12 @@ impl Htx {
             let resp = self.oneshot(req).await?.data;
             Order {
                 order_id: resp.id.to_string(),
-                vol: resp.amount.abs(),
-                deal_vol: (resp.field_amount).abs(),
+                vol: symbol.token_size(resp.amount.abs()),
+                deal_vol: symbol.token_size((resp.field_amount).abs()),
                 deal_avg_price: if resp.field_amount == 0.0 {
                     0.0
                 } else {
-                    resp.field_cash_amount / resp.field_amount
+                    symbol.token_price(resp.field_cash_amount / resp.field_amount)
                 },
                 fee: Fee::Quote(resp.field_fees),
                 state: resp.state.into(),
@@ -143,9 +145,9 @@ impl Htx {
             let resp = self.oneshot(req).await?;
             Order {
                 order_id: resp.order_id.to_string(),
-                vol: resp.volume.abs(),
-                deal_vol: (resp.trade_volume).abs(),
-                deal_avg_price: resp.trade_avg_price,
+                vol: symbol.token_size(resp.volume.abs()),
+                deal_vol: symbol.token_size((resp.trade_volume).abs()),
+                deal_avg_price: symbol.token_price(resp.trade_avg_price),
                 fee: Fee::Quote(resp.fee),
                 state: resp.state.into(),
                 side: resp.side.into(),

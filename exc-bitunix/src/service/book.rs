@@ -1,7 +1,7 @@
 use super::Bitunix;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::book::{Depth, Order};
+use exc_util::types::book::Depth;
 use time::OffsetDateTime;
 use tower::ServiceExt;
 
@@ -12,9 +12,13 @@ impl Bitunix {
             todo!();
         } else {
             if let Some(ch) = self.ws.books.get(&symbol_id) {
-                let book = ch.borrow();
+                let mut book = ch.borrow().clone();
                 if book.is_valid() {
-                    return Ok(book.clone());
+                    book.ask.iter_mut().for_each(|x| {
+                        x.price = symbol.token_price(x.price);
+                        x.size = symbol.token_size(x.size);
+                    });
+                    return Ok(book);
                 }
             }
             tracing::warn!("bitunix get depth {} by http", symbol_id);
@@ -25,8 +29,8 @@ impl Bitunix {
             };
             let resp = self.oneshot(req).await?;
             Depth {
-                bid: resp.bids.iter().map(|x| Order::new(x.0, x.1)).collect(),
-                ask: resp.asks.iter().map(|x| Order::new(x.0, x.1)).collect(),
+                bid: resp.bids.iter().map(|x| symbol.order(x.0, x.1)).collect(),
+                ask: resp.asks.iter().map(|x| symbol.order(x.0, x.1)).collect(),
                 version: (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64,
             }
         };

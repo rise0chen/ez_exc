@@ -15,6 +15,8 @@ impl Paradex {
             leverage: _,
             open_type: _,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!(
             "t-{:08x?}{:04x?}{:016x?}",
             price.to_f32().unwrap().ln().to_bits(),
@@ -102,9 +104,9 @@ impl Paradex {
         let avg_price = if resp.avg_fill_price.is_nan() { 0.0 } else { resp.avg_fill_price };
         Ok(Order {
             order_id: resp.id,
-            vol: resp.size.as_f64(),
-            deal_vol,
-            deal_avg_price: avg_price,
+            vol: symbol.token_size(resp.size.as_f64()),
+            deal_vol: symbol.token_size(deal_vol),
+            deal_avg_price: symbol.token_price(avg_price),
             fee: Fee::Quote(symbol.fee * deal_vol * avg_price),
             state: if matches!(resp.status, paradex::structs::OrderStatus::CLOSED) {
                 OrderStatus::Filled

@@ -54,8 +54,8 @@ pub struct AmendOrderRequest {
     pub symbol: String,
     pub order_id: Option<String>,
     pub order_link_id: Option<String>,
-    pub qty: Option<f64>,
-    pub price: Option<f64>,
+    pub qty: Decimal,
+    pub price: Option<Decimal>,
 }
 
 #[derive(Debug, Deserialize)]

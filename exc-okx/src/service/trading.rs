@@ -15,6 +15,8 @@ impl Okx {
             leverage: _,
             open_type,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!(
             "{:08x?}{:08x?}{:016x?}",
             price.to_f32().unwrap().ln().to_bits(),
@@ -59,8 +61,8 @@ impl Okx {
             inst_id,
             ord_id: order_id,
             cl_ord_id: custom_order_id,
-            new_sz: order.size,
-            new_px: order.price,
+            new_sz: symbol.contract_size(order.size),
+            new_px: order.price.map(|x| symbol.contract_price(x, order.size > 0.0)),
         };
         let resp = self.oneshot(req).await?.pop();
         resp.map(|resp| OrderId {
@@ -105,9 +107,9 @@ impl Okx {
         let resp = self.oneshot(req).await?.pop();
         resp.map(|resp| Order {
             order_id: resp.ord_id,
-            vol: resp.sz,
-            deal_vol: resp.acc_fill_sz,
-            deal_avg_price: resp.avg_px.parse().unwrap_or(0.0),
+            vol: symbol.token_size(resp.sz),
+            deal_vol: symbol.token_size(resp.acc_fill_sz),
+            deal_avg_price: symbol.token_price(resp.avg_px.parse().unwrap_or(0.0)),
             fee: if resp.fee_ccy.contains("USD") {
                 Fee::Quote(-resp.fee)
             } else {

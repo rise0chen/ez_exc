@@ -15,6 +15,8 @@ impl Bitget {
             leverage,
             open_type: _,
         } = data;
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!(
             "t-{:08x?}{:04x?}{:016x?}",
             price.to_f32().unwrap().ln().to_bits(),
@@ -147,12 +149,12 @@ impl Bitget {
             };
             Order {
                 order_id: resp.order_id.to_string(),
-                vol: resp.qty.abs(),
-                deal_vol: (resp.cum_exec_qty).abs(),
+                vol: symbol.token_size(resp.qty.abs()),
+                deal_vol: symbol.token_size((resp.cum_exec_qty).abs()),
                 deal_avg_price: if resp.cum_exec_qty == 0.0 {
                     0.0
                 } else {
-                    resp.cum_exec_value / resp.cum_exec_qty
+                    symbol.token_price(resp.cum_exec_value / resp.cum_exec_qty)
                 },
                 fee,
                 state: resp.order_status.into(),
@@ -177,12 +179,12 @@ impl Bitget {
             };
             Order {
                 order_id: resp.order_id.to_string(),
-                vol: resp.qty.abs(),
-                deal_vol: (resp.cum_exec_qty).abs(),
+                vol: symbol.token_size(resp.qty.abs()),
+                deal_vol: symbol.token_size((resp.cum_exec_qty).abs()),
                 deal_avg_price: if resp.cum_exec_qty == 0.0 {
                     0.0
                 } else {
-                    resp.cum_exec_value / resp.cum_exec_qty
+                    symbol.token_price(resp.cum_exec_value / resp.cum_exec_qty)
                 },
                 fee,
                 state: resp.order_status.into(),

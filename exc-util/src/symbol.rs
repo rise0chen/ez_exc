@@ -1,4 +1,6 @@
 pub use crate::asset::Asset;
+use crate::types::book::Order;
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
@@ -106,6 +108,80 @@ impl Symbol {
     }
     pub fn is_derivative(&self) -> bool {
         matches!(self.kind, SymbolKind::Linear)
+    }
+}
+impl Symbol {
+    pub fn contract_size(&self, token_size: f64) -> Decimal {
+        let multi_price = self.multi_price;
+        let multi_size = self.multi_size;
+        let size = token_size / multi_price / multi_size;
+        let precision = self.precision;
+        let is_spot = self.is_spot();
+        match precision {
+            0.. => {
+                let r = Decimal::from_f64_retain(size).unwrap();
+                if is_spot {
+                    r.trunc_with_scale(precision as u32)
+                } else {
+                    r.round_dp(precision as u32)
+                }
+            }
+            ..0 => {
+                let p = 10f64.powi(-precision as i32);
+                let int = if is_spot {
+                    (size / p).trunc() as i64 * p as i64
+                } else {
+                    (size / p).round() as i64 * p as i64
+                };
+                Decimal::new(int, 0)
+            }
+        }
+    }
+    pub fn token_size(&self, contract_size: f64) -> f64 {
+        let multi_price = self.multi_price;
+        let multi_size = self.multi_size;
+        contract_size * multi_price * multi_size
+    }
+    pub fn contract_price(&self, token_price: f64, buy: bool) -> Decimal {
+        let multi_price = self.multi_price;
+        let price = token_price * multi_price;
+        let precision = self.precision_price;
+        match precision {
+            0.. => {
+                let r = Decimal::from_f64_retain(price).unwrap();
+                let r = r.trunc_with_scale(precision as u32);
+                if buy {
+                    r + Decimal::new(1, precision as u32)
+                } else {
+                    r
+                }
+            }
+            ..0 => {
+                let p = 10f64.powi(-precision as i32);
+                let int = if buy {
+                    (price / p).ceil() as i64 * p as i64
+                } else {
+                    (price / p).trunc() as i64 * p as i64
+                };
+                Decimal::new(int, 0)
+            }
+        }
+    }
+    pub fn token_price(&self, contract_price: f64) -> f64 {
+        let multi_price = self.multi_price;
+        contract_price / multi_price
+    }
+
+    pub fn min_once(&self, price: f64) -> f64 {
+        let precision = self.precision;
+        let one = self.token_size(1.0 / 10f64.powi(precision as i32));
+        let min_by_usd = self.min_usd / price + one;
+        let min_by_size = self.token_size(self.min_size);
+        one.max(min_by_size).max(min_by_usd)
+    }
+
+    pub fn order(&self, p: f64, s: f64) -> Order {
+        Order::new(self.token_price(p), self.token_size(s))
     }
 }
 impl Display for Symbol {
