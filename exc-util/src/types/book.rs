@@ -16,13 +16,14 @@ pub fn depth_price(book: &[Order], depth: f64) -> f64 {
         let val = order.size * order.price;
         if val >= remain {
             size += remain / order.price;
+            remain = 0.0;
             break;
         } else {
             size += order.size;
             remain -= val;
         }
     }
-    depth / size
+    (depth - remain) / size
 }
 
 #[derive(Debug, Default, Clone)]
