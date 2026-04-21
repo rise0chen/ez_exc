@@ -85,6 +85,7 @@ impl Xt {
             rate: resp.funding_rate,
             time: resp.next_collection_time,
             interval: resp.collection_internal * 60 * 60 * 1000,
+            premium_interval: resp.collection_internal * 60 * 60 * 1000,
         })
     }
 
@@ -114,6 +115,7 @@ impl Xt {
                 rate: x.funding_rate,
                 time: x.created_time,
                 interval,
+                premium_interval: interval,
             })
             .collect())
     }

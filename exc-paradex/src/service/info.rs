@@ -73,6 +73,7 @@ impl Paradex {
             rate: rate.unwrap_or(0.0) / (8 * 60 * 60 * 1000 / interval) as f64,
             time: ((now / interval) + 1) * interval,
             interval,
+            premium_interval: 8 * 60 * 60 * 1000,
         })
     }
     pub async fn get_funding_rate_history(&mut self, symbol: &Symbol, day: u8) -> Result<Vec<FundingRate>, ExchangeError> {
@@ -95,6 +96,7 @@ impl Paradex {
                 rate: x.funding_rate_8h / (8 * 60 * 60 * 1000 / interval) as f64,
                 time: x.created_at,
                 interval,
+                premium_interval: 8 * 60 * 60 * 1000,
             })
             .collect())
     }

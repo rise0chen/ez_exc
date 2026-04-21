@@ -86,6 +86,7 @@ impl Bitmart {
             rate: resp.expected_rate,
             time: resp.funding_time,
             interval: 8 * 60 * 60 * 1000,
+            premium_interval: 8 * 60 * 60 * 1000,
         })
     }
 
@@ -115,6 +116,7 @@ impl Bitmart {
                 rate: x.funding_rate,
                 time: x.funding_time,
                 interval,
+                premium_interval: 8 * 60 * 60 * 1000,
             })
             .collect())
     }

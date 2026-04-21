@@ -94,6 +94,7 @@ impl Aster {
             rate: resp.last_funding_rate,
             time: resp.next_funding_time,
             interval: 8 * 60 * 60 * 1000,
+            premium_interval: 8 * 60 * 60 * 1000,
         })
     }
 
@@ -125,6 +126,7 @@ impl Aster {
                 rate: x.funding_rate,
                 time: x.funding_time,
                 interval,
+                premium_interval: 8 * 60 * 60 * 1000,
             })
             .collect())
     }

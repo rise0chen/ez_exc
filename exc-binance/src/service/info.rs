@@ -106,6 +106,7 @@ impl Binance {
             rate: resp.last_funding_rate,
             time: resp.next_funding_time,
             interval: 8 * 60 * 60 * 1000,
+            premium_interval: 8 * 60 * 60 * 1000,
         })
     }
     pub async fn get_funding_rate_history(&mut self, symbol: &Symbol, day: u8) -> Result<Vec<FundingRate>, ExchangeError> {
@@ -136,6 +137,7 @@ impl Binance {
                 rate: x.funding_rate,
                 time: x.funding_time,
                 interval,
+                premium_interval: 8 * 60 * 60 * 1000,
             })
             .collect())
     }

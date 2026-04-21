@@ -85,6 +85,7 @@ impl Weex {
             rate: resp.forecast_funding_rate,
             time: resp.next_funding_time,
             interval: resp.collect_cycle * 60 * 1000,
+            premium_interval: resp.collect_cycle * 60 * 1000,
         })
         .ok_or(ExchangeError::OrderNotFound)
     }
@@ -116,6 +117,7 @@ impl Weex {
                 rate: x.funding_rate,
                 time: x.funding_time,
                 interval,
+                premium_interval: interval,
             })
             .collect())
     }

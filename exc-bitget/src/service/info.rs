@@ -88,6 +88,7 @@ impl Bitget {
             rate: resp.funding_rate,
             time: resp.next_update,
             interval: resp.funding_rate_interval * 60 * 60 * 1000,
+            premium_interval: 8 * 60 * 60 * 1000,
         })
         .ok_or(ExchangeError::OrderNotFound)
     }
@@ -120,6 +121,7 @@ impl Bitget {
                 rate: x.funding_rate,
                 time: x.funding_rate_timestamp,
                 interval,
+                premium_interval: 8 * 60 * 60 * 1000,
             })
             .collect())
     }

@@ -102,6 +102,7 @@ impl Htx {
             rate: x.funding_rate,
             time: x.funding_time,
             interval: x.next_funding_time - x.funding_time,
+            premium_interval: 8 * 60 * 60 * 1000,
         })
         .ok_or(ExchangeError::OrderNotFound)
     }
@@ -128,6 +129,7 @@ impl Htx {
                 rate: x.funding_rate,
                 time: x.funding_time,
                 interval,
+                premium_interval: 8 * 60 * 60 * 1000,
             })
             .collect())
     }

@@ -84,6 +84,7 @@ impl Lighter {
             rate: resp.current_funding_rate.parse::<f64>().unwrap() / 100.0,
             time: ((now / interval) + 1) * interval,
             interval,
+            premium_interval: 8 * 60 * 60 * 1000,
         })
     }
 
@@ -116,6 +117,7 @@ impl Lighter {
                 rate: if matches!(x.direction, PositionSide::Long) { 1.0 } else { -1.0 } * x.rate / 100.0,
                 time: x.timestamp * 1000,
                 interval,
+                premium_interval: 8 * 60 * 60 * 1000,
             })
             .collect())
     }

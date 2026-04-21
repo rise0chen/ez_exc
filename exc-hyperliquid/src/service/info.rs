@@ -97,6 +97,7 @@ impl Hyperliquid {
             rate,
             time: ((now / interval) + 1) * interval,
             interval,
+            premium_interval: interval,
         })
     }
     pub async fn get_funding_rate_history(&mut self, symbol: &Symbol, day: u8) -> Result<Vec<FundingRate>, ExchangeError> {
@@ -118,6 +119,7 @@ impl Hyperliquid {
                 rate: x.funding_rate.as_f64(),
                 time: x.time,
                 interval,
+                premium_interval: interval,
             })
             .collect())
     }

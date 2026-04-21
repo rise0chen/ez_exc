@@ -72,6 +72,7 @@ impl Dydx {
             rate: resp.next_funding_rate.to_f64().unwrap(),
             time: ((now / interval) + 1) * interval,
             interval,
+            premium_interval: 8 * 60 * 60 * 1000,
         })
     }
     pub async fn get_funding_rate_history(&mut self, symbol: &Symbol, day: u8) -> Result<Vec<FundingRate>, ExchangeError> {
@@ -100,6 +101,7 @@ impl Dydx {
                 rate: x.rate.to_f64().unwrap(),
                 time: x.effective_at.timestamp_millis() as u64,
                 interval,
+                premium_interval: 8 * 60 * 60 * 1000,
             })
             .collect())
     }

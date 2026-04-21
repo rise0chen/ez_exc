@@ -29,6 +29,7 @@ impl Kcex {
             rate: resp.funding_rate,
             time: resp.next_settle_time,
             interval: resp.collect_cycle * 60 * 60 * 1000,
+            premium_interval: resp.collect_cycle * 60 * 60 * 1000,
         })
     }
     pub async fn get_funding_rate_history(&mut self, symbol: &Symbol, day: u8) -> Result<Vec<FundingRate>, ExchangeError> {
@@ -54,6 +55,7 @@ impl Kcex {
                 rate: x.funding_rate,
                 time: x.settle_time,
                 interval,
+                premium_interval: interval,
             })
             .collect())
     }

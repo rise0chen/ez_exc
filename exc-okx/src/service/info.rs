@@ -109,6 +109,7 @@ impl Okx {
             rate: resp.funding_rate,
             time: resp.funding_time,
             interval: resp.next_funding_time - resp.funding_time,
+            premium_interval: resp.next_funding_time - resp.funding_time,
         })
         .ok_or(ExchangeError::OrderNotFound)
     }
@@ -139,6 +140,7 @@ impl Okx {
                 rate: x.funding_rate,
                 time: x.funding_time,
                 interval,
+                premium_interval: interval,
             })
             .collect())
     }

@@ -83,6 +83,7 @@ impl Aden {
             rate: resp.funding_rate,
             time: resp.funding_next_apply * 1000,
             interval: resp.funding_interval * 1000,
+            premium_interval: resp.funding_interval * 1000,
         })
     }
 
@@ -113,6 +114,7 @@ impl Aden {
                 rate: x.r,
                 time: x.t * 1000,
                 interval,
+                premium_interval: interval,
             })
             .collect())
     }

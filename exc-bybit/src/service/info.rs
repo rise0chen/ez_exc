@@ -83,7 +83,8 @@ impl Bybit {
         resp.map(|resp| FundingRate {
             rate: resp.funding_rate,
             time: resp.next_funding_time,
-            interval: 8 * 60 * 60 * 1000,
+            interval: resp.funding_interval_hour * 60 * 60 * 1000,
+            premium_interval: resp.funding_interval_hour * 60 * 60 * 1000,
         })
         .ok_or(ExchangeError::OrderNotFound)
     }
@@ -116,6 +117,7 @@ impl Bybit {
                 rate: x.funding_rate,
                 time: x.funding_rate_timestamp,
                 interval,
+                premium_interval: interval,
             })
             .collect())
     }

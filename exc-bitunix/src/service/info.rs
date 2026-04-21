@@ -72,6 +72,7 @@ impl Bitunix {
             rate: resp.funding_rate / 100.0,
             time: resp.next_funding_time,
             interval,
+            premium_interval: interval,
         })
     }
 
@@ -101,6 +102,7 @@ impl Bitunix {
                 rate: x.funding_rate,
                 time: x.funding_time,
                 interval,
+                premium_interval: interval,
             })
             .collect())
     }
