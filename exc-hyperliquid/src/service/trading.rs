@@ -144,12 +144,18 @@ impl Hyperliquid {
         let (val, size) = fills
             .iter()
             .fold((0.0, 0.0), |(val, size), x| (val + (x.px * x.sz).as_f64(), size + x.sz.as_f64()));
+        let fee = fills.iter().map(|x| x.fee.as_f64()).sum();
+        let fee = if fills.is_empty() || fills[0].fee_token.contains("USD") {
+            Fee::Quote(fee)
+        } else {
+            Fee::Base(fee)
+        };
         Ok(Order {
             order_id: resp.order.oid.to_string(),
             vol: symbol.token_size(resp.order.orig_sz.as_f64()),
             deal_vol: symbol.token_size(size),
             deal_avg_price: if size == 0.0 { 0.0 } else { symbol.token_price(val / size) },
-            fee: Fee::Quote(fills.iter().map(|x| x.fee.as_f64()).sum()),
+            fee,
             state: if resp.status.is_finished() {
                 OrderStatus::Filled
             } else {
