@@ -4,6 +4,7 @@ use core::time::Duration;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderSide, OrderStatus, OrderType, PlaceOrderRequest};
+use paradex::error::Error;
 use paradex::structs::{OrderInstruction, OrderUpdate, Side};
 
 impl Paradex {
@@ -48,11 +49,22 @@ impl Paradex {
             stp: None,
             trigger_price: None,
         };
-        let result = self
-            .http
-            .create_order(order_request)
-            .await
-            .map_err(|e| (ret.clone(), ExchangeError::Other(e.into())))?;
+        let result = match self.http.create_order(order_request).await {
+            Ok(d) => d,
+            Err(e) => {
+                if let Error::ParadexError {
+                    status_code: _,
+                    error,
+                    message: _,
+                } = &e
+                {
+                    if error.as_deref() == Some("SYSTEM_STATUS_POST_ONLY") {
+                        ret.custom_order_id = None;
+                    }
+                }
+                return Err((ret, ExchangeError::Other(e.into())));
+            }
+        };
         ret.order_id = Some(result.id);
         Ok(ret)
     }
@@ -73,7 +85,7 @@ impl Paradex {
                     .await
                     .map_err(|e| ExchangeError::Other(e.into()))?;
             }
-            (None, None) => return Err(ExchangeError::OrderNotFound),
+            (None, None) => {}
         };
         Ok(order_id)
     }
@@ -83,6 +95,12 @@ impl Paradex {
             order_id,
             custom_order_id,
         } = order_id;
+        if order_id.is_none() && custom_order_id.is_none() {
+            return Ok(Order {
+                state: OrderStatus::Canceled,
+                ..Default::default()
+            });
+        }
         let symbol_id = crate::symnol::symbol_id(&symbol);
         let start = chrono::Utc::now() - Duration::from_hours(24);
         let mut req = vec![("market".into(), symbol_id)];
