@@ -39,6 +39,7 @@ pub struct Dex {
     key: Key,
     rpc: DynProvider,
 
+    pub max_fee_index: u128,
     pub cex: Address,
     pub vault: Address,
     pub quote: Address,
@@ -51,10 +52,19 @@ impl Dex {
         let pool = Pool::from(&key.pool_cfg);
 
         let rpc = connect(&key).await.unwrap();
+        let price = rpc.get_gas_price().await.unwrap();
+        let price_priority = rpc.get_max_priority_fee_per_gas().await.unwrap();
+        let max_fee_index = if price != price_priority {
+            tracing::info!("need base fee: total({}), priority({})", price, price_priority);
+            1000
+        } else {
+            1
+        };
         let vault = Cex::new(cex, &rpc)._vault().call().await.unwrap();
         Self {
             key,
             rpc,
+            max_fee_index,
             cex,
             vault,
             quote,

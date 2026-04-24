@@ -35,6 +35,11 @@ impl Dex {
         };
 
         let gas_price = self.key.gas_price as u128;
+        let net_price = self.rpc.get_gas_price().await.unwrap();
+        if net_price > self.max_fee_index * gas_price {
+            let rate = net_price as f64 / (self.max_fee_index * gas_price) as f64;
+            return Err((ret, ExchangeError::Other(anyhow::anyhow!(format!("net_price: {}({})", net_price, rate)))));
+        }
         let cex = Cex::new(self.cex, &self.rpc);
         let amount = parse_units(&(-size).to_string(), symbol.precision as u8).unwrap().get_signed();
         let pool = self.pool.clone().zero_for_one(if self.key.pool_cfg.base_is_0 {
@@ -46,14 +51,14 @@ impl Dex {
         let mut call = cex
             .swap(pool.into_underlying(), place.into_underlying())
             .gas(self.key.gas_limit)
-            .max_fee_per_gas(70 * gas_price)
+            .max_fee_per_gas(self.max_fee_index * gas_price)
             .max_priority_fee_per_gas(gas_price);
         match self.rpc.estimate_gas(call.as_ref().clone()).block(BlockId::pending()).await {
             Ok(gas) => {
                 if gas > self.key.gas_limit {
                     return Err((ret, ExchangeError::Other(anyhow::anyhow!("gas too much!"))));
                 }
-                call = call.gas(gas * 13 / 10);
+                call = call.gas((gas * 13 / 10).min(self.key.gas_limit));
             }
             Err(e) => return Err((ret, map_err(e.into()))),
         }

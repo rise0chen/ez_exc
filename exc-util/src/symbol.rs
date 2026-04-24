@@ -40,7 +40,7 @@ pub struct Symbol {
     pub min_usd: f64,
     /// 最小下单数量
     pub min_size: f64,
-    /// 吃单手续费
+    /// 吃单手续费率
     pub fee: f64,
     /// 手续费币种价格
     pub fee_coin: f64,

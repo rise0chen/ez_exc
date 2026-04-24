@@ -20,7 +20,7 @@ impl Dex {
         if let Ok(Some(info)) = token_info {
             let p = info.current_price;
             symbol.fee_coin = p / 10.0f64.powi(native_token.decimals);
-            symbol.fee = (self.key.gas_limit * self.key.gas_price) as f64 * symbol.fee_coin / symbol.min_usd;
+            symbol.fee = (self.key.gas_limit * self.max_fee_index as u64 * self.key.gas_price) as f64 * symbol.fee_coin / symbol.min_usd;
             tracing::info!("dex {} fee: price {p}, rate {}", chain_info.chain, symbol.fee);
         } else {
             tracing::error!("dex {} fee {} price failed: {:?}", chain_info.chain, native_token.symbol, token_info);
