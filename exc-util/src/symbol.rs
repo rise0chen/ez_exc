@@ -173,11 +173,11 @@ impl Symbol {
     }
 
     pub fn min_once(&self, price: f64) -> f64 {
-        let precision = self.precision;
-        let one = self.token_size(1.0 / 10f64.powi(precision as i32));
-        let min_by_usd = self.min_usd / price + one;
+        let one_size = self.token_size(1.0 / 10f64.powi(self.precision as i32));
+        let one_price = self.token_price(1.0 / 10f64.powi(self.precision_price as i32));
+        let min_by_usd = self.min_usd / (price - one_price) + one_size;
         let min_by_size = self.token_size(self.min_size);
-        one.max(min_by_size).max(min_by_usd)
+        one_size.max(min_by_size).max(min_by_usd)
     }
 
     pub fn order(&self, p: f64, s: f64) -> Order {

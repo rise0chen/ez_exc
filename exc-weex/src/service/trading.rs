@@ -8,6 +8,42 @@ use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
 
 impl Weex {
+    async fn get_order_size(&mut self, symbol: &Symbol, size: f64, price: f64) -> (f64, bool) {
+        let (long, short) = self.get_positions(symbol).await.unwrap_or_default();
+        let min_once = symbol.min_once(price);
+        if size.is_sign_positive() {
+            let want_size = size.abs();
+            if want_size < short.size {
+                if short.size - want_size <= 1.1 * min_once {
+                    (short.size, true)
+                } else {
+                    (size, true)
+                }
+            } else {
+                if short.size >= min_once {
+                    (short.size, true)
+                } else {
+                    (size, false)
+                }
+            }
+        } else {
+            let want_size = size.abs();
+            if want_size < long.size {
+                if long.size - want_size <= 1.1 * min_once {
+                    (long.size, true)
+                } else {
+                    (size, true)
+                }
+            } else {
+                if long.size >= min_once {
+                    (long.size, true)
+                } else {
+                    (size, false)
+                }
+            }
+        }
+    }
+
     pub async fn place_order(&mut self, symbol: &Symbol, data: PlaceOrderRequest) -> Result<OrderId, (OrderId, ExchangeError)> {
         let PlaceOrderRequest {
             size,
@@ -16,8 +52,6 @@ impl Weex {
             leverage: _,
             open_type: _,
         } = data;
-        let size = symbol.contract_size(size);
-        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!(
             "{:08x?}{:08x?}{:016x?}",
             price.to_f32().unwrap().ln().to_bits(),
@@ -34,26 +68,18 @@ impl Weex {
         let order_id = if symbol.is_spot() {
             todo!();
         } else {
-            let (long, short) = self.get_positions(symbol).await.unwrap_or_default();
+            let (size, is_close) = self.get_order_size(symbol, size, price).await;
+            let size = symbol.contract_size(size);
+            let price = symbol.contract_price(price, size.is_sign_positive());
+
             use crate::futures_api::http::trading::PlaceOrderRequest;
             let req = PlaceOrderRequest {
                 symbol: symbol_id,
                 new_client_order_id: Some(custom_id),
                 side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
-                position_side: if size.is_sign_positive() {
-                    // 买
-                    if size.abs().to_f64().unwrap() > short.size {
-                        PositionSide::Long
-                    } else {
-                        PositionSide::Short
-                    }
-                } else {
-                    // 卖
-                    if size.abs().to_f64().unwrap() > long.size {
-                        PositionSide::Short
-                    } else {
-                        PositionSide::Long
-                    }
+                position_side: match (size.is_sign_positive(), is_close) {
+                    (true, true) | (false, false) => PositionSide::Short,
+                    (true, false) | (false, true) => PositionSide::Long,
                 },
                 r#type: kind.into(),
                 time_in_force: kind.into(),

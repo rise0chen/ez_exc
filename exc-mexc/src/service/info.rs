@@ -6,6 +6,20 @@ use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
 
 impl Mexc {
+    pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
+        if !symbol.is_spot() {
+            return Ok(());
+        }
+        use crate::spot_web::http::trading::GetTradeRequest;
+        let req = GetTradeRequest {
+            symbol: format!("{}_{}", symbol.base, symbol.quote),
+        };
+        let a = self.oneshot(req).await?;
+        symbol.base_id = a.cd;
+        symbol.quote_id = a.mcd;
+        Ok(())
+    }
+
     pub async fn get_index_price(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
         if symbol.is_spot() {
             return Ok(0.0);

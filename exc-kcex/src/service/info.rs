@@ -6,6 +6,10 @@ use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
 
 impl Kcex {
+    pub async fn perfect_symbol(&mut self, _symbol: &mut Symbol) -> Result<(), ExchangeError> {
+        Ok(())
+    }
+
     pub async fn get_index_price(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
         if symbol.is_spot() {
             return Ok(0.0);
