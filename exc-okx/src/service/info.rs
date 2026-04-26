@@ -45,10 +45,9 @@ impl Okx {
                 inst_family: Some(crate::symnol::symbol_id(&Symbol::spot(symbol.base.clone(), symbol.quote.clone()))),
             }
         };
-        let Some(a) = self.oneshot(req).await?.pop() else {
-            return Err(ExchangeError::OrderNotFound);
+        if let Some(a) = self.oneshot(req).await?.pop() {
+            fee = -a.fee_group[0].taker;
         };
-        fee = -a.fee_group[0].taker;
 
         if symbol.multi_price != multi_price {
             tracing::error!("okx multi_price from {} to {}", symbol.multi_price, multi_price);
