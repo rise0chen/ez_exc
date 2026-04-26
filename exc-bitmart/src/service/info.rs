@@ -30,7 +30,9 @@ impl Bitmart {
 
         use crate::futures_api::http::account::GetFeeRequest;
         let req = GetFeeRequest { symbol: symbol_id };
-        fee = self.oneshot(req).await?.taker_fee_rate;
+        if let Ok(resp) = self.oneshot(req).await {
+            fee = resp.taker_fee_rate;
+        }
 
         if symbol.multi_price != multi_price {
             tracing::error!("bitmart multi_price from {} to {}", symbol.multi_price, multi_price);
