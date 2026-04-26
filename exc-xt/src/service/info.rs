@@ -15,6 +15,7 @@ impl Xt {
         let mut min_size = 0.0;
         let mut min_usd = 0.0;
         let mut fee = 0.0;
+        let mut can_open = true;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
         if symbol.is_spot() {
@@ -29,6 +30,7 @@ impl Xt {
             min_size = a.min_qty;
             min_usd = a.min_notional;
             fee = a.taker_fee;
+            can_open = a.open_switch;
         }
 
         if symbol.multi_price != multi_price {
@@ -58,6 +60,10 @@ impl Xt {
         if symbol.fee != fee && fee != 0.0 {
             tracing::warn!("xt fee from {} to {}", symbol.fee, fee);
             symbol.fee = fee;
+        }
+        if symbol.can_open != can_open {
+            tracing::warn!("xt can_open from {} to {}", symbol.can_open, can_open);
+            symbol.can_open = can_open;
         }
         Ok(())
     }

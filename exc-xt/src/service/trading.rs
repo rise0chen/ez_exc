@@ -3,7 +3,7 @@ use crate::futures_api::types::*;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::OrderSide;
-use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
+use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderStatus, PlaceOrderRequest};
 use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
 
@@ -69,6 +69,13 @@ impl Xt {
             todo!();
         } else {
             let (size, is_close) = self.get_order_size(symbol, size, price).await;
+            if !is_close && !symbol.can_open {
+                return Ok(OrderId {
+                    symbol: symbol.clone(),
+                    order_id: None,
+                    custom_order_id: None,
+                });
+            }
             let size = symbol.contract_size(size);
             let price = symbol.contract_price(price, size.is_sign_positive());
 
@@ -128,6 +135,12 @@ impl Xt {
             order_id,
             custom_order_id,
         } = order_id;
+        if order_id.is_none() && custom_order_id.is_none() {
+            return Ok(Order {
+                state: OrderStatus::Canceled,
+                ..Default::default()
+            });
+        }
         let order = if symbol.is_spot() {
             todo!();
         } else {

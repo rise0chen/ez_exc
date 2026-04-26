@@ -24,6 +24,7 @@ pub struct GetInfoResponse {
     pub taker_fee: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub maker_fee: f64,
+    pub open_switch: bool,
 }
 
 impl Rest for GetInfoRequest {
