@@ -29,13 +29,13 @@ impl Bitunix {
             let want_size = size.abs();
             if want_size < long.size {
                 if long.size - want_size <= 1.1 * min_once {
-                    (long.size, true)
+                    (-long.size, true)
                 } else {
                     (size, true)
                 }
             } else {
                 if long.size >= min_once {
-                    (long.size, true)
+                    (-long.size, true)
                 } else {
                     (size, false)
                 }
