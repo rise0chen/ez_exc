@@ -17,7 +17,8 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("BITMART_KEY")?)?;
     let mut bitmart = Bitmart::new(key);
 
-    let symbol = Symbol::derivative(Asset::try_from("XAU").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("XAU").unwrap(), Asset::usdt());
+    bitmart.perfect_symbol(&mut symbol).await.unwrap();
     let mut order_req = PlaceOrderRequest::new(1.0, 4000.0, OrderType::Limit);
     order_req.set_leverage(20.0);
     let order_id = bitmart.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);

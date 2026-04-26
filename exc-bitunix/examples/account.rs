@@ -21,7 +21,8 @@ async fn main() -> anyhow::Result<()> {
     let balance = bitunix.get_balance().await.unwrap();
     tracing::info!("{:?}", balance);
 
-    let symbol = Symbol::derivative(Asset::try_from("DOGE").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("DOGE").unwrap(), Asset::usdt());
+    bitunix.perfect_symbol(&mut symbol).await.unwrap();
     let balance = bitunix.get_position(&symbol).await.unwrap();
     tracing::info!("{}: {:?}", symbol, balance);
     Ok(())

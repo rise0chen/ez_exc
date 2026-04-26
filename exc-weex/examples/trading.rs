@@ -17,7 +17,8 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("WEEX_KEY")?)?;
     let mut weex = Weex::new(key);
 
-    let symbol = Symbol::derivative(Asset::try_from("PAXG").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("PAXG").unwrap(), Asset::usdt());
+    weex.perfect_symbol(&mut symbol).await.unwrap();
     let mut order_req = PlaceOrderRequest::new(0.001, 4000.0, OrderType::ImmediateOrCancel);
     order_req.set_leverage(20.0);
     let order_id = weex.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);

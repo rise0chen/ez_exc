@@ -17,7 +17,8 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("ASTER_KEY")?)?;
     let mut aster = Aster::new(key);
 
-    let symbol = Symbol::derivative(Asset::try_from("XAU").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("XAU").unwrap(), Asset::usdt());
+    aster.perfect_symbol(&mut symbol).await.unwrap();
     let mut order_req = PlaceOrderRequest::new(0.001, 5000.0, OrderType::Limit);
     order_req.set_leverage(20.0);
     let order_id = aster.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);

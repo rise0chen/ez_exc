@@ -17,7 +17,8 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("XT_KEY")?)?;
     let mut xt = Xt::new(key);
 
-    let symbol = Symbol::derivative(Asset::try_from("APE").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("APE").unwrap(), Asset::usdt());
+    xt.perfect_symbol(&mut symbol).await.unwrap();
     let mut order_req = PlaceOrderRequest::new(-20.0, 0.3, OrderType::Limit);
     order_req.set_leverage(20.0);
     let order_id = xt.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);

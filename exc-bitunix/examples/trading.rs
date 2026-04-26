@@ -19,7 +19,8 @@ async fn main() -> anyhow::Result<()> {
     bitunix.run();
     tokio::time::sleep(Duration::from_secs(2)).await;
 
-    let symbol = Symbol::derivative(Asset::try_from("APE").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("APE").unwrap(), Asset::usdt());
+    bitunix.perfect_symbol(&mut symbol).await.unwrap();
     let mut order_req = PlaceOrderRequest::new(20.0, 0.3, OrderType::Limit);
     order_req.set_leverage(20.0);
     let order_id = bitunix.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);

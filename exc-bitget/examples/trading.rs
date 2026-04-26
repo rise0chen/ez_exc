@@ -25,7 +25,8 @@ async fn main() -> anyhow::Result<()> {
     let order = bitget.get_order(order_id).await.unwrap();
     tracing::info!("{:?}", order);
 
-    let symbol = Symbol::derivative(Asset::try_from("APE").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("APE").unwrap(), Asset::usdt());
+    bitget.perfect_symbol(&mut symbol).await.unwrap();
     let mut order_req = PlaceOrderRequest::new(20.0, 0.3, OrderType::Limit);
     order_req.set_leverage(10.0);
     let order_id = bitget.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);

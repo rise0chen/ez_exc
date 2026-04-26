@@ -17,7 +17,8 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("ADEN_KEY")?)?;
     let mut aden = Aden::new(key);
 
-    let symbol = Symbol::derivative(Asset::try_from("XAU").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("XAU").unwrap(), Asset::usdt());
+    aden.perfect_symbol(&mut symbol).await.unwrap();
     let mut order_req = PlaceOrderRequest::new(1.0, 5000.0, OrderType::Limit);
     order_req.set_leverage(20.0);
     let order_id = aden.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
