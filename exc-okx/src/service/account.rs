@@ -19,7 +19,7 @@ impl Okx {
             };
             let mut resp = self.oneshot(req).await?.pop().map(|x| x.details).unwrap_or_default();
             resp.retain(|x| x.ccy == symbol.base.as_str());
-            let size = resp.iter().find(|x| x.ccy == symbol.base.as_str()).map(|x| x.avail_bal).unwrap_or(0.0);
+            let size = resp.iter().find(|x| x.ccy == symbol.base.as_str()).map(|x| x.eq).unwrap_or(0.0);
             Ok((Position::new(size), Position::default()))
         } else {
             use crate::api::http::account::GetPositionRequest;

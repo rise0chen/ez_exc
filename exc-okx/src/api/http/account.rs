@@ -17,6 +17,8 @@ pub struct Asset {
     pub avail_bal: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub cash_bal: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub eq: f64,
 }
 
 #[serde_as]
