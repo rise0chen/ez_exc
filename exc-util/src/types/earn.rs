@@ -8,13 +8,13 @@ pub struct StRate {
 }
 
 pub fn common_st_rate(symbol: &Symbol) -> Option<StRate> {
-    let rate = match symbol.base.as_str() {
-        "XAUT" => StRate {
-            rate: 0.9975,
+    let rate = match symbol.base.to_uppercase().as_str() {
+        "XBR" | "BZ" | "BRENTOIL" | "XYZ:BRENTOIL" => StRate {
+            rate: 1.05,
             start_time: 0,
             apy: 0.0,
         },
-        "XAUT0" => StRate {
+        "XAUT" | "XAUT0" => StRate {
             rate: 0.9975,
             start_time: 0,
             apy: 0.0,
