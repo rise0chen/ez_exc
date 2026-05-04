@@ -180,7 +180,7 @@ impl Symbol {
     pub fn min_once(&self, price: f64) -> f64 {
         let one_size = self.token_size(1.0 / 10f64.powi(self.precision as i32));
         let one_price = self.token_price(1.0 / 10f64.powi(self.precision_price as i32));
-        let min_by_usd = self.min_usd / (price - one_price) + one_size;
+        let min_by_usd = self.min_usd / (price - one_price);
         let min_by_size = self.token_size(self.min_size);
         one_size.max(min_by_size).max(min_by_usd)
     }
