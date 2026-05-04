@@ -24,7 +24,10 @@ impl Paradex {
         precision_size = -a.order_size_increment.log10().round() as i8;
         precision_price = -a.price_tick_size.log10().round() as i8;
         min_usd = a.min_notional;
-        fee = a.fee_config.map(|x| x.api_fee.taker_fee.fee).unwrap_or(0.0);
+        fee = a
+            .fee_config
+            .map(|x| if self.key.pro { x.api_fee } else { x.interactive_fee }.taker_fee.fee)
+            .unwrap_or(0.0);
 
         if symbol.multi_price != multi_price {
             tracing::error!("paradex multi_price from {} to {}", symbol.multi_price, multi_price);

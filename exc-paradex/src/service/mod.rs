@@ -10,6 +10,7 @@ use paradex::rest::Client;
 /// Paradex API.
 #[derive(Clone)]
 pub struct Paradex {
+    key: Key,
     http: Client,
 }
 impl Paradex {
@@ -17,6 +18,6 @@ impl Paradex {
         let url = paradex::url::URL::Production;
         let http = Client::new(url, Some(key.secret_key.to_string())).await.unwrap();
 
-        Self { http }
+        Self { key, http }
     }
 }

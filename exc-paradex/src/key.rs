@@ -5,4 +5,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Key {
     pub secret_key: Str,
+    #[serde(default)]
+    pub pro: bool,
 }

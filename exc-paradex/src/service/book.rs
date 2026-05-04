@@ -10,19 +10,21 @@ impl Paradex {
             depth: Some(limit),
             price_tick: None,
         };
-        let resp = self.http.orderbook(symbol_id, opts).await.map_err(|e| ExchangeError::Other(e.into()))?;
+        let (ask, bid, version) = if self.key.pro {
+            let resp = self.http.orderbook(symbol_id, opts).await.map_err(|e| ExchangeError::Other(e.into()))?;
+            (resp.asks, resp.bids, resp.last_updated_at)
+        } else {
+            let resp = self
+                .http
+                .orderbook_interactive(symbol_id, opts)
+                .await
+                .map_err(|e| ExchangeError::Other(e.into()))?;
+            (resp.asks, resp.bids, resp.last_updated_at)
+        };
         Ok(Depth {
-            bid: resp
-                .bids
-                .iter()
-                .map(|(p, s)| symbol.order(p.parse().unwrap(), s.parse().unwrap()))
-                .collect(),
-            ask: resp
-                .asks
-                .iter()
-                .map(|(p, s)| symbol.order(p.parse().unwrap(), s.parse().unwrap()))
-                .collect(),
-            version: resp.last_updated_at,
+            bid: bid.iter().map(|(p, s)| symbol.order(p.parse().unwrap(), s.parse().unwrap())).collect(),
+            ask: ask.iter().map(|(p, s)| symbol.order(p.parse().unwrap(), s.parse().unwrap())).collect(),
+            version,
         })
     }
 }

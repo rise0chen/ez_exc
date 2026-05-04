@@ -5,7 +5,7 @@ use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderSide, OrderStatus, OrderType, PlaceOrderRequest};
 use paradex::error::Error;
-use paradex::structs::{OrderInstruction, OrderUpdate, Side};
+use paradex::structs::{OrderFlags, OrderInstruction, OrderUpdate, Side};
 
 impl Paradex {
     pub async fn place_order(&mut self, symbol: &Symbol, data: PlaceOrderRequest) -> Result<OrderId, (OrderId, ExchangeError)> {
@@ -44,7 +44,7 @@ impl Paradex {
             size: size.abs(),
             order_type: paradex::structs::OrderType::LIMIT,
             client_id: ret.custom_order_id.clone(),
-            flags: vec![],
+            flags: if self.key.pro { vec![] } else { vec![OrderFlags::INTERACTIVE] },
             recv_window: None,
             stp: None,
             trigger_price: None,
