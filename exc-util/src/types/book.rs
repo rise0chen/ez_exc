@@ -37,7 +37,7 @@ impl Depth {
         if self.bid.len() < 2 || self.ask.len() < 2 {
             return false;
         }
-        self.bid[0].price <= self.ask[0].price && self.ask[0].price < self.ask[1].price && self.bid[0].price > self.bid[1].price
+        self.bid[1].price <= self.ask[1].price && self.ask[0].price < self.ask[1].price && self.bid[0].price > self.bid[1].price
     }
     pub fn depth_price(&self, depth: f64) -> (f64, f64) {
         (depth_price(&self.bid, depth), depth_price(&self.ask, depth))
