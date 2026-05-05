@@ -11,6 +11,7 @@ members = [
   "exc-dex",
   "exc-dydx",
   "exc-gate",
+  "exc-grvt",
   "exc-htx",
   "exc-hyperliquid",
   "exc-kcex",
@@ -27,6 +28,7 @@ resolver = "2"
 
 [patch.crates-io]
 dydx = {git = "https://github.com/rise0chen/dydx", branch = "main"}
+grvt-rust-sdk = {git = "https://github.com/rise0chen/grvt-rust-sdk", branch = "main"}
 hypersdk = {git = "https://github.com/rise0chen/hypersdk", branch = "main"}
 lighter-rs = {git = "https://github.com/rise0chen/lighter-rs", branch = "rise"}
 paradex = {git = "https://github.com/rise0chen/paradex-rs", branch = "main"}
