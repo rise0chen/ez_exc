@@ -74,13 +74,12 @@ impl Grvt {
                 builder_fee: None,
             },
         };
-        let result = match self.http.create_order_full(&req).await {
+        let _result = match self.http.create_order_full(&req).await {
             Ok(d) => d,
             Err(e) => {
                 return Err((ret, ExchangeError::Other(e.into())));
             }
         };
-        ret.order_id = result.result.order_id;
         Ok(ret)
     }
     pub async fn amend_order(&mut self, _order: AmendOrder) -> Result<OrderId, ExchangeError> {
