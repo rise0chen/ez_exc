@@ -37,8 +37,6 @@ impl<'a> TryFrom<&'a str> for Asset {
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
         if value.is_empty() {
             Err(ParseAssetError::Empty)
-        } else if value.contains(Self::SEP) {
-            Err(ParseAssetError::ContainsSep)
         } else if !value.is_ascii() {
             Err(ParseAssetError::NonAscii)
         } else {

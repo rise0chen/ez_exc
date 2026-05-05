@@ -25,5 +25,9 @@ async fn main() -> anyhow::Result<()> {
     let symbol = Symbol::derivative(Asset::try_from("DOGE").unwrap(), Asset::usdt());
     let balance = okx.get_position(&symbol).await.unwrap();
     tracing::info!("{}: {:?}", symbol, balance);
+
+    let symbol = Symbol::option(Asset::try_from("ETH").unwrap(), Asset::try_from("USD_UM_XPERP-310404").unwrap());
+    let balance = okx.get_position(&symbol).await.unwrap();
+    tracing::info!("{}: {:?}", symbol, balance);
     Ok(())
 }

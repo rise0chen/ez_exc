@@ -15,7 +15,21 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("OKX_KEY").unwrap_or_default()).unwrap();
     let mut okx = Okx::new(key);
 
-    let mut symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::spot(Asset::try_from("ETH").unwrap(), Asset::usdt());
+    okx.perfect_symbol(&mut symbol).await.unwrap();
+
+    let mut symbol = Symbol::derivative(Asset::try_from("ETH").unwrap(), Asset::usdt());
+    okx.perfect_symbol(&mut symbol).await.unwrap();
+    let info = okx.get_funding_rate_history(&symbol, 2).await.unwrap();
+    assert!(info[0].time > info[1].time + 58 * 60 * 1000);
+    tracing::info!("{:?}", info);
+    let rate = okx.get_funding_rate(&symbol).await.unwrap();
+    assert!(rate.time > info[0].time + 58 * 60 * 1000);
+    tracing::info!("{:?}", rate);
+    let info = okx.get_index_price(&symbol).await.unwrap();
+    tracing::info!("{:?}", info);
+
+    let mut symbol = Symbol::option(Asset::try_from("ETH").unwrap(), Asset::try_from("USD_UM_XPERP-310404").unwrap());
     okx.perfect_symbol(&mut symbol).await.unwrap();
     let info = okx.get_funding_rate_history(&symbol, 2).await.unwrap();
     assert!(info[0].time > info[1].time + 58 * 60 * 1000);

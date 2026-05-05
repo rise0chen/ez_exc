@@ -69,45 +69,21 @@ impl Symbol {
         }
     }
     pub fn spot(base: Asset, quote: Asset) -> Self {
-        Self {
-            kind: SymbolKind::Spot,
-            base,
-            base_id: String::new(),
-            quote,
-            quote_id: String::new(),
-            prefix: String::new(),
-            suffix: String::new(),
-            multi_price: 1.0,
-            multi_size: 1.0,
-            precision: 0,
-            precision_price: 2,
-            min_usd: 5.0,
-            min_size: 0.0,
-            fee: 0.0,
-            fee_coin: 1.0,
-            can_open: true,
-        }
+        let mut ret = Self::unknown(base, quote);
+        ret.kind = SymbolKind::Spot;
+        ret
     }
     pub fn derivative(base: Asset, quote: Asset) -> Self {
-        Self {
-            kind: SymbolKind::Linear,
-            base,
-            base_id: String::new(),
-            quote,
-            quote_id: String::new(),
-            prefix: String::new(),
-            suffix: String::new(),
-            multi_price: 1.0,
-            multi_size: 1.0,
-            precision: 0,
-            precision_price: 2,
-            min_usd: 5.0,
-            min_size: 0.0,
-            fee: 0.0,
-            fee_coin: 1.0,
-            can_open: true,
-        }
+        let mut ret = Self::unknown(base, quote);
+        ret.kind = SymbolKind::Linear;
+        ret
     }
+    pub fn option(base: Asset, quote: Asset) -> Self {
+        let mut ret = Self::unknown(base, quote);
+        ret.kind = SymbolKind::Option;
+        ret
+    }
+
     pub fn is_spot(&self) -> bool {
         matches!(self.kind, SymbolKind::Spot)
     }

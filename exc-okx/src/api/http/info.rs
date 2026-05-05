@@ -13,6 +13,8 @@ pub struct GetInfoRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GetInfoResponse {
+    pub inst_family: Option<String>,
+    pub inst_id: Option<String>,
     #[serde_as(as = "DefaultOnError<Option<DisplayFromStr>>")]
     pub ct_val: Option<f64>,
     #[serde_as(as = "DefaultOnError<Option<DisplayFromStr>>")]

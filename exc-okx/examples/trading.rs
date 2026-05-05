@@ -17,17 +17,11 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("OKX_KEY")?)?;
     let mut okx = Okx::new(key);
 
-    let symbol = Symbol::spot(Asset::try_from("APE").unwrap(), Asset::usdt());
-    let order_req = PlaceOrderRequest::new(20.0, 0.3, OrderType::Limit);
-    let order_id = okx.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
-    tokio::time::sleep(Duration::from_secs(2)).await;
-    let order_id = okx.cancel_order(order_id).await.unwrap();
-    let order = okx.get_order(order_id).await.unwrap();
-    tracing::info!("{:?}", order);
-
-    let mut symbol = Symbol::derivative(Asset::try_from("APE").unwrap(), Asset::usdt());
+    //let mut symbol = Symbol::spot(Asset::try_from("ETH").unwrap(), Asset::usdt());
+    //let mut symbol = Symbol::derivative(Asset::try_from("ETH").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::option(Asset::try_from("ETH").unwrap(), Asset::try_from("USD_UM_XPERP-310404").unwrap());
     okx.perfect_symbol(&mut symbol).await.unwrap();
-    let mut order_req = PlaceOrderRequest::new(20.0, 0.3, OrderType::Limit);
+    let mut order_req = PlaceOrderRequest::new(-0.002, 2500.0, OrderType::Limit);
     order_req.set_leverage(10.0);
     let order_id = okx.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     tokio::time::sleep(Duration::from_secs(2)).await;

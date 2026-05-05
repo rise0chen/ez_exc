@@ -1,7 +1,7 @@
 use super::Okx;
 use exc_util::asset::Asset;
 use exc_util::error::ExchangeError;
-use exc_util::symbol::Symbol;
+use exc_util::symbol::{Symbol, SymbolKind};
 use exc_util::types::info::FundingRate;
 use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
@@ -18,9 +18,15 @@ impl Okx {
         let mut fee = 0.0;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
+        let inst_type = match symbol.kind {
+            SymbolKind::Spot => "SPOT",
+            SymbolKind::Linear => "SWAP",
+            SymbolKind::Option => "FUTURES",
+            _ => todo!(),
+        };
         use crate::api::http::info::GetInfoRequest;
         let req = GetInfoRequest {
-            inst_type: if symbol.is_spot() { "SPOT" } else { "SWAP" },
+            inst_type,
             inst_id: symbol_id.clone(),
         };
         let Some(a) = self.oneshot(req).await?.pop() else {
@@ -32,18 +38,14 @@ impl Okx {
         precision_price = -a.tick_sz.log10().round() as i8;
         min_size = a.min_sz;
         use crate::api::http::account::GetFeeRequest;
-        let req = if symbol.is_spot() {
-            GetFeeRequest {
-                inst_type: "SPOT",
-                inst_id: Some(crate::symnol::symbol_id(symbol)),
-                inst_family: None,
-            }
-        } else {
-            GetFeeRequest {
-                inst_type: "SWAP",
-                inst_id: None,
-                inst_family: Some(crate::symnol::symbol_id(&Symbol::spot(symbol.base.clone(), symbol.quote.clone()))),
-            }
+        let req = GetFeeRequest {
+            inst_type,
+            inst_id: if a.inst_family.as_deref().unwrap_or("").is_empty() {
+                a.inst_id
+            } else {
+                None
+            },
+            inst_family: a.inst_family,
         };
         if let Some(a) = self.oneshot(req).await?.pop() {
             fee = -a.fee_group[0].taker;
