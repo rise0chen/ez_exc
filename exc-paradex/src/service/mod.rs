@@ -16,7 +16,8 @@ pub struct Paradex {
 impl Paradex {
     pub async fn new(key: Key) -> Self {
         let url = paradex::url::URL::Production;
-        let http = Client::new(url, Some(key.secret_key.to_string())).await.unwrap();
+        let mut http = Client::new(url, Some(key.secret_key.to_string())).await.unwrap();
+        http.interactive = !key.pro;
 
         Self { key, http }
     }

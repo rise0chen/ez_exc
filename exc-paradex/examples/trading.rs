@@ -19,8 +19,8 @@ async fn main() -> anyhow::Result<()> {
 
     let mut symbol = Symbol::derivative(Asset::try_from("PAXG").unwrap(), Asset::usd());
     paradex.perfect_symbol(&mut symbol).await.unwrap();
-    let order_req = PlaceOrderRequest::new(0.003, 4880.0, OrderType::Limit);
-    let order_id = paradex.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
+    let order_req = PlaceOrderRequest::new(-0.003, 4880.0, OrderType::Limit);
+    let order_id = paradex.place_order(&symbol, order_req).await.unwrap();
     let order = paradex.get_order(order_id.clone()).await;
     tracing::info!("{:?}", order);
     tokio::time::sleep(Duration::from_secs(5)).await;
