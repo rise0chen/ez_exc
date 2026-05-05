@@ -14,6 +14,8 @@ impl Grvt {
             leverage: _,
             open_type: _,
         } = data;
+        let size = symbol.contract_size(size).as_f64();
+        let price = symbol.contract_price(price, size.is_sign_positive()).as_f64();
         let custom_id = format!("{}", time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64 | 2_u64.pow(63));
         let mut ret = OrderId {
             symbol: symbol.clone(),
@@ -35,7 +37,7 @@ impl Grvt {
             reduce_only: false,
             legs: vec![SignOrderLeg {
                 asset_id: parse_instrument_hash(&symbol.base_id).unwrap(),
-                contract_size: scale_size(size.abs(), symbol.precision as u32),
+                contract_size: scale_size(size.abs(), symbol.quote_id.parse().unwrap()),
                 limit_price: scale_price(price),
                 is_buying_contract: size > 0.0,
             }],

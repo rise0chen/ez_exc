@@ -20,7 +20,8 @@ impl Grvt {
         let a = self.http.instrument_full(&InstrumentRequest { instrument: symbol_id }).await;
         let a = a.map_err(|e| ExchangeError::Other(e.into()))?.result;
         symbol.base_id = a.instrument_hash;
-        precision_size = a.base_decimals as i8;
+        symbol.quote_id = a.base_decimals.to_string();
+        precision_size = -a.min_size.log10().round() as i8;
         precision_price = -a.tick_size.log10().round() as i8;
         min_size = a.min_size;
         min_usd = a.min_notional;
