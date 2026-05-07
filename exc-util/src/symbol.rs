@@ -1,6 +1,6 @@
 pub use crate::asset::Asset;
 use crate::types::book::Order;
-use rust_decimal::Decimal;
+use rust_decimal::{prelude::FromPrimitive, Decimal};
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
@@ -100,7 +100,8 @@ impl Symbol {
         let is_spot = self.is_spot();
         match precision {
             0.. => {
-                let r = Decimal::from_f64_retain(size).unwrap();
+                let mut r = Decimal::from_f64(size).unwrap();
+                r.rescale(precision as u32 + 2);
                 if is_spot {
                     r.trunc_with_scale(precision as u32)
                 } else {
@@ -129,7 +130,8 @@ impl Symbol {
         let precision = self.precision_price;
         match precision {
             0.. => {
-                let r = Decimal::from_f64_retain(price).unwrap();
+                let mut r = Decimal::from_f64(price).unwrap();
+                r.rescale(precision as u32 + 2);
                 let r = r.trunc_with_scale(precision as u32);
                 if buy {
                     r + Decimal::new(1, precision as u32)

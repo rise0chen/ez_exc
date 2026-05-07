@@ -3,7 +3,7 @@ use crate::futures_api::types::*;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
-use rust_decimal::prelude::ToPrimitive;
+use rust_decimal::prelude::{FromPrimitive, ToPrimitive};
 use rust_decimal::Decimal;
 use tower::ServiceExt;
 
@@ -40,7 +40,7 @@ impl Bitmart {
                 client_order_id: Some(custom_id),
                 side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
                 r#type: kind.into(),
-                leverage: Decimal::from_f64_retain(leverage).unwrap(),
+                leverage: Decimal::from_f64(leverage).unwrap(),
                 mode: kind.into(),
                 size: size.abs().floor().to_u64().unwrap(),
                 price,
