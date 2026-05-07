@@ -44,6 +44,7 @@ impl Paradex {
             size: size.abs(),
             order_type: paradex::structs::OrderType::LIMIT,
             client_id: ret.custom_order_id.clone(),
+            dime_discount: Some(true),
             flags: vec![],
             recv_window: None,
             stp: None,
