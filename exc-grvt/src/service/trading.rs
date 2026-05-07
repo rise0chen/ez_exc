@@ -14,10 +14,10 @@ impl Grvt {
             leverage: _,
             open_type: _,
         } = data;
-        let size = symbol.contract_size(size).as_f64();
-        let price = symbol.contract_price(price, size.is_sign_positive()).as_f64();
+        let size = symbol.contract_size(size);
+        let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!("{}", time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64 | 2_u64.pow(63));
-        let mut ret = OrderId {
+        let ret = OrderId {
             symbol: symbol.clone(),
             order_id: None,
             custom_order_id: Some(custom_id.clone()),
@@ -37,9 +37,19 @@ impl Grvt {
             reduce_only: false,
             legs: vec![SignOrderLeg {
                 asset_id: parse_instrument_hash(&symbol.base_id).unwrap(),
-                contract_size: scale_size(size.abs(), symbol.quote_id.parse().unwrap()),
-                limit_price: scale_price(price),
-                is_buying_contract: size > 0.0,
+                contract_size: {
+                    let mut s = size.abs();
+                    s.rescale(symbol.quote_id.parse().unwrap());
+                    s.set_scale(0).unwrap();
+                    s.as_i128() as u64
+                },
+                limit_price: {
+                    let mut p = price;
+                    p.rescale(9);
+                    p.set_scale(0).unwrap();
+                    p.as_i128() as u64
+                },
+                is_buying_contract: size.is_sign_positive(),
             }],
             nonce: random_nonce(),
             expiration_ns: default_expiration_ns(),
@@ -59,7 +69,7 @@ impl Grvt {
                     instrument: symbol_id,
                     size: size.abs().to_string(),
                     limit_price: Some(price.to_string()),
-                    is_buying_asset: size > 0.0,
+                    is_buying_asset: size.is_sign_positive(),
                 }],
                 signature: signed.signature,
                 metadata: Some(OrderMetadata {
