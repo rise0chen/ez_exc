@@ -24,5 +24,6 @@ rust_decimal = {version = "1"}
 serde = {version = "1", features = ["derive"]}
 smol_str = {version = "0.3", features = ["serde"]}
 thiserror = "2"
+time = {version = "0.3"}
 tokio-tungstenite = {version = "0.28"}
 tower = {version = "0.5", default-features = false}

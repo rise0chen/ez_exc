@@ -18,7 +18,7 @@ impl Htx {
             Depth {
                 bid: resp.bids.iter().map(|x| symbol.order(x.0, x.1)).collect(),
                 ask: resp.asks.iter().map(|x| symbol.order(x.0, x.1)).collect(),
-                version: resp.version,
+                version: resp.ts,
             }
         } else {
             if let Some(ch) = self.ws.books.get(&symbol_id) {

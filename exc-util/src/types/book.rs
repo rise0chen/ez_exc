@@ -28,13 +28,16 @@ pub fn depth_price(book: &[Order], depth: f64) -> f64 {
 
 #[derive(Debug, Default, Clone)]
 pub struct Depth {
+    pub version: u64,
     pub bid: Vec<Order>,
     pub ask: Vec<Order>,
-    pub version: u64,
 }
 impl Depth {
     pub fn is_valid(&self) -> bool {
         if self.bid.len() < 2 || self.ask.len() < 2 {
+            return false;
+        }
+        if ((self.version / 1000) as i64 - time::OffsetDateTime::now_utc().unix_timestamp()).abs() > 60 {
             return false;
         }
         self.bid[1].price <= self.ask[1].price && self.ask[0].price < self.ask[1].price && self.bid[0].price > self.bid[1].price

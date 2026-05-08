@@ -20,7 +20,8 @@ pub struct Order(#[serde_as(as = "DisplayFromStr")] pub f64, #[serde_as(as = "Di
 pub struct GetDepthResponse {
     pub asks: Vec<Order>,
     pub bids: Vec<Order>,
-    pub last_update_id: u64,
+    #[serde(rename = "T")]
+    pub t: u64,
 }
 
 impl Rest for GetDepthRequest {

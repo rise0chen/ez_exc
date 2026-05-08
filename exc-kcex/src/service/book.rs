@@ -16,7 +16,7 @@ impl Kcex {
             Depth {
                 bid: resp.bids.iter().map(|x| symbol.order(x.0, x.1)).collect(),
                 ask: resp.asks.iter().map(|x| symbol.order(x.0, x.1)).collect(),
-                version: resp.version,
+                version: resp.timestamp,
             }
         };
         Ok(bid_ask)

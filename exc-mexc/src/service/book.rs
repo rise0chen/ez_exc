@@ -2,6 +2,7 @@ use super::Mexc;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::book::Depth;
+use time::OffsetDateTime;
 use tower::ServiceExt;
 
 impl Mexc {
@@ -14,7 +15,7 @@ impl Mexc {
             Depth {
                 bid: resp.bids.iter().map(|x| symbol.order(x.0, x.1)).collect(),
                 ask: resp.asks.iter().map(|x| symbol.order(x.0, x.1)).collect(),
-                version: resp.last_update_id,
+                version: (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64,
             }
         } else {
             use crate::futures_web::http::book::GetDepthRequest;
@@ -23,7 +24,7 @@ impl Mexc {
             Depth {
                 bid: resp.bids.iter().map(|x| symbol.order(x.0, x.1)).collect(),
                 ask: resp.asks.iter().map(|x| symbol.order(x.0, x.1)).collect(),
-                version: resp.version,
+                version: resp.timestamp,
             }
         };
         Ok(bid_ask)
