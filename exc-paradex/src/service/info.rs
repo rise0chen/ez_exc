@@ -1,4 +1,5 @@
 use super::Paradex;
+use crate::futures::http::info::{GetAccountInfoResponse, GetFundingRateHistoryResponse};
 use core::time::Duration;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
@@ -28,6 +29,15 @@ impl Paradex {
             .fee_config
             .map(|x| if self.key.pro { x.api_fee } else { x.interactive_fee }.taker_fee.fee)
             .unwrap_or(0.0);
+        if let Ok(a) = self
+            .http
+            .request_cursor::<GetAccountInfoResponse>("/v1/account/info".into(), None, None, None, true)
+            .await
+        {
+            if let Some(a) = a.first() {
+                fee = a.fees.taker_rate;
+            }
+        };
 
         if symbol.multi_price != multi_price {
             tracing::error!("paradex multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -80,7 +90,6 @@ impl Paradex {
         })
     }
     pub async fn get_funding_rate_history(&mut self, symbol: &Symbol, day: u8) -> Result<Vec<FundingRate>, ExchangeError> {
-        use crate::futures::http::info::GetFundingRateHistoryResponse;
         let symbol = crate::symnol::symbol_id(symbol);
         let start = chrono::Utc::now() - Duration::from_hours(24 * day as u64);
         let req = vec![("market".into(), symbol.clone())];
