@@ -53,7 +53,7 @@ impl Dex {
         let bid_ask = Depth {
             bid,
             ask,
-            version: depth.timestamp.to::<u64>(),
+            version: depth.timestamp.to::<u64>() * 1000,
         };
         Ok(bid_ask)
     }

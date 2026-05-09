@@ -40,7 +40,9 @@ impl Depth {
         if ((self.version / 1000) as i64 - time::OffsetDateTime::now_utc().unix_timestamp()).abs() > 60 {
             return false;
         }
-        self.bid[1].price <= self.ask[1].price && self.ask[0].price < self.ask[1].price && self.bid[0].price > self.bid[1].price
+        self.bid[self.bid.len() - 1].price <= self.ask[self.ask.len() - 1].price
+            && self.ask[0].price < self.ask[1].price
+            && self.bid[0].price > self.bid[1].price
     }
     pub fn depth_price(&self, depth: f64) -> (f64, f64) {
         (depth_price(&self.bid, depth), depth_price(&self.ask, depth))
