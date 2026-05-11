@@ -1,11 +1,27 @@
+use alloy_signer::SignerSync;
+use alloy_signer_local::PrivateKeySigner;
+use alloy_sol_types::{eip712_domain, sol, Eip712Domain, SolStruct};
 use exc_util::asset::Str;
 pub use exc_util::interface::ApiKind;
 use exc_util::interface::Rest;
-use hmac::{Hmac, Mac};
 use http::Method;
 use serde::{Deserialize, Serialize};
-use sha2::Sha256;
+use std::str::FromStr;
 use time::OffsetDateTime;
+
+sol! {
+    struct Message {
+        string msg;
+    }
+}
+const DOMAIN: Eip712Domain = eip712_domain! {
+    name: "AsterSignTransaction",
+    version: "1",
+    chain_id: 1666,
+    verifying_contract: alloy_primitives::address!(
+        "0000000000000000000000000000000000000000"
+    ),
+};
 
 pub enum ParamsFormat {
     Common,
@@ -16,20 +32,24 @@ pub enum ParamsFormat {
 /// The APIKey definition of Bitget.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Key {
-    pub api_key: Str,
-    pub secret_key: Str,
+    pub account: Str,
+    pub api: Str,
+    pub secret: Str,
 }
 
 impl Key {
     /// Create a new [`Key`].
-    pub fn new(api_key: &str, secret_key: &str) -> Self {
-        Self {
-            api_key: Str::new(api_key),
-            secret_key: Str::new(secret_key),
-        }
+    pub fn sign<'a, T: Rest>(&'a self, params: &'a T, format: ParamsFormat, kind: ApiKind) -> Result<SignedParams<'a, T>, anyhow::Error> {
+        self.params(params).signed(self, format, kind)
     }
-    pub fn sign<'a, T: Rest>(&self, params: &'a T, format: ParamsFormat, kind: ApiKind) -> Result<SignedParams<'a, T>, anyhow::Error> {
-        SigningParams::now(params).signed(self, format, kind)
+    pub fn params<'a, T: Rest>(&'a self, params: &'a T) -> SigningParams<'a, T> {
+        let now = OffsetDateTime::now_utc().unix_timestamp_nanos() / 1000;
+        SigningParams {
+            params,
+            nonce: now,
+            user: &self.account,
+            signer: &self.api,
+        }
     }
 }
 
@@ -39,24 +59,9 @@ impl Key {
 pub struct SigningParams<'a, T: Rest> {
     #[serde(flatten)]
     pub params: &'a T,
-    pub recv_window: u32,
-    pub timestamp: i64,
-}
-
-impl<'a, T: Rest> SigningParams<'a, T> {
-    fn with_timestamp(params: &'a T, timestamp: i64) -> Self {
-        Self {
-            params,
-            recv_window: 5000,
-            timestamp: timestamp - 2000,
-        }
-    }
-
-    /// Sign the given params now.
-    pub fn now(params: &'a T) -> Self {
-        let now = OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000;
-        Self::with_timestamp(params, now as i64)
-    }
+    pub nonce: i128,
+    pub user: &'a str,
+    pub signer: &'a str,
 }
 
 /// Signed params.
@@ -81,16 +86,17 @@ impl<'a, T: Rest> SigningParams<'a, T> {
             ParamsFormat::Json => serde_json::to_string(&self)?,
             ParamsFormat::Urlencoded => serde_urlencoded::to_string(&self)?,
         };
+        let signer = PrivateKeySigner::from_str(&key.secret).unwrap();
         let signature = match kind {
             ApiKind::SpotApi => {
                 todo!();
             }
             ApiKind::FuturesApi => {
                 let raw = body;
-                let mut mac = Hmac::<Sha256>::new_from_slice(key.secret_key.as_bytes())?;
-                mac.update(raw.as_bytes());
-                let mac_result = mac.finalize();
-                hex::encode(mac_result.into_bytes())
+                let msg = Message { msg: raw };
+                let hash = msg.eip712_signing_hash(&DOMAIN);
+                let result = signer.sign_hash_sync(&hash).unwrap();
+                hex::encode(result.as_bytes())
             }
             _ => unreachable!(),
         };

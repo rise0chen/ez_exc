@@ -34,7 +34,7 @@ impl Rest for GetDepthRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/fapi/v1/depth".into()
+        "/fapi/v3/depth".into()
     }
     fn need_sign(&self) -> bool {
         false

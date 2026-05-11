@@ -23,8 +23,6 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
     let mut uri = format!("{}{}", host, req.path());
     let body = if req.need_sign() {
         let signature = key.sign(req, ParamsFormat::Urlencoded, ApiKind::FuturesApi)?;
-
-        header.insert("X-MBX-APIKEY", key.api_key.as_str().try_into()?);
         serde_urlencoded::to_string(signature)?
     } else {
         serde_urlencoded::to_string(req)?

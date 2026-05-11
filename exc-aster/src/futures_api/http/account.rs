@@ -24,7 +24,7 @@ impl Rest for GetBalanceRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/fapi/v4/account".to_string()
+        "/fapi/v3/accountWithJoinMargin".to_string()
     }
     fn need_sign(&self) -> bool {
         true
@@ -57,7 +57,7 @@ impl Rest for GetPositionRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/fapi/v2/positionRisk".to_string()
+        "/fapi/v3/positionRisk".to_string()
     }
     fn need_sign(&self) -> bool {
         true

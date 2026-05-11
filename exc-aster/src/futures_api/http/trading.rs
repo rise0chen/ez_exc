@@ -41,7 +41,7 @@ impl Rest for GetOrderRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/fapi/v1/order".into()
+        "/fapi/v3/order".into()
     }
     fn need_sign(&self) -> bool {
         true
@@ -78,7 +78,7 @@ impl Rest for PlaceOrderRequest {
         Method::POST
     }
     fn path(&self) -> String {
-        "/fapi/v1/order".to_string()
+        "/fapi/v3/order".to_string()
     }
     fn need_sign(&self) -> bool {
         true
@@ -110,7 +110,7 @@ impl Rest for CancelOrderRequest {
         Method::DELETE
     }
     fn path(&self) -> String {
-        "/fapi/v1/order".to_string()
+        "/fapi/v3/order".to_string()
     }
     fn need_sign(&self) -> bool {
         true
