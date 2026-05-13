@@ -117,7 +117,7 @@ impl Aden {
             };
             let resp = self.oneshot(req).await?;
             let deal_vol = (resp.size - resp.left).abs();
-            let fee = 0.0005 * deal_vol * symbol.multi_size * resp.fill_price;
+            let fee = symbol.fee * deal_vol * symbol.multi_size * resp.fill_price;
             Order {
                 order_id: resp.id.to_string(),
                 vol: symbol.token_size(resp.size.abs()),

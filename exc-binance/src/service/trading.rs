@@ -3,7 +3,6 @@ use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{Fee, Order, OrderId, OrderSide, OrderType, PlaceOrderRequest};
 use rust_decimal::prelude::ToPrimitive;
-use rust_decimal::Decimal;
 use tower::ServiceExt;
 
 impl Binance {
@@ -15,6 +14,15 @@ impl Binance {
             leverage: _,
             open_type: _,
         } = data;
+        let price = if kind == OrderType::Market {
+            if size.is_sign_positive() {
+                1.01 * price
+            } else {
+                0.99 * price
+            }
+        } else {
+            price
+        };
         let size = symbol.contract_size(size);
         let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!(
@@ -39,15 +47,7 @@ impl Binance {
                 time_in_force: kind.into(),
                 side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
                 quantity: size.abs(),
-                price: if kind == OrderType::Market {
-                    if size.is_sign_positive() {
-                        (Decimal::new(101, 2) * price).trunc_with_scale(price.scale())
-                    } else {
-                        (Decimal::new(99, 2) * price).trunc_with_scale(price.scale())
-                    }
-                } else {
-                    price
-                },
+                price,
             };
             self.oneshot(req).await.map(|resp| resp.order_id)
         } else {
@@ -59,15 +59,7 @@ impl Binance {
                 time_in_force: kind.into(),
                 side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
                 quantity: size.abs(),
-                price: if kind == OrderType::Market {
-                    if size.is_sign_positive() {
-                        (Decimal::new(101, 2) * price).trunc_with_scale(price.scale())
-                    } else {
-                        (Decimal::new(99, 2) * price).trunc_with_scale(price.scale())
-                    }
-                } else {
-                    price
-                },
+                price,
             };
             self.oneshot(req).await.map(|resp| resp.order_id)
         };

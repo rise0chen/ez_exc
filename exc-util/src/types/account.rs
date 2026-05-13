@@ -1,5 +1,6 @@
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct Position {
+    pub id: String,
     /// 持仓数量
     pub size: f64,
     /// 开仓均价
@@ -7,6 +8,10 @@ pub struct Position {
 }
 impl Position {
     pub fn new(size: f64) -> Self {
-        Self { size, price: 0.0 }
+        Self {
+            id: String::new(),
+            size,
+            price: 0.0,
+        }
     }
 }

@@ -103,7 +103,7 @@ impl Ws {
                 match decoder.read_to_end(&mut decompressed) {
                     Ok(_) => decompressed,
                     Err(e) => {
-                        eprintln!("gzip 解压失败: {}", e);
+                        tracing::error!("gzip 解压失败: {}", e);
                         continue;
                     }
                 }

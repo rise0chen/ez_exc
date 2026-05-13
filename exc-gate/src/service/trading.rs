@@ -16,6 +16,15 @@ impl Gate {
             leverage,
             open_type: _,
         } = data;
+        let price = if kind == OrderType::Market {
+            if size.is_sign_positive() {
+                1.01 * price
+            } else {
+                0.99 * price
+            }
+        } else {
+            price
+        };
         let size = symbol.contract_size(size);
         let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!(
@@ -40,15 +49,7 @@ impl Gate {
                 time_in_force: kind.into(),
                 side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
                 amount: size.abs(),
-                price: if kind == OrderType::Market {
-                    if size.is_sign_positive() {
-                        (Decimal::new(101, 2) * price).trunc_with_scale(price.scale())
-                    } else {
-                        (Decimal::new(99, 2) * price).trunc_with_scale(price.scale())
-                    }
-                } else {
-                    price
-                },
+                price,
                 auto_borrow: leverage != 1.0,
                 auto_repay: leverage != 1.0,
             };
@@ -189,7 +190,7 @@ impl Gate {
             };
             let resp = self.oneshot(req).await?;
             let deal_vol = (resp.size - resp.left).abs();
-            let fee = 0.0005 * deal_vol * symbol.multi_size * resp.fill_price;
+            let fee = symbol.fee * deal_vol * symbol.multi_size * resp.fill_price;
             Order {
                 order_id: resp.id.to_string(),
                 vol: symbol.token_size(resp.size.abs()),

@@ -2,7 +2,6 @@ use super::Htx;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{Fee, Order, OrderId, OrderSide, OrderType, PlaceOrderRequest};
-use rust_decimal::Decimal;
 use tower::ServiceExt;
 
 impl Htx {
@@ -14,6 +13,15 @@ impl Htx {
             leverage: _,
             open_type,
         } = data;
+        let price = if kind == OrderType::Market {
+            if size.is_sign_positive() {
+                1.01 * price
+            } else {
+                0.99 * price
+            }
+        } else {
+            price
+        };
         let size = symbol.contract_size(size);
         let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!("{}", time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64);
@@ -33,15 +41,7 @@ impl Htx {
                 client_order_id: Some(custom_id),
                 r#type: (if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell }, kind).into(),
                 amount: size.abs(),
-                price: if kind == OrderType::Market {
-                    if size.is_sign_positive() {
-                        (Decimal::new(101, 2) * price).trunc_with_scale(price.scale())
-                    } else {
-                        (Decimal::new(99, 2) * price).trunc_with_scale(price.scale())
-                    }
-                } else {
-                    price
-                },
+                price,
             };
             self.oneshot(req).await.map(|resp| resp.data)
         } else {
@@ -56,15 +56,7 @@ impl Htx {
                 r#type: kind.into(),
                 time_in_force: kind.into(),
                 volume: size.abs(),
-                price: if kind == OrderType::Market {
-                    if size.is_sign_positive() {
-                        (Decimal::new(101, 2) * price).trunc_with_scale(price.scale())
-                    } else {
-                        (Decimal::new(99, 2) * price).trunc_with_scale(price.scale())
-                    }
-                } else {
-                    price
-                },
+                price,
             };
             self.oneshot(req).await.map(|resp| resp.order_id)
         };

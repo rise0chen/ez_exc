@@ -41,6 +41,7 @@ impl Mexc {
             }
             Ok((
                 Position {
+                    id: String::new(),
                     size: symbol.token_size(long_size),
                     price: if long_size == 0.0 {
                         0.0
@@ -49,6 +50,7 @@ impl Mexc {
                     },
                 },
                 Position {
+                    id: String::new(),
                     size: symbol.token_size(short_size),
                     price: if short_size == 0.0 {
                         0.0
@@ -67,7 +69,11 @@ impl Mexc {
             } else {
                 (long.size * long.price + short.size * short.price) / (long.size + short.size)
             };
-            Position { size, price }
+            Position {
+                id: String::new(),
+                size,
+                price,
+            }
         })
     }
 }

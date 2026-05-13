@@ -11,7 +11,7 @@ impl Kcex {
         let min_once = symbol.min_once(price);
         if size.is_sign_positive() {
             let want_size = size.abs();
-            if want_size < short.size {
+            if want_size <= short.size {
                 if short.size - want_size <= 1.1 * min_once {
                     (short.size, true)
                 } else {
@@ -26,7 +26,7 @@ impl Kcex {
             }
         } else {
             let want_size = size.abs();
-            if want_size < long.size {
+            if want_size <= long.size {
                 if long.size - want_size <= 1.1 * min_once {
                     (-long.size, true)
                 } else {

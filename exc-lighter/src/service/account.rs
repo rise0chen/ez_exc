@@ -24,7 +24,18 @@ impl Lighter {
         if symbol.is_spot() {
             let assets = resp.map(|resp| resp.assets).unwrap_or(Vec::new());
             let balance = assets.iter().find(|x| x.symbol == *symbol.base).map(|x| x.balance).unwrap_or_default();
-            Ok((Position { size: balance, price: 0.0 }, Position { size: 0.0, price: 0.0 }))
+            Ok((
+                Position {
+                    id: String::new(),
+                    size: balance,
+                    price: 0.0,
+                },
+                Position {
+                    id: String::new(),
+                    size: 0.0,
+                    price: 0.0,
+                },
+            ))
         } else {
             let positions = resp.map(|resp| resp.positions).unwrap_or(Vec::new());
             let (mut short_size, mut short_val) = (0.0, 0.0);
@@ -43,6 +54,7 @@ impl Lighter {
             }
             Ok((
                 Position {
+                    id: String::new(),
                     size: symbol.token_size(long_size),
                     price: if long_size == 0.0 {
                         0.0
@@ -51,6 +63,7 @@ impl Lighter {
                     },
                 },
                 Position {
+                    id: String::new(),
                     size: symbol.token_size(short_size),
                     price: if short_size == 0.0 {
                         0.0
@@ -69,7 +82,11 @@ impl Lighter {
             } else {
                 (long.size * long.price + short.size * short.price) / (long.size + short.size)
             };
-            Position { size, price }
+            Position {
+                id: String::new(),
+                size,
+                price,
+            }
         })
     }
 }

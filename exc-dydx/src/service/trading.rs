@@ -8,7 +8,6 @@ use dydx_proto::dydxprotocol::clob::order::TimeInForce;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderSide, OrderStatus, OrderType, PlaceOrderRequest};
-use rust_decimal::Decimal;
 
 fn order_side(side: DydxSide) -> OrderSide {
     if side == DydxSide::Buy {
@@ -39,6 +38,15 @@ impl Dydx {
             leverage: _,
             open_type: _,
         } = data;
+        let price = if kind == OrderType::Market {
+            if size.is_sign_positive() {
+                1.01 * price
+            } else {
+                0.99 * price
+            }
+        } else {
+            price
+        };
         let size = symbol.contract_size(size);
         let price = symbol.contract_price(price, size.is_sign_positive());
         let mut client = self.client().await;
@@ -73,11 +81,6 @@ impl Dydx {
                 None
             }
             OrderType::Market => {
-                let price = if size.is_sign_positive() {
-                    (Decimal::new(101, 2) * price).trunc_with_scale(price.scale())
-                } else {
-                    (Decimal::new(99, 2) * price).trunc_with_scale(price.scale())
-                };
                 let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(10);
                 order = order
                     .price(BigDecimal::new(price.mantissa().into(), price.scale() as i64))

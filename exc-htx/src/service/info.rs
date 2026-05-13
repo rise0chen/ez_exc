@@ -13,7 +13,7 @@ impl Htx {
         let mut precision_size = 0;
         let mut precision_price = 2;
         let mut min_size = 0.0;
-        let mut min_usd = 5.0;
+        let mut min_usd = 0.0;
         let mut fee = 0.0;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
