@@ -7,6 +7,7 @@ members = [
   "exc-bitmart",
   "exc-bitunix",
   "exc-bybit",
+  "exc-coinw",
   "exc-custom",
   "exc-dex",
   "exc-dydx",
