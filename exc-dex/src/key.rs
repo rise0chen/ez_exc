@@ -22,7 +22,7 @@ pub struct Key {
     pub url: Str,
     pub private_key: Str,
     pub gas_limit: u64,
-    pub gas_price: u64,
+    pub gas_price: u128,
     pub cex_addr: Str,
     pub quote_addr: Str,
     pub pool_cfg: PoolCfg,
