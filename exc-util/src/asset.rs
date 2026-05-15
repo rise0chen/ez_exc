@@ -94,6 +94,8 @@ impl Asset {
     pub const SEP: char = '-';
     /// Usdt.
     pub const USDT: Self = Self::new_inline("USDT");
+    /// Usdc.
+    pub const USDC: Self = Self::new_inline("USDC");
     /// Usd.
     pub const USD: Self = Self::new_inline("USD");
     /// Btc.
@@ -113,6 +115,11 @@ impl Asset {
     /// Usdt.
     pub fn usdt() -> Self {
         Self::USDT
+    }
+
+    /// Usdc.
+    pub fn usdc() -> Self {
+        Self::USDC
     }
 
     /// Usd.

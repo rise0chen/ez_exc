@@ -139,8 +139,14 @@ impl Hyperliquid {
         let Some(resp) = resp else {
             return Err(ExchangeError::OrderNotFound);
         };
+        if resp.status.is_rejected() {
+            return Ok(Order {
+                state: OrderStatus::Canceled,
+                ..Default::default()
+            });
+        }
         let mut fills = self.http.user_fills(self.key.user.parse().unwrap()).await?;
-        fills.retain(|x| OidOrCloid::Left(x.oid) == oid || x.cloid == oid.right());
+        fills.retain(|x| OidOrCloid::Left(x.oid) == oid || (x.cloid.is_some() && x.cloid == oid.right()));
         let (val, size) = fills
             .iter()
             .fold((0.0, 0.0), |(val, size), x| (val + (x.px * x.sz).as_f64(), size + x.sz.as_f64()));
