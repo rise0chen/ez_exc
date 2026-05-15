@@ -21,6 +21,7 @@ members = [
   "exc-okx",
   "exc-paradex",
   "exc-simu",
+  "exc-toobit",
   "exc-util",
   "exc-weex",
   "exc-xt",
