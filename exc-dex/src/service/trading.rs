@@ -34,7 +34,7 @@ impl Dex {
             Uint::from(((1.0 / price) * 2.0f64.powi(128)).sqrt() as u128).saturating_shl(32)
         };
 
-        let gas_price = self.key.gas_price;
+        let gas_price = self.key.gas_price as u128;
         let net_price = self.rpc.get_gas_price().await.unwrap();
         if net_price > self.max_fee_index * gas_price {
             let rate = net_price as f64 / (self.max_fee_index * gas_price) as f64;

@@ -9,7 +9,7 @@ use exc_util::types::info::FundingRate;
 impl Dex {
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
         let gas = self.rpc.get_gas_price().await.map_err(|e| map_err(e.into()))?;
-        let gas = gas / self.max_fee_index * 12 / 10;
+        let gas = (gas / self.max_fee_index * 12 / 10) as u64;
         if self.key.gas_price < gas {
             tracing::info!("dex gas price from {} to {}", self.key.gas_price, gas);
             self.key.gas_price = gas;
@@ -21,7 +21,7 @@ impl Dex {
         if let Ok(Some(info)) = token_info {
             let p = info.current_price;
             symbol.fee_coin = p / 10.0f64.powi(native_token.decimals);
-            symbol.fee = (self.key.gas_limit as u128 * self.max_fee_index * self.key.gas_price) as f64 * symbol.fee_coin / symbol.min_usd;
+            symbol.fee = (self.key.gas_limit as u128 * self.max_fee_index * self.key.gas_price as u128) as f64 * symbol.fee_coin / symbol.min_usd;
             tracing::info!("dex {} fee: price {p}, rate {}", chain_info.chain, symbol.fee);
         } else {
             tracing::error!("dex {} fee {} price failed: {:?}", chain_info.chain, native_token.symbol, token_info);
