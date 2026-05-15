@@ -15,7 +15,8 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("TOOBIT_KEY").unwrap_or_default()).unwrap();
     let mut toobit = Toobit::new(key);
 
-    let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("PAXG").unwrap(), Asset::usdt());
+    toobit.perfect_symbol(&mut symbol).await.unwrap();
     let bid_ask = toobit.get_depth(&symbol, 5).await.unwrap();
     assert!(bid_ask.is_valid());
     tracing::info!("{:?}", bid_ask);

@@ -35,6 +35,8 @@ pub enum Filter {
 pub struct SymbolInfo {
     pub symbol: String,
     pub status: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub contract_multiplier: f64,
     #[serde_as(as = "VecSkipError<_>")]
     pub filters: Vec<Filter>,
 }

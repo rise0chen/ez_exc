@@ -15,10 +15,17 @@ pub enum ParamsFormat {
 
 /// The APIKey definition of Bitget.
 #[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct WebKey {
+    pub user_id: Str,
+    pub c_token: Str,
+    pub au_token: Str,
+}
+/// The APIKey definition of Bitget.
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Key {
     pub api_key: Str,
     pub secret_key: Str,
-    pub web_key: Option<Str>,
+    pub web_key: Option<WebKey>,
 }
 
 impl Key {

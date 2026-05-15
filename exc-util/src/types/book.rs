@@ -8,6 +8,11 @@ impl Order {
         Self { price, size }
     }
 }
+impl PartialEq for Order {
+    fn eq(&self, other: &Self) -> bool {
+        self.price == other.price && self.size == other.size
+    }
+}
 
 pub fn depth_price(book: &[Order], depth: f64) -> f64 {
     let mut remain = depth;
@@ -46,5 +51,12 @@ impl Depth {
     }
     pub fn depth_price(&self, depth: f64) -> (f64, f64) {
         (depth_price(&self.bid, depth), depth_price(&self.ask, depth))
+    }
+}
+impl PartialEq for Depth {
+    fn eq(&self, depth: &Self) -> bool {
+        let ask_len = self.ask.len().min(depth.ask.len());
+        let bid_len = self.bid.len().min(depth.bid.len());
+        self.ask[0..ask_len] == depth.ask[0..ask_len] && self.bid[0..bid_len] == depth.bid[0..bid_len]
     }
 }

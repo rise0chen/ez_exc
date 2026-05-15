@@ -41,20 +41,16 @@ pub struct GetPositionRequest {
 #[serde_as]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Asset {
+pub struct GetPositionResponse {
     #[serde_as(as = "DisplayFromStr")]
     pub position: f64,
     pub side: PositionSide,
     #[serde_as(as = "DisplayFromStr")]
-    pub avg_value: f64,
+    pub avg_price: f64,
 }
 
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct GetPositionResponse(pub Vec<Asset>);
-
 impl Rest for GetPositionRequest {
-    type Response = GetPositionResponse;
+    type Response = Vec<GetPositionResponse>;
 
     fn api_kind(&self) -> ApiKind {
         ApiKind::FuturesApi
@@ -64,6 +60,37 @@ impl Rest for GetPositionRequest {
     }
     fn path(&self) -> String {
         "/api/v1/futures/positions".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFeeRequest {
+    pub symbol: String,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFeeResponse {
+    #[serde_as(as = "DisplayFromStr")]
+    pub open_taker_fee: f64,
+}
+
+impl Rest for GetFeeRequest {
+    type Response = GetFeeResponse;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/api/v1/futures/commissionRate".to_string()
     }
     fn need_sign(&self) -> bool {
         true

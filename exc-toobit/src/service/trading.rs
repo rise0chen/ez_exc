@@ -1,9 +1,9 @@
 use super::Toobit;
-use crate::futures_api::types::*;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
-use rust_decimal::prelude::ToPrimitive;
+use rust_decimal::Decimal;
+use rust_decimal::prelude::{FromPrimitive, ToPrimitive};
 use tower::ServiceExt;
 
 impl Toobit {
@@ -62,22 +62,43 @@ impl Toobit {
             let (size, is_close) = self.get_order_size(symbol, size, price).await;
             let size = symbol.contract_size(size);
             let price = symbol.contract_price(price, size.is_sign_positive());
-
-            use crate::futures_api::http::trading::PlaceOrderRequest;
-            let req = PlaceOrderRequest {
-                symbol: symbol_id,
-                new_client_order_id: Some(custom_id),
-                side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
-                position_side: match (size.is_sign_positive(), is_close) {
-                    (true, true) | (false, false) => PositionSide::Short,
-                    (true, false) | (false, true) => PositionSide::Long,
-                },
-                r#type: kind.into(),
-                time_in_force: kind.into(),
-                quantity: size.abs(),
-                price,
-            };
-            self.oneshot(req).await.map(|resp| resp.order_id)
+            if self.key.web_key.is_none() {
+                use crate::futures_api::http::trading::PlaceOrderRequest;
+                use crate::futures_api::types::*;
+                let req = PlaceOrderRequest {
+                    symbol: symbol_id,
+                    new_client_order_id: Some(custom_id),
+                    side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
+                    position_side: match (size.is_sign_positive(), is_close) {
+                        (true, true) | (false, false) => PositionSide::Short,
+                        (true, false) | (false, true) => PositionSide::Long,
+                    },
+                    r#type: kind.into(),
+                    time_in_force: kind.into(),
+                    quantity: size.abs(),
+                    price,
+                };
+                self.oneshot(req).await.map(|resp| resp.order_id)
+            } else {
+                use crate::futures_web::http::trading::PlaceOrderRequest;
+                use crate::futures_web::types::*;
+                let req = PlaceOrderRequest {
+                    symbol_id,
+                    client_order_id: Some(custom_id),
+                    side: match (size.is_sign_positive(), is_close) {
+                        (true, true) => OrderSide::SellClose,
+                        (true, false) => OrderSide::BuyOpen,
+                        (false, true) => OrderSide::BuyClose,
+                        (false, false) => OrderSide::SellOpen,
+                    },
+                    r#type: kind.into(),
+                    time_in_force: kind.into(),
+                    quantity_base: size.abs() * Decimal::from_f64(symbol.multi_size).unwrap(),
+                    price,
+                    price_type: "INPUT",
+                };
+                self.oneshot(req).await.map(|resp| resp.order_id)
+            }
         };
         match order_id {
             Ok(id) => {
@@ -99,12 +120,21 @@ impl Toobit {
         let order = if symbol.is_spot() {
             todo!();
         } else {
-            use crate::futures_api::http::trading::CancelOrderRequest;
-            let req = CancelOrderRequest {
-                order_id: order_id.clone(),
-                orig_client_order_id: custom_order_id.clone(),
-            };
-            let _ = self.oneshot(req).await?;
+            if self.key.web_key.is_none() {
+                use crate::futures_api::http::trading::CancelOrderRequest;
+                let req = CancelOrderRequest {
+                    order_id: order_id.clone(),
+                    orig_client_order_id: custom_order_id.clone(),
+                };
+                let _ = self.oneshot(req).await?;
+            } else {
+                use crate::futures_web::http::trading::CancelOrderRequest;
+                let req = CancelOrderRequest {
+                    order_id: order_id.clone(),
+                    orig_client_order_id: custom_order_id.clone(),
+                };
+                let _ = self.oneshot(req).await?;
+            }
             OrderId {
                 symbol,
                 order_id,

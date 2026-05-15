@@ -25,20 +25,26 @@ impl Toobit {
             let Some(info) = self.oneshot(req).await?.contracts.into_iter().find(|x| x.symbol == symbol_id) else {
                 return Err(ExchangeError::OrderNotFound);
             };
+            multi_size = info.contract_multiplier;
             for f in info.filters {
                 match f {
                     Filter::PriceFilter { tick_size } => {
                         precision_price = -tick_size.log10().round() as i8;
                     }
                     Filter::LotSize { step_size, min_qty } => {
-                        precision_size = -step_size.log10().round() as i8;
-                        min_size = min_qty;
+                        precision_size = -(step_size / multi_size).log10().round() as i8;
+                        min_size = min_qty / multi_size;
                     }
                     Filter::MinNotional { min_notional } => min_usd = min_notional,
                 }
             }
             if info.status != "TRADING" {
                 symbol.can_open = false;
+            }
+
+            let req = crate::futures_api::http::account::GetFeeRequest { symbol: symbol_id };
+            if let Ok(req) = self.oneshot(req).await {
+                fee = req.open_taker_fee;
             }
         }
         if symbol.multi_price != multi_price {

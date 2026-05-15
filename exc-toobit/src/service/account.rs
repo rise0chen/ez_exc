@@ -18,16 +18,16 @@ impl Toobit {
         } else {
             use crate::futures_api::http::account::GetPositionRequest;
             let req = GetPositionRequest { symbol: symbol_id };
-            let resp = self.oneshot(req).await?.0;
+            let resp = self.oneshot(req).await?;
             let (mut short_size, mut short_val) = (0.0, 0.0);
             let (mut long_size, mut long_val) = (0.0, 0.0);
             for x in &resp {
                 if x.side == PositionSide::Short {
                     short_size += x.position;
-                    short_val += x.avg_value;
+                    short_val += x.avg_price;
                 } else {
                     long_size = x.position;
-                    long_val += x.avg_value;
+                    long_val += x.avg_price;
                 }
             }
             Ok((
