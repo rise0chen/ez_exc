@@ -7,10 +7,12 @@ use tower::ServiceExt;
 
 impl Coinw {
     pub async fn get_balance(&mut self) -> Result<f64, ExchangeError> {
-        use crate::futures_api::http::account::GetBalanceRequest;
+        use crate::futures_api::http::account::{GetAssetsRequest, GetBalanceRequest};
         let req = GetBalanceRequest {};
-        let resp = self.oneshot(req).await?;
-        Ok(resp.available_margin)
+        let ballance = self.oneshot(req).await?;
+        let req = GetAssetsRequest {};
+        let assets = self.oneshot(req).await?;
+        Ok(ballance.value + assets.al_freeze + assets.al_margin)
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
