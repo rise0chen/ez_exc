@@ -43,12 +43,7 @@ impl Toobit {
             leverage: _,
             open_type: _,
         } = data;
-        let custom_id = format!(
-            "{:08x?}{:08x?}{:016x?}",
-            price.to_f32().unwrap().ln().to_bits(),
-            size.to_f32().unwrap().ln().to_bits(),
-            time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64
-        );
+        let custom_id = (time::OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000).to_string();
         let mut ret = OrderId {
             symbol: symbol.clone(),
             order_id: None,
@@ -86,16 +81,28 @@ impl Toobit {
                     symbol_id,
                     client_order_id: Some(custom_id),
                     side: match (size.is_sign_positive(), is_close) {
-                        (true, true) => OrderSide::SellClose,
+                        (true, true) => OrderSide::BuyClose,
                         (true, false) => OrderSide::BuyOpen,
-                        (false, true) => OrderSide::BuyClose,
+                        (false, true) => OrderSide::SellClose,
                         (false, false) => OrderSide::SellOpen,
+                    },
+                    order_side: if size.is_sign_positive() {
+                        crate::futures_api::types::OrderSide::Buy
+                    } else {
+                        crate::futures_api::types::OrderSide::Sell
                     },
                     r#type: kind.into(),
                     time_in_force: kind.into(),
-                    quantity_base: size.abs() * Decimal::from_f64(symbol.multi_size).unwrap(),
+                    quantity: if is_close { Some(size.abs()) } else { None },
+                    quantity_base: if !is_close {
+                        Some(size.abs() * Decimal::from_f64(symbol.multi_size).unwrap())
+                    } else {
+                        None
+                    },
+                    amount: size.abs() * Decimal::from_f64(symbol.multi_size).unwrap(),
                     price,
                     price_type: "INPUT",
+                    quote_precision: symbol.precision_price,
                 };
                 self.oneshot(req).await.map(|resp| resp.order_id)
             }

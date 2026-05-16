@@ -30,6 +30,17 @@ impl From<OrderSide> for exc_util::types::order::OrderSide {
         }
     }
 }
+impl From<exc_util::types::order::OrderSide> for OrderSide {
+    fn from(value: exc_util::types::order::OrderSide) -> Self {
+        match value {
+            exc_util::types::order::OrderSide::Unknown => Self::Unknown,
+            exc_util::types::order::OrderSide::Buy => Self::Buy,
+            exc_util::types::order::OrderSide::CloseSell => Self::Buy,
+            exc_util::types::order::OrderSide::CloseBuy => Self::Sell,
+            exc_util::types::order::OrderSide::Sell => Self::Sell,
+        }
+    }
+}
 
 #[derive(FromPrimitive, IntoPrimitive)]
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]

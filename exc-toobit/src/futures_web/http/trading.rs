@@ -9,11 +9,18 @@ pub struct PlaceOrderRequest {
     pub symbol_id: String,
     pub client_order_id: Option<String>,
     pub side: OrderSide,
+    pub order_side: crate::futures_api::types::OrderSide,
     pub r#type: OrderType,
     pub time_in_force: TimeInForce,
-    pub quantity_base: Decimal,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub quantity: Option<Decimal>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub quantity_base: Option<Decimal>,
+    pub amount: Decimal,
     pub price: Decimal,
     pub price_type: &'static str,
+    #[serde(rename = "quotePrecision")]
+    pub quote_precision: i8,
 }
 
 #[derive(Debug, Deserialize)]
