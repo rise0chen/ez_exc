@@ -6,18 +6,20 @@ use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
 
 impl Gate {
-    #[allow(unused)]
+    #[allow(unused_assignments)]
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
-        let mut multi_price = 1.0;
-        let mut multi_size = 1.0;
-        let mut precision_size = 0;
-        let mut precision_price = 2;
-        let mut min_size = 0.0;
-        let mut min_usd = 0.0;
-        let mut fee = 0.0;
+        let mut multi_price = symbol.parse_prefix();
+        let mut multi_size = symbol.multi_size;
+        let mut precision_size = symbol.precision;
+        let mut precision_price = symbol.precision_price;
+        let mut min_size = symbol.min_size;
+        let mut min_usd = symbol.min_usd;
+        let mut fee = symbol.fee;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
         if symbol.is_spot() {
+            multi_price = 1.0;
+            multi_size = 1.0;
             use crate::spot_api::http::info::GetInfoRequest;
             let req = GetInfoRequest {
                 currency_pair: symbol_id.clone(),
@@ -38,8 +40,10 @@ impl Gate {
             let req = GetInfoRequest { contract: symbol_id.clone() };
             let a = self.oneshot(req).await?;
             multi_size = a.quanto_multiplier;
+            precision_size = 0;
             precision_price = -a.order_price_round.log10().round() as i8;
             min_size = a.order_size_min;
+            min_usd = 0.0;
             use crate::spot_api::http::account::GetFeeRequest;
             let req = GetFeeRequest {
                 currency_pair: Some(symbol_id),
@@ -71,7 +75,7 @@ impl Gate {
             tracing::warn!("gate min_usd from {} to {}", symbol.min_usd, min_usd);
             symbol.min_usd = min_usd;
         }
-        if symbol.fee != fee && fee != 0.0 {
+        if symbol.fee != fee {
             tracing::warn!("gate fee from {} to {}", symbol.fee, fee);
             symbol.fee = fee;
         }

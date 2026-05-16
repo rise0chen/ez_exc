@@ -21,7 +21,14 @@ pub enum Filter {
     #[serde(rename_all = "camelCase")]
     LotSize {
         #[serde_as(as = "DisplayFromStr")]
+        min_qty: f64,
+        #[serde_as(as = "DisplayFromStr")]
         step_size: f64,
+    },
+    #[serde(rename_all = "camelCase")]
+    MinNotional {
+        #[serde_as(as = "DisplayFromStr")]
+        min_notional: f64,
     },
 }
 #[serde_as]

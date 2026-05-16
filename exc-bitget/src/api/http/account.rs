@@ -81,3 +81,37 @@ impl Rest for GetPositionRequest {
         true
     }
 }
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFeeRequest {
+    pub category: &'static str,
+    pub symbol: String,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFeeResponse {
+    #[serde_as(as = "DisplayFromStr")]
+    pub taker_fee_rate: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub maker_fee_rate: f64,
+}
+
+impl Rest for GetFeeRequest {
+    type Response = GetFeeResponse;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::Common
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/api/v3/account/fee-rate".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}

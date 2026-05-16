@@ -6,6 +6,7 @@ use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
 
 impl Kcex {
+    #[allow(unused_assignments)]
     pub async fn perfect_symbol(&mut self, _symbol: &mut Symbol) -> Result<(), ExchangeError> {
         Ok(())
     }

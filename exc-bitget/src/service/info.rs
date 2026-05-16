@@ -6,30 +6,42 @@ use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
 
 impl Bitget {
-    #[allow(unused)]
+    #[allow(unused_assignments)]
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
-        let mut multi_price = 1.0;
-        let mut multi_size = 1.0;
-        let mut precision_size = 0;
-        let mut precision_price = 2;
-        let mut min_size = 0.0;
-        let mut min_usd = 0.0;
-        let mut fee = 0.0;
+        let mut multi_price = symbol.parse_prefix();
+        let mut multi_size = symbol.multi_size;
+        let mut precision_size = symbol.precision;
+        let mut precision_price = symbol.precision_price;
+        let mut min_size = symbol.min_size;
+        let mut min_usd = symbol.min_usd;
+        let mut fee = symbol.fee;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
         use crate::api::http::info::GetInfoRequest;
         let req = GetInfoRequest {
-            category: if symbol.is_spot() { "SPOT" } else { "USDT-FUTURES" },
-            symbol: symbol_id,
+            category: if symbol.is_spot() {
+                multi_price = 1.0;
+                "SPOT"
+            } else {
+                "USDT-FUTURES"
+            },
+            symbol: symbol_id.clone(),
         };
         let Some(a) = self.oneshot(req).await?.pop() else {
             return Err(ExchangeError::OrderNotFound);
         };
+        multi_size = 1.0;
         precision_size = a.quantity_precision;
         precision_price = a.price_precision;
         min_size = a.min_order_qty;
         min_usd = a.min_order_amount;
-        fee = a.taker_fee_rate.unwrap_or_default();
+        let req = crate::api::http::account::GetFeeRequest {
+            category: if symbol.is_spot() { "SPOT" } else { "USDT-FUTURES" },
+            symbol: symbol_id,
+        };
+        if let Ok(a) = self.oneshot(req).await {
+            fee = a.taker_fee_rate;
+        };
 
         if symbol.multi_price != multi_price {
             tracing::error!("bitget multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -55,7 +67,7 @@ impl Bitget {
             tracing::warn!("bitget min_usd from {} to {}", symbol.min_usd, min_usd);
             symbol.min_usd = min_usd;
         }
-        if symbol.fee != fee && fee != 0.0 {
+        if symbol.fee != fee {
             tracing::warn!("bitget fee from {} to {}", symbol.fee, fee);
             symbol.fee = fee;
         }

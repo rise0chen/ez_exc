@@ -5,15 +5,15 @@ use exc_util::types::info::FundingRate;
 use time::{Duration, OffsetDateTime};
 
 impl Hyperliquid {
-    #[allow(unused)]
+    #[allow(unused_assignments)]
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
-        let mut multi_price = 1.0;
-        let mut multi_size = 1.0;
-        let mut precision_size = 0;
-        let mut precision_price = 2;
-        let mut min_size = 0.0;
-        let mut min_usd = 10.0;
-        let mut fee = 0.0;
+        let mut multi_price = symbol.parse_prefix();
+        let mut multi_size = symbol.multi_size;
+        let mut precision_size = symbol.precision;
+        let mut precision_price = symbol.precision_price;
+        let mut min_size = symbol.min_size;
+        let mut min_usd = symbol.min_usd;
+        let mut fee = symbol.fee;
 
         let user_fees = self.http.user_fees(self.key.user.parse().unwrap()).await?;
         let symbol_id = crate::symnol::symbol_id(symbol);
@@ -22,8 +22,12 @@ impl Hyperliquid {
             let Some(a) = self.http.spot().await?.into_iter().find(|x| x.name == symbol_id) else {
                 return Err(ExchangeError::OrderNotFound);
             };
+            multi_price = 1.0;
+            multi_size = 1.0;
             precision_size = a.base().sz_decimals as i8;
             precision_price = 8 - precision_size;
+            min_size = 0.0;
+            min_usd = 10.0;
         } else {
             fee = user_fees.taker_rate.as_f64() * (1.0 - user_fees.referral_discount.as_f64());
             let a = if let Some(dex) = crate::symnol::dex(symbol) {
@@ -35,8 +39,11 @@ impl Hyperliquid {
             } else {
                 self.http.perps().await?.into_iter().find(|x| x.name == symbol_id).unwrap()
             };
+            multi_size = 1.0;
             precision_size = a.sz_decimals as i8;
             precision_price = 6 - precision_size;
+            min_size = 0.0;
+            min_usd = 10.0;
         }
         if symbol.multi_price != multi_price {
             tracing::error!("hyperliquid multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -62,7 +69,7 @@ impl Hyperliquid {
             tracing::warn!("hyperliquid min_usd from {} to {}", symbol.min_usd, min_usd);
             symbol.min_usd = min_usd;
         }
-        if symbol.fee != fee && fee != 0.0 {
+        if symbol.fee != fee {
             tracing::warn!("hyperliquid fee from {} to {}", symbol.fee, fee);
             symbol.fee = fee;
         }

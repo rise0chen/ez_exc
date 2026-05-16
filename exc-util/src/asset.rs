@@ -40,9 +40,7 @@ impl<'a> TryFrom<&'a str> for Asset {
         } else if !value.is_ascii() {
             Err(ParseAssetError::NonAscii)
         } else {
-            Ok(Self {
-                inner: Str::new(value.to_ascii_uppercase()),
-            })
+            Ok(Self { inner: Str::new(value) })
         }
     }
 }

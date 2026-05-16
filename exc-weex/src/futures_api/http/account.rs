@@ -75,3 +75,36 @@ impl Rest for GetPositionRequest {
         true
     }
 }
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFeeRequest {
+    pub symbol: String,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFeeResponse {
+    #[serde_as(as = "DisplayFromStr")]
+    pub taker_commission_rate: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub maker_commission_rate: f64,
+}
+
+impl Rest for GetFeeRequest {
+    type Response = GetFeeResponse;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/capi/v3/account/commissionRate".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}

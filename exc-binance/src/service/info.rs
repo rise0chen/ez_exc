@@ -6,36 +6,22 @@ use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
 
 impl Binance {
-    #[allow(unused)]
+    #[allow(unused_assignments)]
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
-        let mut multi_price = 1.0;
-        let mut multi_size = 1.0;
-        let mut precision_size = 0;
-        let mut precision_price = 2;
-        let mut min_size = 0.0;
-        let mut min_usd = 0.0;
-        let mut fee = 0.0;
+        let mut multi_price = symbol.parse_prefix();
+        let mut multi_size = symbol.multi_size;
+        let mut precision_size = symbol.precision;
+        let mut precision_price = symbol.precision_price;
+        let mut min_size = symbol.min_size;
+        let mut min_usd = symbol.min_usd;
+        let mut fee = symbol.fee;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
         if symbol.is_spot() {
+            multi_price = 1.0;
+            multi_size = 1.0;
             use crate::spot_api::http::info::{Filter, GetInfoRequest};
             let req = GetInfoRequest { symbol: symbol_id.clone() };
-            let Some(info) = self.oneshot(req).await?.symbols.into_iter().find(|x| x.symbol == symbol_id) else {
-                return Err(ExchangeError::OrderNotFound);
-            };
-            for f in info.filters {
-                match f {
-                    Filter::PriceFilter { tick_size } => {
-                        precision_price = -tick_size.log10().round() as i8;
-                    }
-                    Filter::LotSize { step_size } => {
-                        precision_size = -step_size.log10().round() as i8;
-                    }
-                }
-            }
-        } else {
-            use crate::futures_api::http::info::{Filter, GetInfoRequest};
-            let req = GetInfoRequest {};
             let Some(info) = self.oneshot(req).await?.symbols.into_iter().find(|x| x.symbol == symbol_id) else {
                 return Err(ExchangeError::OrderNotFound);
             };
@@ -48,9 +34,36 @@ impl Binance {
                         precision_size = -step_size.log10().round() as i8;
                         min_size = min_qty;
                     }
+                    Filter::MinNotional { min_notional } => min_usd = min_notional,
+                }
+            }
+            let req = crate::spot_api::http::account::GetFeeRequest { symbol: symbol_id };
+            if let Ok(info) = self.oneshot(req).await {
+                fee = info.standard_commission.taker;
+            };
+        } else {
+            use crate::futures_api::http::info::{Filter, GetInfoRequest};
+            let req = GetInfoRequest {};
+            let Some(info) = self.oneshot(req).await?.symbols.into_iter().find(|x| x.symbol == symbol_id) else {
+                return Err(ExchangeError::OrderNotFound);
+            };
+            multi_size = 1.0;
+            for f in info.filters {
+                match f {
+                    Filter::PriceFilter { tick_size } => {
+                        precision_price = -tick_size.log10().round() as i8;
+                    }
+                    Filter::LotSize { step_size, min_qty } => {
+                        precision_size = -step_size.log10().round() as i8;
+                        min_size = min_qty;
+                    }
                     Filter::MinNotional { notional } => min_usd = notional,
                 }
             }
+            let req = crate::futures_api::http::account::GetFeeRequest { symbol: symbol_id };
+            if let Ok(info) = self.oneshot(req).await {
+                fee = info.taker_commission_rate;
+            };
         }
         if symbol.multi_price != multi_price {
             tracing::error!("binance multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -76,7 +89,7 @@ impl Binance {
             tracing::warn!("binance min_usd from {} to {}", symbol.min_usd, min_usd);
             symbol.min_usd = min_usd;
         }
-        if symbol.fee != fee && fee != 0.0 {
+        if symbol.fee != fee {
             tracing::warn!("binance fee from {} to {}", symbol.fee, fee);
             symbol.fee = fee;
         }

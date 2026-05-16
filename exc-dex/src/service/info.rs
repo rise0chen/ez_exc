@@ -7,6 +7,7 @@ use exc_util::symbol::Symbol;
 use exc_util::types::info::FundingRate;
 
 impl Dex {
+    #[allow(unused_assignments)]
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
         let gas = self.rpc.get_gas_price().await.map_err(|e| map_err(e.into()))?;
         let gas = (gas / self.max_fee_index * 12 / 10) as u64;

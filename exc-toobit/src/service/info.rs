@@ -6,15 +6,15 @@ use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
 
 impl Toobit {
-    #[allow(unused)]
+    #[allow(unused_assignments)]
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
-        let mut multi_price = 1.0;
-        let mut multi_size = 1.0;
-        let mut precision_size = 0;
-        let mut precision_price = 2;
-        let mut min_size = 0.0;
-        let mut min_usd = 0.0;
-        let mut fee = 0.0;
+        let mut multi_price = symbol.parse_prefix();
+        let mut multi_size = symbol.multi_size;
+        let mut precision_size = symbol.precision;
+        let mut precision_price = symbol.precision_price;
+        let mut min_size = symbol.min_size;
+        let mut min_usd = symbol.min_usd;
+        let mut fee = symbol.fee;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
         if symbol.is_spot() {
@@ -71,7 +71,7 @@ impl Toobit {
             tracing::warn!("toobit min_usd from {} to {}", symbol.min_usd, min_usd);
             symbol.min_usd = min_usd;
         }
-        if symbol.fee != fee && fee != 0.0 {
+        if symbol.fee != fee {
             tracing::warn!("toobit fee from {} to {}", symbol.fee, fee);
             symbol.fee = fee;
         }

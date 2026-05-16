@@ -90,6 +90,20 @@ impl Symbol {
     pub fn is_derivative(&self) -> bool {
         matches!(self.kind, SymbolKind::Linear)
     }
+
+    pub fn parse_prefix(&self) -> f64 {
+        if !self.prefix.is_empty() {
+            let multi = self.prefix.to_uppercase();
+            match &*multi {
+                "K" => 1_000.0,
+                "M" => 1_000_000.0,
+                "B" | "G" => 1_000_000_000.0,
+                _ => multi.parse::<f64>().unwrap(),
+            }
+        } else {
+            1.0
+        }
+    }
 }
 impl Symbol {
     pub fn contract_size(&self, token_size: f64) -> Decimal {

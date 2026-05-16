@@ -6,6 +6,7 @@ use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
 
 impl Bybit {
+    #[allow(unused_assignments)]
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
         use crate::api::http::info::GetInfoRequest;
@@ -49,7 +50,7 @@ impl Bybit {
             tracing::warn!("bybit min_usd from {} to {}", symbol.min_usd, min_usd);
             symbol.min_usd = min_usd;
         }
-        if symbol.fee != fee && fee != 0.0 {
+        if symbol.fee != fee {
             tracing::warn!("bybit fee from {} to {}", symbol.fee, fee);
             symbol.fee = fee;
         }

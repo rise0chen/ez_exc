@@ -6,13 +6,15 @@ use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
 
 impl Bitunix {
-    #[allow(unused)]
+    #[allow(unused_assignments)]
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
-        let mut multi_price = 1.0;
-        let mut multi_size = 1.0;
-        let mut precision_size = 0;
-        let mut precision_price = 2;
-        let mut min_size = 0.0;
+        let mut multi_price = symbol.parse_prefix();
+        let mut multi_size = symbol.multi_size;
+        let mut precision_size = symbol.precision;
+        let mut precision_price = symbol.precision_price;
+        let mut min_size = symbol.min_size;
+        let mut min_usd = symbol.min_usd;
+        let mut fee = symbol.fee;
 
         let symbol_id = crate::symnol::symbol_id(symbol);
         use crate::futures_api::http::info::GetInfoRequest;
@@ -20,9 +22,12 @@ impl Bitunix {
         let Some(a) = self.oneshot(req).await?.pop() else {
             return Err(ExchangeError::OrderNotFound);
         };
+        multi_size = 1.0;
         precision_size = a.base_precision;
         precision_price = a.quote_precision;
         min_size = a.min_trade_volume;
+        min_usd = 0.0;
+        fee = 0.0006;
 
         if symbol.multi_price != multi_price {
             tracing::error!("bitunix multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -43,6 +48,14 @@ impl Bitunix {
         if symbol.min_size != min_size {
             tracing::warn!("bitunix min_size from {} to {}", symbol.min_size, min_size);
             symbol.min_size = min_size;
+        }
+        if symbol.min_usd != min_usd {
+            tracing::warn!("bitunix min_usd from {} to {}", symbol.min_usd, min_usd);
+            symbol.min_usd = min_usd;
+        }
+        if symbol.fee != fee {
+            tracing::warn!("bitunix fee from {} to {}", symbol.fee, fee);
+            symbol.fee = fee;
         }
         Ok(())
     }

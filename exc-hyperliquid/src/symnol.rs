@@ -7,8 +7,8 @@ pub fn symbol_id(symbol: &Symbol) -> String {
     }
     let mut symbol = symbol.base.split(':');
     match (symbol.next(), symbol.next()) {
-        (Some(s), None) => s.to_ascii_uppercase(),
-        (Some(dex), Some(s)) => format!("{}:{}", dex.to_ascii_lowercase(), s.to_ascii_uppercase()),
+        (Some(s), None) => s.to_string(),
+        (Some(dex), Some(s)) => format!("{}:{}", dex, s),
         _ => panic!("invaild symbol: {:?}", symbol),
     }
 }

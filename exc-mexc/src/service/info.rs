@@ -6,6 +6,7 @@ use time::{Duration, OffsetDateTime};
 use tower::ServiceExt;
 
 impl Mexc {
+    #[allow(unused_assignments)]
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
         if !symbol.is_spot() {
             return Ok(());
