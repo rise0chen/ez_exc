@@ -18,7 +18,8 @@ async fn main() -> anyhow::Result<()> {
     let balance = kcex.get_balance().await.unwrap();
     tracing::info!("{:?}", balance);
 
-    let symbol = Symbol::derivative(Asset::try_from("DOGE").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("PEPE").unwrap(), Asset::usdt());
+    kcex.perfect_symbol(&mut symbol).await.unwrap();
     let balance = kcex.get_position(&symbol).await.unwrap();
     tracing::info!("{}: {:?}", symbol, balance);
     Ok(())

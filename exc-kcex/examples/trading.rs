@@ -17,11 +17,16 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("KCEX_KEY")?)?;
     let mut kcex = Kcex::new(key);
 
-    let mut symbol = Symbol::derivative(Asset::try_from("APE").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("PEPE").unwrap(), Asset::usdt());
     kcex.perfect_symbol(&mut symbol).await.unwrap();
-    let mut order_req = PlaceOrderRequest::new(20.0, 0.3, OrderType::Limit);
+    let mut order_req = PlaceOrderRequest::new(1e6, 3e-6, OrderType::Limit);
     order_req.set_leverage(20.0);
-    let order_id = kcex.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
+    let order_id = kcex.place_order(&symbol, order_req).await.unwrap();
+    let order = kcex.get_order(order_id.clone()).await;
+    tracing::info!("{:?}", order);
+    tokio::time::sleep(Duration::from_secs(3)).await;
+    let order = kcex.get_order(order_id.clone()).await;
+    tracing::info!("{:?}", order);
     tokio::time::sleep(Duration::from_secs(32)).await;
     let order_id = kcex.cancel_order(order_id).await.unwrap();
     let order = kcex.get_order(order_id).await.unwrap();

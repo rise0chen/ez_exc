@@ -15,8 +15,10 @@ async fn main() -> anyhow::Result<()> {
     let key = serde_json::from_str(&var("KCEX_KEY").unwrap_or_default()).unwrap();
     let mut kcex = Kcex::new(key);
 
-    let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("PEPE").unwrap(), Asset::usdt());
+    kcex.perfect_symbol(&mut symbol).await.unwrap();
     let bid_ask = kcex.get_depth(&symbol, 4).await.unwrap();
+    assert!(bid_ask.is_valid());
     tracing::info!("{:?}", bid_ask);
     tracing::info!("{:?}", bid_ask.depth_price(500.0));
     Ok(())

@@ -3,6 +3,38 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct GetInfoRequest {
+    pub symbol: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetInfoResponse {
+    pub cs: f64,
+    pub pu: f64,
+    pub min_v: f64,
+    pub tfr: f64,
+}
+
+impl Rest for GetInfoRequest {
+    type Response = Vec<GetInfoResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesWeb
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/fapi/v1/contract/detailV2".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        false
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GetIndexPriceRequest {
     pub symbol: String,
 }

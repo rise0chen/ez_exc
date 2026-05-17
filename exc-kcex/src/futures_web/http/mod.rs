@@ -18,7 +18,7 @@ pub fn req_to_http<Req: Rest>(req: &Req, key: &Key) -> Result<Request, anyhow::E
     header.insert("user-agent", exc_util::constant::UA.try_into()?);
     header.insert(
         "user-device",
-        "eyJ2aXNpdG9ySWQiOiI4Y3hSVUwxeTB6cHpFeTdUaWloNyIsInJlcXVlc3RJZCI6IjE3NTgzMjQzNTA3NTcuSWJzOGtZIiwiaXNwIjoiMTAzLjM2LjI1LjgwIn0".try_into()?,
+        "eyJ2aXNpdG9ySWQiOiJJeTBXVk1oZ1NvOHRoUGVaNUlDbCIsInJlcXVlc3RJZCI6IjE3NzkwMzQzMDUxNTMuM1cxS0RuIiwiaXNwIjoiIn0".try_into()?,
     );
     if req.need_sign() {
         let token = &key.web_key;
