@@ -67,10 +67,10 @@ impl Dex {
             Ok(tx) => tx,
             Err(e) => return Err((ret, map_err(e))),
         };
-        let tx = tx.register().await;
+        let tx = tx.watch().await;
         match tx {
             Ok(tx) => {
-                let tx_hash = tx.tx_hash().to_string();
+                let tx_hash = tx.to_string();
                 ret.order_id = Some(tx_hash.clone());
                 ret.custom_order_id = Some(tx_hash);
                 Ok(ret)
