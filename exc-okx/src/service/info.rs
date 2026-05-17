@@ -96,7 +96,7 @@ impl Okx {
         use crate::api::http::info::GetIndexPriceRequest;
         let req = GetIndexPriceRequest { inst_id: symbol_id };
         let resp = self.oneshot(req).await?.pop();
-        resp.map(|resp| resp.idx_px).ok_or(ExchangeError::OrderNotFound)
+        resp.map(|resp| symbol.token_price(resp.idx_px)).ok_or(ExchangeError::OrderNotFound)
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {

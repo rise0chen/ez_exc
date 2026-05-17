@@ -18,20 +18,18 @@ async fn main() -> anyhow::Result<()> {
     hyperliquid.run();
     tokio::time::sleep(Duration::from_secs(2)).await;
 
-    let mut symbol = Symbol::spot(Asset::try_from("FLR").unwrap(), Asset::usd());
-    symbol.base_id = "10225".into();
+    //let mut symbol = Symbol::spot(Asset::try_from("FLR").unwrap(), Asset::usd());
+    //symbol.base_id = "10225".into();
+    let mut symbol = Symbol::derivative(Asset::try_from("PEPE").unwrap(), Asset::usdt());
+    symbol.prefix = "k".into();
+    symbol.base_id = "15".into();
     hyperliquid.perfect_symbol(&mut symbol).await.unwrap();
-    let bid_ask = hyperliquid.get_depth(&symbol, 4).await.unwrap();
-    assert!(bid_ask.is_valid());
-    tracing::info!("{:?}", bid_ask);
-    tracing::info!("{:?}", bid_ask.depth_price(500.0));
+    loop {
+        let bid_ask = hyperliquid.get_depth(&symbol, 4).await.unwrap();
+        assert!(bid_ask.is_valid());
+        tracing::info!("{:?}", bid_ask);
+        tracing::info!("{:?}", bid_ask.depth_price(500.0));
 
-    let mut symbol = Symbol::derivative(Asset::try_from("xyz:GOLD").unwrap(), Asset::usd());
-    symbol.base_id = "110003".into();
-    hyperliquid.perfect_symbol(&mut symbol).await.unwrap();
-    let bid_ask = hyperliquid.get_depth(&symbol, 4).await.unwrap();
-    assert!(bid_ask.is_valid());
-    tracing::info!("{:?}", bid_ask);
-    tracing::info!("{:?}", bid_ask.depth_price(500.0));
-    Ok(())
+        tokio::time::sleep(Duration::from_secs(30)).await;
+    }
 }

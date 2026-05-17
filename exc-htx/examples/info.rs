@@ -18,7 +18,7 @@ async fn main() -> anyhow::Result<()> {
     htx.run();
     tokio::time::sleep(Duration::from_secs(2)).await;
 
-    let mut symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("PEPE").unwrap(), Asset::usdt());
     htx.perfect_symbol(&mut symbol).await.unwrap();
     let info = htx.get_funding_rate_history(&symbol, 2).await.unwrap();
     assert!(info[0].time > info[1].time + 58 * 60 * 1000);

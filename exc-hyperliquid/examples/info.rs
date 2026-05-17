@@ -24,8 +24,9 @@ async fn main() -> anyhow::Result<()> {
     let info = hyperliquid.get_index_price(&symbol).await.unwrap();
     tracing::info!("{:?}", info);
 
-    let mut symbol = Symbol::derivative(Asset::try_from("xyz:GOLD").unwrap(), Asset::usd());
-    symbol.base_id = "110003".into();
+    let mut symbol = Symbol::derivative(Asset::try_from("PEPE").unwrap(), Asset::usdt());
+    symbol.prefix = "k".into();
+    symbol.base_id = "15".into();
     hyperliquid.perfect_symbol(&mut symbol).await.unwrap();
     let info = hyperliquid.get_funding_rate_history(&symbol, 2).await.unwrap();
     assert!(info[0].time > info[1].time + 58 * 60 * 1000);

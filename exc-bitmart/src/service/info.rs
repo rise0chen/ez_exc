@@ -73,7 +73,7 @@ impl Bitmart {
         use crate::futures_api::http::info::GetIndexPriceRequest;
         let req = GetIndexPriceRequest { symbol: symbol_id };
         let resp = self.oneshot(req).await?.symbols.pop();
-        resp.map(|x| x.index_price).ok_or(ExchangeError::OrderNotFound)
+        resp.map(|x| symbol.token_price(x.index_price)).ok_or(ExchangeError::OrderNotFound)
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {

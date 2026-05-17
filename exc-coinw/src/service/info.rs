@@ -73,7 +73,7 @@ impl Coinw {
         use crate::futures_api::http::info::GetTickerRequest;
         let req = GetTickerRequest { instrument: symbol_id };
         let resp = self.oneshot(req).await?.pop();
-        resp.map(|x| x.fair_price).ok_or(ExchangeError::OrderNotFound)
+        resp.map(|x| symbol.token_price(x.fair_price)).ok_or(ExchangeError::OrderNotFound)
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {

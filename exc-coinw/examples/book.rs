@@ -1,3 +1,4 @@
+use core::time::Duration;
 use exc_coinw::service::Coinw;
 use exc_util::symbol::{Asset, Symbol};
 use std::env::var;
@@ -14,12 +15,18 @@ async fn main() -> anyhow::Result<()> {
 
     let key = serde_json::from_str(&var("COINW_KEY").unwrap_or_default()).unwrap();
     let mut coinw = Coinw::new(key);
+    coinw.run();
+    tokio::time::sleep(Duration::from_secs(2)).await;
 
-    let mut symbol = Symbol::derivative(Asset::try_from("1000PEPE").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("PEPE").unwrap(), Asset::usdt());
+    symbol.prefix = "1000".into();
     coinw.perfect_symbol(&mut symbol).await.unwrap();
-    let bid_ask = coinw.get_depth(&symbol, 5).await.unwrap();
-    assert!(bid_ask.is_valid());
-    tracing::info!("{:?}", bid_ask);
-    tracing::info!("{:?}", bid_ask.depth_price(500.0));
-    Ok(())
+    loop {
+        let bid_ask = coinw.get_depth(&symbol, 5).await.unwrap();
+        assert!(bid_ask.is_valid());
+        tracing::info!("{:?}", bid_ask);
+        tracing::info!("{:?}", bid_ask.depth_price(500.0));
+
+        tokio::time::sleep(Duration::from_secs(30)).await;
+    }
 }

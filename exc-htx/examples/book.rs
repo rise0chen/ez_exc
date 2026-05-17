@@ -18,14 +18,9 @@ async fn main() -> anyhow::Result<()> {
     htx.run();
     tokio::time::sleep(Duration::from_secs(2)).await;
 
+    let mut symbol = Symbol::derivative(Asset::try_from("PEPE").unwrap(), Asset::usdt());
+    htx.perfect_symbol(&mut symbol).await.unwrap();
     loop {
-        let symbol = Symbol::spot(Asset::try_from("BTC").unwrap(), Asset::usdt());
-        let bid_ask = htx.get_depth(&symbol, 5).await.unwrap();
-        assert!(bid_ask.is_valid());
-        tracing::info!("{:?}", bid_ask);
-        tracing::info!("{:?}", bid_ask.depth_price(500.0));
-
-        let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
         let bid_ask = htx.get_depth(&symbol, 5).await.unwrap();
         assert!(bid_ask.is_valid());
         tracing::info!("{:?}", bid_ask);

@@ -76,7 +76,7 @@ impl Xt {
         use crate::futures_api::http::info::GetIndexPriceRequest;
         let req = GetIndexPriceRequest { symbol: symbol_id };
         let resp = self.oneshot(req).await?;
-        Ok(resp.p)
+        Ok(symbol.token_price(resp.p))
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {

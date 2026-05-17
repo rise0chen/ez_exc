@@ -33,8 +33,9 @@ impl Gate {
             let req = GetFeeRequest {
                 currency_pair: Some(symbol_id),
             };
-            let a = self.oneshot(req).await?;
-            fee = a.gt_taker_fee;
+            if let Ok(a) = self.oneshot(req).await {
+                fee = a.gt_taker_fee;
+            }
         } else {
             use crate::futures_api::http::info::GetInfoRequest;
             let req = GetInfoRequest { contract: symbol_id.clone() };
@@ -48,8 +49,9 @@ impl Gate {
             let req = GetFeeRequest {
                 currency_pair: Some(symbol_id),
             };
-            let a = self.oneshot(req).await?;
-            fee = a.futures_taker_fee;
+            if let Ok(a) = self.oneshot(req).await {
+                fee = a.futures_taker_fee;
+            }
         }
         if symbol.multi_price != multi_price {
             tracing::error!("gate multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -90,7 +92,7 @@ impl Gate {
         use crate::futures_api::http::info::GetFundingRateRequest;
         let req = GetFundingRateRequest { contract: symbol_id };
         let resp = self.oneshot(req).await?;
-        Ok(resp.index_price)
+        Ok(symbol.token_price(resp.index_price))
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {

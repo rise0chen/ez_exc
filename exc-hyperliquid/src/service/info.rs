@@ -82,7 +82,7 @@ impl Hyperliquid {
         }
         let coin = crate::symnol::symbol_id(symbol);
         if let Some(ch) = self.ws.index_prices.get(&coin) {
-            Ok(*ch.borrow())
+            Ok(symbol.token_price(*ch.borrow()))
         } else {
             Err(ExchangeError::OrderNotFound)
         }

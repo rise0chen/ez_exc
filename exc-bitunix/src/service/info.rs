@@ -66,7 +66,7 @@ impl Bitunix {
         }
         let symbol_id = crate::symnol::symbol_id(symbol);
         if let Some(ch) = self.ws.index_prices.get(&symbol_id) {
-            Ok(*ch.borrow())
+            Ok(symbol.token_price(*ch.borrow()))
         } else {
             Err(ExchangeError::OrderNotFound)
         }

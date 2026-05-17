@@ -69,7 +69,7 @@ impl Lighter {
         let Some(resp) = self.ws.get_market(&symbol.base_id).await else {
             return Err(ExchangeError::OrderNotFound);
         };
-        Ok(resp.index_price.parse::<f64>().unwrap())
+        Ok(symbol.token_price(resp.index_price.parse::<f64>().unwrap()))
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {

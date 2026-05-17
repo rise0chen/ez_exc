@@ -15,6 +15,10 @@ impl Gate {
                         x.price = symbol.token_price(x.price);
                         x.size = symbol.token_size(x.size);
                     });
+                    book.bid.iter_mut().for_each(|x| {
+                        x.price = symbol.token_price(x.price);
+                        x.size = symbol.token_size(x.size);
+                    });
                     return Ok(book);
                 }
             }

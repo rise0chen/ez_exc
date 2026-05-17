@@ -88,7 +88,7 @@ impl Toobit {
         use crate::futures_api::http::info::GetIndexPriceRequest;
         let req = GetIndexPriceRequest { symbol: symbol_id };
         let resp = self.oneshot(req).await?.index.pop();
-        resp.map(|(_, p)| p).ok_or(ExchangeError::OrderNotFound)
+        resp.map(|(_, p)| symbol.token_price(p)).ok_or(ExchangeError::OrderNotFound)
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {

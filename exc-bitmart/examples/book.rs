@@ -18,7 +18,9 @@ async fn main() -> anyhow::Result<()> {
     bitmart.run();
     tokio::time::sleep(Duration::from_secs(2)).await;
 
-    let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("PEPE").unwrap(), Asset::usdt());
+    symbol.prefix = "1000".into();
+    bitmart.perfect_symbol(&mut symbol).await.unwrap();
     loop {
         let bid_ask = bitmart.get_depth(&symbol, 5).await.unwrap();
         assert!(bid_ask.is_valid());

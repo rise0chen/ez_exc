@@ -104,7 +104,7 @@ impl Binance {
         use crate::futures_api::http::info::GetFundingRateRequest;
         let req = GetFundingRateRequest { symbol: symbol_id };
         let resp = self.oneshot(req).await?;
-        Ok(resp.index_price)
+        Ok(symbol.token_price(resp.index_price))
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {

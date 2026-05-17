@@ -75,7 +75,7 @@ impl Weex {
         use crate::futures_api::http::info::GetFundingRateRequest;
         let req = GetFundingRateRequest { symbol: symbol_id };
         let resp = self.oneshot(req).await?.pop();
-        resp.map(|resp| resp.index_price).ok_or(ExchangeError::OrderNotFound)
+        resp.map(|resp| symbol.token_price(resp.index_price)).ok_or(ExchangeError::OrderNotFound)
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {

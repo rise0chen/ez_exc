@@ -26,9 +26,9 @@ impl Grvt {
         precision_price = -a.tick_size.log10().round() as i8;
         min_size = a.min_size;
         min_usd = a.min_notional;
-        let a = self.http.funding_account_summary_full().await;
-        let a = a.map_err(|e| ExchangeError::Other(e.into()))?.tier;
-        fee = a.futures_taker_fee / 1e6;
+        if let Ok(a) = self.http.funding_account_summary_full().await {
+            fee = a.tier.futures_taker_fee / 1e6;
+        }
 
         if symbol.multi_price != multi_price {
             tracing::error!("grvt multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -65,7 +65,7 @@ impl Grvt {
         let symbol_id = crate::symnol::symbol_id(symbol);
         let req = InstrumentRequest { instrument: symbol_id };
         let resp = self.http.ticker_full(&req).await.map_err(|e| ExchangeError::Other(e.into()))?.result;
-        Ok(resp.index_price)
+        Ok(symbol.token_price(resp.index_price))
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {

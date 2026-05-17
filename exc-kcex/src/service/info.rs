@@ -19,7 +19,7 @@ impl Kcex {
         use crate::futures_web::http::info::GetIndexPriceRequest;
         let req = GetIndexPriceRequest { symbol: symbol_id };
         let resp = self.oneshot(req).await?;
-        Ok(resp.index_price)
+        Ok(symbol.token_price(resp.index_price))
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {

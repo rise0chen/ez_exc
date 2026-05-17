@@ -32,7 +32,9 @@ impl Htx {
 
             use crate::spot_api::http::account::GetFeeRequest;
             let req = GetFeeRequest { symbols: symbol_id };
-            fee = self.oneshot(req).await?.pop().map(|x| x.actual_taker_rate).unwrap_or(0.0);
+            if let Ok(a) = self.oneshot(req).await {
+                fee = a.first().map(|x| x.actual_taker_rate).unwrap_or(0.0);
+            }
         } else {
             use crate::futures_api::http::info::GetInfoRequest;
             let req = GetInfoRequest {
@@ -49,7 +51,9 @@ impl Htx {
 
             use crate::futures_api::http::account::GetFeeRequest;
             let req = GetFeeRequest { contract_code: symbol_id };
-            fee = self.oneshot(req).await?.pop().map(|x| x.open_taker_fee).unwrap_or(0.0);
+            if let Ok(a) = self.oneshot(req).await {
+                fee = a.first().map(|x| x.open_taker_fee).unwrap_or(0.0);
+            }
         }
         if symbol.multi_price != multi_price {
             tracing::error!("htx multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -90,7 +94,7 @@ impl Htx {
         use crate::futures_api::http::info::GetIndexPriceRequest;
         let req = GetIndexPriceRequest { contract_code: symbol_id };
         let resp = self.oneshot(req).await?.pop();
-        resp.map(|resp| resp.index_price).ok_or(ExchangeError::OrderNotFound)
+        resp.map(|resp| symbol.token_price(resp.index_price)).ok_or(ExchangeError::OrderNotFound)
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {

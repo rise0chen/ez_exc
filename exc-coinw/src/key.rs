@@ -19,16 +19,11 @@ pub enum ParamsFormat {
 pub struct Key {
     pub api_key: Str,
     secret_key: Str,
+    #[serde(default)]
+    pub symbol: Str,
 }
 
 impl Key {
-    /// Create a new [`Key`].
-    pub fn new(api_key: &str, secret_key: &str) -> Self {
-        Self {
-            api_key: Str::new(api_key),
-            secret_key: Str::new(secret_key),
-        }
-    }
     pub fn sign<'a, T: Rest>(&self, params: &'a T, format: ParamsFormat, kind: ApiKind) -> Result<SignedParams<'a, T>, anyhow::Error> {
         SigningParams::now(params).signed(self, format, kind)
     }

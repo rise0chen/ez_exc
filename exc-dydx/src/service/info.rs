@@ -27,8 +27,9 @@ impl Dydx {
         min_size = 0.0;
         min_usd = 0.0;
         let account = self.wallet().account_offline(0)?;
-        let a = self.client().await.get_user_fee_tier(account.address().clone()).await?;
-        fee = a.taker_fee_ppm as f64 / 1e6;
+        if let Ok(a) = self.client().await.get_user_fee_tier(account.address().clone()).await {
+            fee = a.taker_fee_ppm as f64 / 1e6;
+        }
 
         if symbol.multi_price != multi_price {
             tracing::error!("dydx multi_price from {} to {}", symbol.multi_price, multi_price);
@@ -64,7 +65,7 @@ impl Dydx {
     pub async fn get_index_price(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
         let resp = self.indexer().markets().get_perpetual_market(&symbol_id).await?;
-        Ok(resp.oracle_price.map(|x| x.to_f64().unwrap()).unwrap_or(0.0))
+        Ok(resp.oracle_price.map(|x| symbol.token_price(x.to_f64().unwrap())).unwrap_or(0.0))
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {

@@ -8,6 +8,14 @@ use tower::ServiceExt;
 impl Bybit {
     #[allow(unused_assignments)]
     pub async fn perfect_symbol(&mut self, symbol: &mut Symbol) -> Result<(), ExchangeError> {
+        let mut multi_price = symbol.parse_prefix();
+        let mut multi_size = symbol.multi_size;
+        let mut precision_size = symbol.precision;
+        let mut precision_price = symbol.precision_price;
+        let mut min_size = symbol.min_size;
+        let mut min_usd = symbol.min_usd;
+        let mut fee = symbol.fee;
+
         let symbol_id = crate::symnol::symbol_id(symbol);
         use crate::api::http::info::GetInfoRequest;
         let req = GetInfoRequest {
@@ -17,19 +25,25 @@ impl Bybit {
         let Some(a) = self.oneshot(req).await?.list.pop() else {
             return Err(ExchangeError::OrderNotFound);
         };
-        let multi_size = 1.0;
-        let precision_size = a.lot_size_filter.qty_step.or(a.lot_size_filter.base_precision).unwrap_or(1.0);
-        let precision_size = -precision_size.log10().round() as i8;
-        let precision_price = -a.price_filter.tick_size.log10().round() as i8;
-        let min_size = a.lot_size_filter.min_order_qty;
-        let min_usd = a.lot_size_filter.min_notional_value.or(a.lot_size_filter.min_order_amt).unwrap_or(0.0);
+        multi_size = 1.0;
+        let one_size = a.lot_size_filter.qty_step.or(a.lot_size_filter.base_precision).unwrap_or(1.0);
+        precision_size = -one_size.log10().round() as i8;
+        precision_price = -a.price_filter.tick_size.log10().round() as i8;
+        min_size = a.lot_size_filter.min_order_qty;
+        min_usd = a.lot_size_filter.min_notional_value.or(a.lot_size_filter.min_order_amt).unwrap_or(0.0);
         use crate::api::http::account::GetFeeRequest;
         let req = GetFeeRequest {
             category: symbol.kind,
             symbol: symbol_id,
         };
-        let fee = self.oneshot(req).await?.list.pop().map(|x| x.taker_fee_rate).unwrap_or(0.0);
+        if let Ok(a) = self.oneshot(req).await {
+            fee = a.list.first().map(|x| x.taker_fee_rate).unwrap_or(0.0);
+        }
 
+        if symbol.multi_price != multi_price {
+            tracing::error!("bybit multi_price from {} to {}", symbol.multi_price, multi_price);
+            symbol.multi_price = multi_price;
+        }
         if symbol.multi_size.max(multi_size) / symbol.multi_size.min(multi_size) > 8.0 {
             tracing::error!("bybit multi_size from {} to {}", symbol.multi_size, multi_size);
             symbol.multi_size = multi_size;
@@ -67,7 +81,7 @@ impl Bybit {
             symbol: symbol_id,
         };
         let resp = self.oneshot(req).await?.list.pop();
-        resp.map(|resp| resp.index_price).ok_or(ExchangeError::OrderNotFound)
+        resp.map(|resp| symbol.token_price(resp.index_price)).ok_or(ExchangeError::OrderNotFound)
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {
