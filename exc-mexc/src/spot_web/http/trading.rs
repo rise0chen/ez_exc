@@ -5,44 +5,6 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct GetTradeRequest {
-    pub symbol: String,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct GetTradeResponse {
-    ///交易对ID
-    pub id: String,
-    ///quotebase币ID
-    pub mcd: String,
-    ///base币ID
-    pub cd: String,
-    ///base币简称
-    pub vn: String,
-    ///quote币简称
-    pub mn: String,
-}
-
-impl Rest for GetTradeRequest {
-    type Response = GetTradeResponse;
-
-    fn api_kind(&self) -> ApiKind {
-        ApiKind::SpotWeb
-    }
-    fn method(&self) -> Method {
-        Method::GET
-    }
-    fn path(&self) -> String {
-        "/api/platform/spot/market-v2/web/symbol/trade".to_string()
-    }
-    fn need_sign(&self) -> bool {
-        false
-    }
-}
-
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct PlaceOrderRequest {
     pub currency_id: String,
     pub market_currency_id: String,

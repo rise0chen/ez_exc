@@ -21,7 +21,9 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("{:?}", bid_ask);
     tracing::info!("{:?}", bid_ask.depth_price(500.0));
 
-    let symbol = Symbol::derivative(Asset::try_from("BTC").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("BABYDOGE").unwrap(), Asset::usdt());
+    symbol.prefix = "1000000".into();
+    mexc.perfect_symbol(&mut symbol).await.unwrap();
     let bid_ask = mexc.get_depth(&symbol, 4).await.unwrap();
     assert!(bid_ask.is_valid());
     tracing::info!("{:?}", bid_ask);

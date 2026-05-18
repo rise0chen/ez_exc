@@ -46,7 +46,7 @@ impl Htx {
             multi_size = a.contract_size;
             precision_size = 0;
             precision_price = -a.price_tick.log10().round() as i8;
-            min_size = a.contract_size;
+            min_size = 0.0;
             min_usd = 0.0;
 
             use crate::futures_api::http::account::GetFeeRequest;

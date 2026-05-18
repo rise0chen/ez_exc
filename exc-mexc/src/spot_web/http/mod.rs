@@ -1,4 +1,5 @@
 pub mod earn;
+pub mod info;
 pub mod trading;
 
 use crate::key::{ApiKind, Key, ParamsFormat};
