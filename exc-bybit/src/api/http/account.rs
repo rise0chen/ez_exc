@@ -2,7 +2,7 @@ use super::super::types::OrderSide;
 use exc_util::interface::{ApiKind, Method, Rest};
 use exc_util::symbol::SymbolKind;
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DisplayFromStr};
+use serde_with::{serde_as, DefaultOnError, DisplayFromStr};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -71,7 +71,7 @@ pub struct Position {
     #[serde_as(as = "DisplayFromStr")]
     pub size: f64,
     pub side: OrderSide,
-    #[serde_as(as = "DisplayFromStr")]
+    #[serde_as(as = "DefaultOnError<DisplayFromStr>")]
     pub avg_price: f64,
 }
 
