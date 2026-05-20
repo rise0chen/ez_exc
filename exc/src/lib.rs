@@ -1,3 +1,7 @@
+pub use exc_util as util;
+pub use exc_simu as simu;
+pub use exc_custom as custom;
+
 use exc_aden::{key::Key as AdenKey, service::Aden};
 use exc_aster::{key::Key as AsterKey, service::Aster};
 use exc_binance::{key::Key as BinanceKey, service::Binance};
@@ -20,7 +24,6 @@ use exc_okx::{key::Key as OkxKey, service::Okx};
 use exc_paradex::{key::Key as ParadexKey, service::Paradex};
 use exc_simu::service::Simu;
 use exc_toobit::{key::Key as ToobitKey, service::Toobit};
-pub use exc_util as util;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::account::Position;

@@ -18,7 +18,6 @@ pub struct Dydx {
 }
 impl Dydx {
     pub async fn new(key: Key) -> Self {
-        let _ = rustls::crypto::aws_lc_rs::default_provider().install_default();
         let config = ClientConfig::from_file(key.config.as_str()).await.unwrap();
         Self {
             key,
