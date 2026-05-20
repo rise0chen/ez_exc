@@ -25,6 +25,8 @@ members = [
   "exc-util",
   "exc-weex",
   "exc-xt",
+  "exc",
+  "examples",
 ]
 resolver = "2"
 

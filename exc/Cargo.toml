@@ -1,0 +1,45 @@
+[package]
+authors = ["rise0chen"]
+description = "exc"
+edition = "2021"
+keywords = ["exchange"]
+license = "MIT"
+name = "exc"
+readme = "./README.md"
+repository = ""
+version = "0.7.0"
+
+[features]
+default = ["rustls-tls"]
+native-tls = ["exc-util/native-tls"]
+rustls-tls = ["exc-util/rustls-tls"]
+
+[dependencies]
+exc-aden = {path = "../exc-aden", default-features = false}
+exc-aster = {path = "../exc-aster", default-features = false}
+exc-binance = {path = "../exc-binance", default-features = false}
+exc-bitget = {path = "../exc-bitget", default-features = false}
+exc-bitmart = {path = "../exc-bitmart", default-features = false}
+exc-bitunix = {path = "../exc-bitunix", default-features = false}
+exc-bybit = {path = "../exc-bybit", default-features = false}
+exc-coinw = {path = "../exc-coinw", default-features = false}
+exc-custom = {path = "../exc-custom", default-features = false}
+exc-dex = {path = "../exc-dex", default-features = false}
+exc-dydx = {path = "../exc-dydx", default-features = false}
+exc-gate = {path = "../exc-gate", default-features = false}
+exc-grvt = {path = "../exc-grvt", default-features = false}
+exc-htx = {path = "../exc-htx", default-features = false}
+exc-hyperliquid = {path = "../exc-hyperliquid", default-features = false}
+exc-kcex = {path = "../exc-kcex", default-features = false}
+exc-lighter = {path = "../exc-lighter", default-features = false}
+exc-mexc = {path = "../exc-mexc", default-features = false}
+exc-okx = {path = "../exc-okx", default-features = false}
+exc-paradex = {path = "../exc-paradex", default-features = false}
+exc-simu = {path = "../exc-simu", default-features = false}
+exc-toobit = {path = "../exc-toobit", default-features = false}
+exc-util = {path = "../exc-util", default-features = false}
+exc-weex = {path = "../exc-weex", default-features = false}
+exc-xt = {path = "../exc-xt", default-features = false}
+serde = {version = "1", features = ["derive"]}
+serde_json = "1"
+tokio = {version = "1"}

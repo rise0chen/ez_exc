@@ -72,6 +72,5 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [dev-dependencies]
-clap = {version = "4.0.24", features = ["derive", "env"]}
 dotenvy = {version = "0.15"}
 tracing-subscriber = {version = "0.3.16", features = ["env-filter", "json"]}

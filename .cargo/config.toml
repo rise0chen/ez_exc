@@ -1,0 +1,8 @@
+[target.aarch64-unknown-linux-gnu]
+ar = "aarch64-linux-gnu-gcc"
+linker = "aarch64-linux-gnu-gcc"
+
+[target.'cfg(unix)']
+rustflags = ["-C", "prefer-dynamic", "-C", "target-feature=-crt-static"]
+
+[env]
