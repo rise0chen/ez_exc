@@ -1,6 +1,6 @@
-pub use exc_util as util;
-pub use exc_simu as simu;
 pub use exc_custom as custom;
+pub use exc_simu as simu;
+pub use exc_util as util;
 
 use exc_aden::{key::Key as AdenKey, service::Aden};
 use exc_aster::{key::Key as AsterKey, service::Aster};

@@ -36,17 +36,6 @@ impl Coinw {
                         long_size = x.current_piece;
                         long_val += x.current_piece * x.open_price.unwrap_or(0.0);
                     }
-                    _ => {
-                        if x.current_piece.is_sign_negative() {
-                            short_id = x.id.into_string();
-                            short_size += x.current_piece.abs();
-                            short_val += x.current_piece * x.open_price.unwrap_or(0.0);
-                        } else {
-                            long_id = x.id.into_string();
-                            long_size = x.current_piece;
-                            long_val += x.current_piece * x.open_price.unwrap_or(0.0);
-                        }
-                    }
                 }
             }
             Ok((

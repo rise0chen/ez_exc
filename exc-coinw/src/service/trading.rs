@@ -1,9 +1,9 @@
 use super::Coinw;
-use crate::futures_api::types::PositionSide;
+use crate::futures_api::types::{OpenSide, PositionSide};
 use crate::symnol::symbol_id;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{AmendOrder, Fee, FuturesOpenType, Order, OrderId, OrderType, PlaceOrderRequest};
+use exc_util::types::order::{AmendOrder, Fee, FuturesOpenType, Order, OrderId, OrderSide, OrderType, PlaceOrderRequest};
 use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
 
@@ -182,7 +182,12 @@ impl Coinw {
                 deal_avg_price,
                 fee: Fee::Quote(fee),
                 state: resp.order_status.into(),
-                side: resp.direction.into(),
+                side: match (resp.status, resp.direction) {
+                    (OpenSide::Open, PositionSide::Long) => OrderSide::Buy,
+                    (OpenSide::Open, PositionSide::Short) => OrderSide::Sell,
+                    (OpenSide::Close, PositionSide::Long) => OrderSide::CloseBuy,
+                    (OpenSide::Close, PositionSide::Short) => OrderSide::CloseSell,
+                },
             }
         };
         Ok(order)

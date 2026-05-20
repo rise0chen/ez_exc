@@ -26,21 +26,15 @@ impl Display for Id {
 
 #[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub enum OpenSide {
+    Open = 1,
+    Close = 2,
+}
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub enum PositionSide {
-    #[serde(alias = "")]
-    Unknown = 0,
     Long = 1,
     Short = 2,
-    Both = 3,
-}
-impl From<PositionSide> for exc_util::types::order::OrderSide {
-    fn from(value: PositionSide) -> Self {
-        match value {
-            PositionSide::Unknown | PositionSide::Both => Self::Unknown,
-            PositionSide::Long => Self::Buy,
-            PositionSide::Short => Self::Sell,
-        }
-    }
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]

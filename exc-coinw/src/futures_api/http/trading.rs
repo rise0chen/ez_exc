@@ -1,4 +1,4 @@
-use crate::futures_api::types::{Id, OrderStatus, PositionSide, TimeInForce};
+use crate::futures_api::types::{Id, OpenSide, OrderStatus, PositionSide, TimeInForce};
 use exc_util::interface::{ApiKind, Method, Rest};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
@@ -108,6 +108,7 @@ impl Rest for CancelOrderRequest {
 pub struct Order {
     pub id: Id,
     pub third_order_id: Option<String>,
+    pub status: OpenSide,
     pub direction: PositionSide,
     #[serde_as(as = "PickFirst<(DisplayFromStr, _)>")]
     pub total_piece: f64,
