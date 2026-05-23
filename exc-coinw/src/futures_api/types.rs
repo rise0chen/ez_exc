@@ -69,6 +69,7 @@ impl From<exc_util::types::order::OrderType> for TimeInForce {
 pub enum OrderStatus {
     Unknown,
     UnFinish,
+    PartFill,
     Part,
     Finish,
     Cancel,
@@ -78,7 +79,8 @@ impl From<OrderStatus> for exc_util::types::order::OrderStatus {
         match value {
             OrderStatus::Unknown => Self::Unknown,
             OrderStatus::UnFinish => Self::New,
-            OrderStatus::Part => Self::PartiallyFilled,
+            OrderStatus::PartFill => Self::PartiallyFilled,
+            OrderStatus::Part => Self::PartiallyCanceled,
             OrderStatus::Finish => Self::Filled,
             OrderStatus::Cancel => Self::Canceled,
         }

@@ -1,5 +1,5 @@
 use super::Coinw;
-use crate::futures_api::types::{OpenSide, PositionSide};
+use crate::futures_api::types::{OpenSide, OrderStatus, PositionSide};
 use crate::symnol::symbol_id;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
@@ -158,8 +158,11 @@ impl Coinw {
             let resp = resp
                 .into_iter()
                 .find(|x| x.third_order_id == custom_order_id || Some(x.id.to_string()) == order_id);
-            let order = if resp.is_some() {
-                resp
+            let order = if let Some(mut order) = resp {
+                if matches!(order.order_status, OrderStatus::Part) {
+                    order.order_status = OrderStatus::PartFill;
+                }
+                Some(order)
             } else {
                 let req = GetOrderHistoryRequest {
                     instrument: symbol_id(&symbol),
