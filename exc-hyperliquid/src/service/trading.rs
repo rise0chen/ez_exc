@@ -53,7 +53,7 @@ impl Hyperliquid {
                 }
             },
             Err(e) => {
-                return Err((ret, ExchangeError::Other(anyhow::anyhow!("{}", e.message()))));
+                return Err((ret, ExchangeError::Other(anyhow::anyhow!("{}", e))));
             }
         };
         let order_id = match result {
@@ -61,6 +61,10 @@ impl Hyperliquid {
             OrderResponseStatus::Resting { oid, cloid: _ } => oid,
             OrderResponseStatus::Filled { total_sz: _, avg_px: _, oid } => oid,
             OrderResponseStatus::Error(e) => {
+                if e.contains("Order could not immediately match against any resting orders") {
+                    ret.custom_order_id = None;
+                    return Ok(ret);
+                }
                 return Err((ret, ExchangeError::Other(anyhow::anyhow!(e))));
             }
         };
@@ -104,7 +108,7 @@ impl Hyperliquid {
                     }
                 }
             }
-            (None, None) => None,
+            (None, None) => return Ok(order_id),
         };
         match resp {
             Some(d) => {
