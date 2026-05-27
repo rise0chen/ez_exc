@@ -2,7 +2,7 @@ use super::Hyperliquid;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderSide, OrderStatus, OrderType, PlaceOrderRequest};
-use hypersdk::hypercore::{OrderGrouping, OrderResponseStatus, PrivateKeySigner, Side};
+use hypersdk::hypercore::{OidOrCloid, OrderGrouping, OrderResponseStatus, PrivateKeySigner, Side};
 use time::OffsetDateTime;
 
 impl Hyperliquid {
@@ -71,6 +71,19 @@ impl Hyperliquid {
         ret.order_id = Some(order_id.to_string());
         Ok(ret)
     }
+    fn order_id(&self, order_id: &OrderId) -> Option<OidOrCloid> {
+        if let Some(id) = &order_id.custom_order_id {
+            if let Ok(id) = id.parse::<i128>() {
+                return Some(OidOrCloid::Right(id.to_be_bytes().into()));
+            }
+        }
+        if let Some(id) = &order_id.order_id {
+            if let Ok(id) = id.parse() {
+                return Some(OidOrCloid::Left(id));
+            }
+        }
+        None
+    }
     pub async fn amend_order(&mut self, _order: AmendOrder) -> Result<OrderId, ExchangeError> {
         todo!();
     }
@@ -79,13 +92,13 @@ impl Hyperliquid {
         let asset: u32 = order_id.symbol.base_id.parse().unwrap();
         let signer: PrivateKeySigner = self.key.secret_key.parse().unwrap();
         let nonce = chrono::Utc::now().timestamp_millis() as u64;
-        let resp = match (&order_id.order_id, &order_id.custom_order_id) {
-            (_, Some(custom_order_id)) => {
+        let Some(oid) = self.order_id(&order_id) else {
+            return Ok(order_id);
+        };
+        let resp = match oid {
+            OidOrCloid::Right(cid) => {
                 let batch = BatchCancelCloid {
-                    cancels: vec![CancelByCloid {
-                        asset,
-                        cloid: custom_order_id.parse::<i128>().unwrap().to_be_bytes().into(),
-                    }],
+                    cancels: vec![CancelByCloid { asset, cloid: cid }],
                 };
                 match self.http.cancel_by_cloid(&signer, batch, nonce, None, None).await {
                     Ok(mut d) => d.pop(),
@@ -94,11 +107,11 @@ impl Hyperliquid {
                     }
                 }
             }
-            (Some(order_id), None) => {
+            OidOrCloid::Left(id) => {
                 let batch = BatchCancel {
                     cancels: vec![Cancel {
                         asset: asset as usize,
-                        oid: order_id.parse().unwrap(),
+                        oid: id,
                     }],
                 };
                 match self.http.cancel(&signer, batch, nonce, None, None).await {
@@ -108,7 +121,6 @@ impl Hyperliquid {
                     }
                 }
             }
-            (None, None) => return Ok(order_id),
         };
         match resp {
             Some(d) => {
@@ -123,21 +135,11 @@ impl Hyperliquid {
         Ok(order_id)
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
-        let OrderId {
-            symbol,
-            order_id,
-            custom_order_id,
-        } = order_id;
-        use hypersdk::hypercore::OidOrCloid;
-        let oid = match (&order_id, &custom_order_id) {
-            (_, Some(custom_order_id)) => OidOrCloid::Right(custom_order_id.parse::<i128>().unwrap().to_be_bytes().into()),
-            (Some(order_id), None) => OidOrCloid::Left(order_id.parse().unwrap()),
-            (None, None) => {
-                return Ok(Order {
-                    state: OrderStatus::Canceled,
-                    ..Default::default()
-                })
-            }
+        let Some(oid) = self.order_id(&order_id) else {
+            return Ok(Order {
+                state: OrderStatus::Canceled,
+                ..Default::default()
+            });
         };
         let resp = self.http.order_status(self.key.user.parse().unwrap(), oid).await?;
         let Some(resp) = resp else {
@@ -160,6 +162,7 @@ impl Hyperliquid {
         } else {
             Fee::Base(fee)
         };
+        let symbol = order_id.symbol;
         Ok(Order {
             order_id: resp.order.oid.to_string(),
             vol: symbol.token_size(resp.order.orig_sz.as_f64()),
