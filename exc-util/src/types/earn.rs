@@ -14,6 +14,11 @@ pub fn common_st_rate(symbol: &Symbol) -> Option<StRate> {
             start_time: 0,
             apy: 0.0,
         },
+        "USO" => StRate {
+            rate: 1.466,
+            start_time: 1776412800000,
+            apy: -0.0152,
+        },
         "XAUT" | "XAUT0" => StRate {
             rate: 0.9975,
             start_time: 0,
@@ -25,7 +30,7 @@ pub fn common_st_rate(symbol: &Symbol) -> Option<StRate> {
             apy: 0.0,
         },
         "IAU" => StRate {
-            rate: 0.01886,
+            rate: 0.01849,
             start_time: 1776412800000,
             apy: -0.0025,
         },
