@@ -38,7 +38,11 @@ impl Ws {
         let mut ws = hypercore::mainnet_ws();
         for coin in &self.symbols {
             ws.subscribe(Subscription::ActiveAssetCtx { coin: coin.into() });
-            ws.subscribe(Subscription::L2Book { coin: coin.into() });
+            ws.subscribe(Subscription::L2Book {
+                coin: coin.into(),
+                n_sig_figs: None,
+                mantissa: None,
+            });
         }
         while let Some(event) = ws.next().await {
             let Event::Message(msg) = event else { continue };

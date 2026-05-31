@@ -43,6 +43,7 @@ impl Hyperliquid {
                 cloid: custom_id.to_be_bytes().into(),
             }],
             grouping: OrderGrouping::Na,
+            builder: None,
         };
         let nonce = chrono::Utc::now().timestamp_millis() as u64;
         let result = match self.http.place(&signer, order, nonce, None, None).await {
@@ -57,9 +58,11 @@ impl Hyperliquid {
             }
         };
         let order_id = match result {
-            OrderResponseStatus::Success => todo!(),
-            OrderResponseStatus::Resting { oid, cloid: _ } => oid,
-            OrderResponseStatus::Filled { total_sz: _, avg_px: _, oid } => oid,
+            OrderResponseStatus::Success => None,
+            OrderResponseStatus::Resting { oid, cloid: _ } => Some(oid),
+            OrderResponseStatus::WaitingForTrigger => None,
+            OrderResponseStatus::WaitingForFill => None,
+            OrderResponseStatus::Filled { total_sz: _, avg_px: _, oid } => Some(oid),
             OrderResponseStatus::Error(e) => {
                 if e.contains("Order could not immediately match against any resting orders") {
                     ret.custom_order_id = None;
@@ -68,7 +71,7 @@ impl Hyperliquid {
                 return Err((ret, ExchangeError::Other(anyhow::anyhow!(e))));
             }
         };
-        ret.order_id = Some(order_id.to_string());
+        ret.order_id = order_id.map(|x| x.to_string());
         Ok(ret)
     }
     fn order_id(&self, order_id: &OrderId) -> Option<OidOrCloid> {

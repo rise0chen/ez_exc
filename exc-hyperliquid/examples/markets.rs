@@ -24,7 +24,7 @@ async fn main() -> anyhow::Result<()> {
     }
 
     // Get markets from a specific DEX
-    let dexes = client.perp_dexs().await?;
+    let dexes = client.perp_dexes().await?;
     for dex in &dexes {
         println!("DEX: {}", dex.name());
         let markets = client.perps_from(dex.clone()).await?;
