@@ -17,12 +17,20 @@ impl Aden {
         } else {
             use crate::futures_api::http::account::GetPositionRequest;
             let req = GetPositionRequest { contract: symbol_id };
-            let resp = self.oneshot(req).await?;
-            let size = resp.size.unwrap_or(0.0);
+            let (size, price) = match self.oneshot(req).await {
+                Ok(resp) => (resp.size.unwrap_or(0.0), resp.entry_price.unwrap_or(0.0)),
+                Err(e) => {
+                    if e.to_string().contains("POSITION_NOT_FOUND") {
+                        (0.0, 0.0)
+                    } else {
+                        return Err(e);
+                    }
+                }
+            };
             Position {
                 id: String::new(),
                 size: symbol.token_size(size),
-                price: symbol.token_price(resp.entry_price.unwrap_or(0.0)),
+                price: symbol.token_price(price),
             }
         };
         Ok(position)
