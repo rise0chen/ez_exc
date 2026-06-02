@@ -13,6 +13,8 @@ pub struct GetBalanceRequest {}
 pub struct GetBalanceResponse {
     #[serde_as(as = "DisplayFromStr")]
     pub balance: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub cross_un_realized_pnl: f64,
 }
 
 impl Rest for GetBalanceRequest {

@@ -1,3 +1,4 @@
+pub mod account;
 pub mod trading;
 
 use crate::key::Key;

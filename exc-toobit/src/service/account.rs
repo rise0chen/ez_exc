@@ -6,10 +6,10 @@ use tower::ServiceExt;
 
 impl Toobit {
     pub async fn get_balance(&mut self) -> Result<f64, ExchangeError> {
-        use crate::futures_api::http::account::GetBalanceRequest;
+        use crate::futures_web::http::account::GetBalanceRequest;
         let req = GetBalanceRequest {};
         let resp = self.oneshot(req).await?.pop();
-        resp.map(|resp| resp.balance).ok_or(ExchangeError::OrderNotFound)
+        resp.map(|resp| resp.future_asset_total).ok_or(ExchangeError::OrderNotFound)
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
