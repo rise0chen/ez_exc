@@ -1,9 +1,7 @@
 use super::Bitunix;
-use crate::futures_api::types::*;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
-use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
 
 impl Bitunix {
@@ -51,12 +49,7 @@ impl Bitunix {
             leverage: _,
             open_type: _,
         } = data;
-        let custom_id = format!(
-            "{:08x?}{:08x?}{:016x?}",
-            price.to_f32().unwrap().ln().to_bits(),
-            size.to_f32().unwrap().ln().to_bits(),
-            time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64
-        );
+        let custom_id = format!("{}", 116 * time::OffsetDateTime::now_utc().unix_timestamp_nanos() / 100);
         let mut ret = OrderId {
             symbol: symbol.clone(),
             order_id: None,
@@ -71,18 +64,43 @@ impl Bitunix {
             let size = symbol.contract_size(size);
             let price = symbol.contract_price(price, size.is_sign_positive());
 
-            use crate::futures_api::http::trading::PlaceOrderRequest;
-            let req = PlaceOrderRequest {
-                symbol: symbol_id,
-                client_id: Some(custom_id),
-                side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
-                trade_side: if is_close { TradeSide::Close } else { TradeSide::Open },
-                order_type: kind.into(),
-                effect: kind.into(),
-                qty: size.abs(),
-                price,
-            };
-            self.oneshot(req).await.map(|resp| resp.order_id)
+            if self.key.web_key.is_some() {
+                use crate::futures_web::http::trading::PlaceOrderRequest;
+                use crate::futures_web::types::*;
+                let req = PlaceOrderRequest {
+                    symbol: symbol_id,
+                    client_id: Some(custom_id),
+                    side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
+                    reduction_only: is_close,
+                    effect_type: kind.into(),
+                    order_unit: 1,
+                    use_percentage: false,
+                    amount: size.abs(),
+                    front_amount: size.abs(),
+                    price,
+                    coupon_close: false,
+                };
+                self.oneshot(req).await.map(|resp| {
+                    if resp.client_id.is_some() {
+                        ret.custom_order_id = resp.client_id;
+                    }
+                    resp.order_id
+                })
+            } else {
+                use crate::futures_api::http::trading::PlaceOrderRequest;
+                use crate::futures_api::types::*;
+                let req = PlaceOrderRequest {
+                    symbol: symbol_id,
+                    client_id: Some(custom_id),
+                    side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
+                    trade_side: if is_close { TradeSide::Close } else { TradeSide::Open },
+                    order_type: kind.into(),
+                    effect: kind.into(),
+                    qty: size.abs(),
+                    price,
+                };
+                self.oneshot(req).await.map(|resp| resp.order_id)
+            }
         };
         match order_id {
             Ok(id) => {
@@ -105,15 +123,25 @@ impl Bitunix {
         let order = if symbol.is_spot() {
             todo!();
         } else {
-            use crate::futures_api::http::trading::{CancelOrderRequest, GetOrderRequest};
-            let req = CancelOrderRequest {
-                symbol: symbol_id,
-                order_list: vec![GetOrderRequest {
-                    order_id: order_id.clone(),
-                    client_id: custom_order_id.clone(),
-                }],
-            };
-            let _ = self.oneshot(req).await?;
+            let client_id = if order_id.is_none() { custom_order_id.clone() } else { None };
+            if self.key.web_key.is_some() {
+                use crate::futures_web::http::trading::CancelOrderRequest;
+                let req = CancelOrderRequest {
+                    symbol: symbol_id,
+                    order_id: order_id.clone().or(client_id),
+                };
+                let _ = self.oneshot(req).await?;
+            } else {
+                use crate::futures_api::http::trading::{CancelOrderRequest, GetOrderRequest};
+                let req = CancelOrderRequest {
+                    symbol: symbol_id,
+                    order_list: vec![GetOrderRequest {
+                        order_id: order_id.clone(),
+                        client_id,
+                    }],
+                };
+                let _ = self.oneshot(req).await?;
+            }
             OrderId {
                 symbol,
                 order_id,
@@ -132,6 +160,7 @@ impl Bitunix {
             todo!();
         } else {
             use crate::futures_api::http::trading::GetOrderRequest;
+            let custom_order_id = if order_id.is_none() { custom_order_id } else { None };
             let req = GetOrderRequest {
                 order_id,
                 client_id: custom_order_id,

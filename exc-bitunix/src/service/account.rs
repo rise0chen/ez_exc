@@ -7,6 +7,17 @@ use tower::ServiceExt;
 
 impl Bitunix {
     pub async fn get_balance(&mut self) -> Result<Balance, ExchangeError> {
+        if self.key.web_key.is_some() {
+            use crate::futures_web::http::account::GetBalanceRequest;
+            let req = GetBalanceRequest { coin: "USDT" };
+            let resp = self.oneshot(req).await?;
+            return Ok(Balance {
+                spot: resp.spot_total,
+                future: resp.futures_total,
+                finance: resp.earn_total,
+                total: resp.total,
+            });
+        }
         use crate::futures_api::http::account::GetBalanceRequest;
         let req = GetBalanceRequest { margin_coin: "USDE".into() };
         let resp = self.oneshot(req).await?;

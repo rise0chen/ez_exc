@@ -85,12 +85,14 @@ pub enum OrderStatus {
     Canceled = 4,
     PartFilledCanceled = 5,
     Init = 10,
+    New_,
+    PendingCancel,
 }
 impl From<OrderStatus> for exc_util::types::order::OrderStatus {
     fn from(value: OrderStatus) -> Self {
         match value {
             OrderStatus::Unknown => Self::Unknown,
-            OrderStatus::New | OrderStatus::Init => Self::New,
+            OrderStatus::New | OrderStatus::New_ | OrderStatus::Init | OrderStatus::PendingCancel => Self::New,
             OrderStatus::Filled => Self::Filled,
             OrderStatus::PartFilled => Self::PartiallyFilled,
             OrderStatus::PartFilledCanceled => Self::PartiallyCanceled,

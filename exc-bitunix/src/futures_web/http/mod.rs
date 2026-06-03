@@ -1,4 +1,6 @@
+pub mod account;
 pub mod info;
+pub mod trading;
 
 use crate::key::Key;
 use exc_util::http::{Body, Request};

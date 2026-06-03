@@ -29,6 +29,7 @@ num_enum = {version = "0.7"}
 pin-project-lite = {version = "0.2"}
 rust_decimal = {version = "1"}
 serde_json = {version = "1"}
+serde_repr = "0.1"
 serde_urlencoded = "0.7"
 serde_with = {version = "3", features = ["time_0_3"]}
 sha2 = {version = "0.10"}
@@ -39,7 +40,6 @@ tracing = {version = "0.1"}
 [dependencies.serde]
 features = ["derive"]
 version = "1"
-
 
 [dependencies.tower]
 features = ["util", "reconnect", "buffer", "timeout", "retry", "ready-cache"]
