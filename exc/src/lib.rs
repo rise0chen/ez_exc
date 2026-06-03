@@ -35,7 +35,7 @@ use exc_weex::{key::Key as WeexKey, service::Weex};
 use exc_xt::{key::Key as XtKey, service::Xt};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum ExchangeConfig {
     Xt {
@@ -130,6 +130,7 @@ pub enum ExchangeConfig {
         path: String,
         interval: u64,
     },
+    #[default]
     None,
 }
 
