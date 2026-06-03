@@ -1,20 +1,32 @@
 use super::Htx;
 use exc_util::error::ExchangeError;
-use exc_util::{symbol::Symbol, types::account::Position};
+use exc_util::symbol::Symbol;
+use exc_util::types::account::{Balance, Position};
 use tower::ServiceExt;
 
 impl Htx {
-    pub async fn get_balance(&mut self) -> Result<f64, ExchangeError> {
-        use crate::futures_api::http::account::GetBalanceRequest;
-        let req = GetBalanceRequest {};
+    pub async fn get_balance(&mut self) -> Result<Balance, ExchangeError> {
+        let req = crate::spot_api::http::account::GetBalanceRequest {
+            account_type: "spot",
+            valuation_currency: "USD",
+        };
+        let spot = self.oneshot(req).await?;
+        let req = crate::futures_api::http::account::GetBalanceRequest {};
         let resp = self.oneshot(req).await?;
-        Ok(resp.equity)
+        let req = crate::spot_api::http::account::GetEarnRequest { page_num: 1, page_size: 10 };
+        let earn = self.oneshot(req).await?;
+        let finance = earn
+            .items
+            .iter()
+            .map(|x| if x.currency.contains("USD") { x.total_amount } else { 0.0 })
+            .sum();
+        Ok(Balance::new(spot.balance, resp.equity, finance))
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
         if symbol.is_spot() {
-            use crate::spot_api::http::account::GetBalanceRequest;
-            let req = GetBalanceRequest {
+            use crate::spot_api::http::account::GetPositionRequest;
+            let req = GetPositionRequest {
                 account_id: self.key.account_id,
             };
             let resp = self.oneshot(req).await?.data.list;

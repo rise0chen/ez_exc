@@ -1,14 +1,17 @@
 use super::Binance;
 use exc_util::error::ExchangeError;
-use exc_util::{symbol::Symbol, types::account::Position};
+use exc_util::symbol::Symbol;
+use exc_util::types::account::{Balance, Position};
 use tower::ServiceExt;
 
 impl Binance {
-    pub async fn get_balance(&mut self) -> Result<f64, ExchangeError> {
-        use crate::futures_api::http::account::GetBalanceRequest;
+    pub async fn get_balance(&mut self) -> Result<Balance, ExchangeError> {
+        use crate::futures_api::http::account::{GetBalanceRequest, GetEarnRequest};
         let req = GetBalanceRequest {};
         let resp = self.oneshot(req).await?;
-        Ok(resp.account_equity)
+        let req = GetEarnRequest {};
+        let earn = self.oneshot(req).await?;
+        Ok(Balance::new(0.0, resp.account_equity, earn.total_amount_in_usdt))
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);

@@ -26,7 +26,7 @@ use exc_simu::service::Simu;
 use exc_toobit::{key::Key as ToobitKey, service::Toobit};
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::account::Position;
+use exc_util::types::account::{Balance, Position};
 use exc_util::types::book::Depth;
 use exc_util::types::earn::StRate;
 use exc_util::types::info::FundingRate;
@@ -234,7 +234,7 @@ impl Exchange {
 }
 
 impl Exchange {
-    pub async fn get_balance(&mut self) -> Result<f64, ExchangeError> {
+    pub async fn get_balance(&mut self) -> Result<Balance, ExchangeError> {
         match self {
             Exchange::Xt(e) => e.get_balance().await,
             Exchange::Mexc(e) => e.get_balance().await,

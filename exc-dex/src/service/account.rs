@@ -5,16 +5,16 @@ use alloy::eips::BlockId;
 use alloy::primitives::utils::format_units;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::account::Position;
+use exc_util::types::account::{Balance, Position};
 
 impl Dex {
-    pub async fn get_balance(&mut self) -> Result<f64, ExchangeError> {
+    pub async fn get_balance(&mut self) -> Result<Balance, ExchangeError> {
         let quote = ERC20::new(self.quote, &self.rpc);
         let quote_decimals = quote.decimals().call().await.map_err(map_err)?;
         let balance = quote.balanceOf(self.vault);
         let balance = balance.block(BlockId::pending()).call().await.map_err(map_err)?;
         let balance = format_units(balance, quote_decimals).unwrap();
-        Ok(balance.parse().unwrap())
+        Ok(Balance::new(balance.parse().unwrap(), 0.0, 0.0))
     }
     pub async fn get_position(&mut self, symbol: &Symbol) -> Result<Position, ExchangeError> {
         let token = ERC20::new(symbol.base_id.parse().unwrap(), &self.rpc);

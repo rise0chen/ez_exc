@@ -1,4 +1,5 @@
 use super::super::types::OrderSide;
+use crate::response::List;
 use exc_util::interface::{ApiKind, Method, Rest};
 use exc_util::symbol::SymbolKind;
 use serde::{Deserialize, Serialize};
@@ -51,6 +52,38 @@ impl Rest for GetBalanceRequest {
     }
     fn path(&self) -> String {
         "/v5/account/wallet-balance".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetEarnRequest {
+    pub category: &'static str,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetEarnResponse {
+    pub coin: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub amount: f64,
+}
+
+impl Rest for GetEarnRequest {
+    type Response = List<GetEarnResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::Common
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/v5/earn/position".to_string()
     }
     fn need_sign(&self) -> bool {
         true

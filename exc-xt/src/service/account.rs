@@ -1,15 +1,19 @@
 use super::Xt;
 use crate::futures_api::types::*;
 use exc_util::error::ExchangeError;
-use exc_util::{symbol::Symbol, types::account::Position};
+use exc_util::symbol::Symbol;
+use exc_util::types::account::{Balance, Position};
 use tower::ServiceExt;
 
 impl Xt {
-    pub async fn get_balance(&mut self) -> Result<f64, ExchangeError> {
+    pub async fn get_balance(&mut self) -> Result<Balance, ExchangeError> {
         use crate::futures_api::http::account::GetBalanceRequest;
         let req = GetBalanceRequest { coin: "usdt".into() };
         let resp = self.oneshot(req).await?.pop();
-        resp.map(|resp| resp.margin_balance).ok_or(ExchangeError::OrderNotFound)
+        let Some(resp) = resp else { return Err(ExchangeError::OrderNotFound) };
+        let req = crate::spot_api::http::account::GetEarnRequest { scope: "SAVING" };
+        let earn = self.oneshot(req).await?;
+        Ok(Balance::new(0.0, resp.margin_balance, earn.total_assets))
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);

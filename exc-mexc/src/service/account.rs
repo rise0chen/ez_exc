@@ -1,15 +1,18 @@
 use super::Mexc;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::account::Position;
+use exc_util::types::account::{Balance, Position};
 use tower::ServiceExt;
 
 impl Mexc {
-    pub async fn get_balance(&mut self) -> Result<f64, ExchangeError> {
-        use crate::futures_web::http::account::GetBalanceRequest;
+    pub async fn get_balance(&mut self) -> Result<Balance, ExchangeError> {
+        use crate::spot_web::http::account::GetBalanceRequest;
         let req = GetBalanceRequest {};
         let resp = self.oneshot(req).await?;
-        Ok(resp.equity)
+        let Some(resp) = resp.overviews.into_iter().find(|x| x.currency == "USDT") else {
+            return Err(ExchangeError::OrderNotFound);
+        };
+        Ok(Balance::new(resp.spot, resp.contract, resp.financial))
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);

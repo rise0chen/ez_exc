@@ -1,14 +1,16 @@
 use super::Hyperliquid;
 use exc_util::error::ExchangeError;
-use exc_util::{symbol::Symbol, types::account::Position};
+use exc_util::symbol::Symbol;
+use exc_util::types::account::{Balance, Position};
 
 impl Hyperliquid {
-    pub async fn get_balance(&mut self) -> Result<f64, ExchangeError> {
+    pub async fn get_balance(&mut self) -> Result<Balance, ExchangeError> {
         let resp = self.http.user_balances(self.key.user.parse().unwrap()).await?;
-        Ok(resp
+        let future = resp
             .iter()
             .map(|x| if x.coin.contains("USD") { x.total } else { x.entry_ntl }.as_f64())
-            .sum())
+            .sum();
+        Ok(Balance::new(0.0, future, 0.0))
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         if symbol.is_spot() {

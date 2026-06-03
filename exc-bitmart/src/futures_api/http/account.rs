@@ -35,6 +35,38 @@ impl Rest for GetBalanceRequest {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "snake_case")]
+pub struct GetEarnRequest {}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetEarnResponse {
+    #[serde_as(as = "DisplayFromStr")]
+    pub total_user_sum: f64,
+}
+
+impl Rest for GetEarnRequest {
+    type Response = GetEarnResponse;
+
+    fn host(&self) -> Option<&'static str> {
+        Some("https://api-cloud.bitmart.com")
+    }
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/newearn/cloud/v1/earn".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub struct GetPositionRequest {
     pub symbol: String,
 }

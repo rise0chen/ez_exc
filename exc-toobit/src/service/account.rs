@@ -1,15 +1,21 @@
 use super::Toobit;
 use crate::futures_api::types::PositionSide;
 use exc_util::error::ExchangeError;
-use exc_util::{symbol::Symbol, types::account::Position};
+use exc_util::symbol::Symbol;
+use exc_util::types::account::{Balance, Position};
 use tower::ServiceExt;
 
 impl Toobit {
-    pub async fn get_balance(&mut self) -> Result<f64, ExchangeError> {
+    pub async fn get_balance(&mut self) -> Result<Balance, ExchangeError> {
         use crate::futures_web::http::account::GetBalanceRequest;
-        let req = GetBalanceRequest {};
-        let resp = self.oneshot(req).await?.pop();
-        resp.map(|resp| resp.future_asset_total).ok_or(ExchangeError::OrderNotFound)
+        let req = GetBalanceRequest { unit: "USDT" };
+        let resp = self.oneshot(req).await?;
+        Ok(Balance {
+            spot: resp.coin_asset,
+            future: resp.futures_coin_asset,
+            finance: resp.earn_asset,
+            total: resp.total_asset,
+        })
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);

@@ -33,6 +33,39 @@ impl Rest for GetBalanceRequest {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct GetEarnRequest {}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetEarnResponse {
+    #[serde_as(as = "DisplayFromStr")]
+    #[serde(rename = "totalAmountInUSDT")]
+    pub total_amount_in_usdt: f64,
+}
+
+impl Rest for GetEarnRequest {
+    type Response = GetEarnResponse;
+
+    fn host(&self) -> Option<&'static str> {
+        Some("https://api.binance.com")
+    }
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/sapi/v1/simple-earn/account".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GetPositionRequest {
     pub symbol: String,
 }

@@ -39,11 +39,16 @@ pub struct SigningParams<'a, T: Rest> {
     #[serde(flatten)]
     pub params: &'a T,
     pub timestamp: i64,
+    pub recvwindow: i64,
 }
 
 impl<'a, T: Rest> SigningParams<'a, T> {
     fn with_timestamp(params: &'a T, timestamp: i64) -> Self {
-        Self { params, timestamp }
+        Self {
+            params,
+            timestamp,
+            recvwindow: 5000,
+        }
     }
 
     /// Sign the given params now.
@@ -78,8 +83,8 @@ impl<'a, T: Rest> SigningParams<'a, T> {
         let signature = match kind {
             ApiKind::SpotApi => {
                 let header = format!(
-                    "validate-algorithms=HmacSHA256&validate-appkey={}&validate-recvwindow=5000&validate-timestamp={}",
-                    key.api_key, self.timestamp
+                    "validate-algorithms=HmacSHA256&validate-appkey={}&validate-recvwindow={}&validate-timestamp={}",
+                    key.api_key, self.recvwindow, self.timestamp
                 );
                 let raw = if matches!(self.params.method(), Method::GET | Method::DELETE) {
                     if body.is_empty() {

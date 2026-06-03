@@ -1,11 +1,12 @@
 use super::Bitunix;
 use crate::futures_api::types::OrderSide;
 use exc_util::error::ExchangeError;
-use exc_util::{symbol::Symbol, types::account::Position};
+use exc_util::symbol::Symbol;
+use exc_util::types::account::{Balance, Position};
 use tower::ServiceExt;
 
 impl Bitunix {
-    pub async fn get_balance(&mut self) -> Result<f64, ExchangeError> {
+    pub async fn get_balance(&mut self) -> Result<Balance, ExchangeError> {
         use crate::futures_api::http::account::GetBalanceRequest;
         let req = GetBalanceRequest { margin_coin: "USDE".into() };
         let resp = self.oneshot(req).await?;
@@ -13,7 +14,7 @@ impl Bitunix {
         let req = GetBalanceRequest { margin_coin: "USDT".into() };
         let resp = self.oneshot(req).await?;
         let usdt = resp.available + resp.margin + resp.cross_unrealized_p_n_l;
-        Ok(usdt + 0.985 * usde)
+        Ok(Balance::new(0.0, usdt + 0.985 * usde, 0.0))
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
