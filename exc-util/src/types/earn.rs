@@ -30,7 +30,7 @@ pub fn common_st_rate(symbol: &Symbol) -> Option<StRate> {
             apy: 0.0,
         },
         "IAU" => StRate {
-            rate: 0.01849,
+            rate: 0.01878,
             start_time: 1776412800000,
             apy: -0.0025,
         },
