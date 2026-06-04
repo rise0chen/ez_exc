@@ -6,7 +6,7 @@ use tower::ServiceExt;
 
 impl Mexc {
     pub async fn get_st_rate(&mut self, symbol: &Symbol) -> Result<StRate, ExchangeError> {
-        if let Some(rate) = common_st_rate(symbol) {
+        if let Some(rate) = common_st_rate(&symbol.base) {
             return Ok(rate);
         }
         use crate::spot_web::http::earn::GetStRateRequest;

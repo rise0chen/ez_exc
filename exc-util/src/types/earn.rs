@@ -1,5 +1,3 @@
-use crate::symbol::Symbol;
-
 #[derive(Debug, Default, Clone)]
 pub struct StRate {
     pub rate: f64,
@@ -7,9 +5,9 @@ pub struct StRate {
     pub apy: f64,
 }
 
-pub fn common_st_rate(symbol: &Symbol) -> Option<StRate> {
-    let rate = match symbol.base.to_uppercase().as_str() {
-        "XBR" | "BZ" | "BRENTOIL" | "XYZ:BRENTOIL" => StRate {
+pub fn common_st_rate(symbol: &str) -> Option<StRate> {
+    let rate = match symbol.to_uppercase().as_str() {
+        "XBR" | "BZ" | "BRENTOIL" => StRate {
             rate: 1.05,
             start_time: 0,
             apy: 0.0,
@@ -29,7 +27,7 @@ pub fn common_st_rate(symbol: &Symbol) -> Option<StRate> {
             start_time: 0,
             apy: 0.0,
         },
-        "IAU" => StRate {
+        "IAU" | "IAUON" => StRate {
             rate: 0.01878,
             start_time: 1776412800000,
             apy: -0.0025,

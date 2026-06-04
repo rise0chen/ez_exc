@@ -5,7 +5,7 @@ use exc_util::types::earn::{common_st_rate, StRate};
 
 impl Coinw {
     pub async fn get_st_rate(&mut self, symbol: &Symbol) -> Result<StRate, ExchangeError> {
-        if let Some(rate) = common_st_rate(symbol) {
+        if let Some(rate) = common_st_rate(&symbol.base) {
             return Ok(rate);
         }
         let _coin: String = match symbol.base.as_str() {

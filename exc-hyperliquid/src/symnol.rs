@@ -13,14 +13,14 @@ pub fn symbol_id(symbol: &Symbol) -> String {
     }
 }
 
-pub fn dex(symbol: &Symbol) -> Option<String> {
+pub fn dex_symbol(symbol: &Symbol) -> (Option<String>, String) {
     if symbol.is_spot() {
-        return None;
+        return (None, symbol.base.to_uppercase());
     }
     let mut symbol = symbol.base.split(':');
     match (symbol.next(), symbol.next()) {
-        (Some(_), None) => None,
-        (Some(dex), Some(_)) => Some(dex.to_ascii_lowercase()),
+        (Some(symbol), None) => (None, symbol.to_uppercase()),
+        (Some(dex), Some(symbol)) => (Some(dex.to_ascii_lowercase()), symbol.to_uppercase()),
         _ => panic!("invaild symbol: {:?}", symbol),
     }
 }

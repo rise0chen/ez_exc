@@ -5,11 +5,11 @@ use exc_util::types::earn::{common_st_rate, StRate};
 
 impl Hyperliquid {
     pub async fn get_st_rate(&mut self, symbol: &Symbol) -> Result<StRate, ExchangeError> {
-        if let Some(rate) = common_st_rate(symbol) {
+        let base = crate::symnol::dex_symbol(symbol).1;
+        if let Some(rate) = common_st_rate(&base) {
             return Ok(rate);
         }
-        let coin = crate::symnol::symbol_id(symbol);
-        let _coin: String = match coin.as_str() {
+        let _coin: String = match base.as_str() {
             "" => {
                 return Ok(StRate {
                     rate: 1.0,

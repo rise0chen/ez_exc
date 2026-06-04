@@ -30,7 +30,7 @@ impl Hyperliquid {
             min_usd = 10.0;
         } else {
             fee = user_fees.taker_rate.as_f64() * (1.0 - user_fees.referral_discount.as_f64());
-            let a = if let Some(dex) = crate::symnol::dex(symbol) {
+            let a = if let Some(dex) = crate::symnol::dex_symbol(symbol).0 {
                 let dex = self.http.perp_dexes().await?.into_iter().find(|x| x.name() == dex).unwrap();
                 let fee_scale = dex.deployer_fee_scale().unwrap().as_f64();
                 let a = self.http.perps_from(dex).await?.into_iter().find(|x| x.name == symbol_id).unwrap();
