@@ -1,5 +1,11 @@
 use exc_util::error::ExchangeError;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct List<T> {
+    pub rows: Vec<T>,
+    pub total: u32,
+}
 
 /// HTTP API Response (with `code` and `msg`).
 #[derive(Debug, Deserialize)]
