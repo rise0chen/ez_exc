@@ -1,7 +1,7 @@
 use super::Htx;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{Fee, Order, OrderId, OrderSide, OrderType, PlaceOrderRequest};
+use exc_util::types::order::{Fee, Order, OrderId, OrderSide, OrderStatus, OrderType, PlaceOrderRequest};
 use tower::ServiceExt;
 
 impl Htx {
@@ -108,12 +108,23 @@ impl Htx {
         } = order_id;
 
         let order = if symbol.is_spot() {
-            use crate::spot_api::http::trading::GetOrderRequest;
+            use crate::spot_api::http::trading::{GetOrderDetailRequest, GetOrderRequest};
             let req = GetOrderRequest {
                 order_id,
                 client_order_id: custom_order_id,
             };
             let resp = self.oneshot(req).await?.data;
+            let fee = if OrderStatus::from(resp.state).is_finished() {
+                let req = GetOrderDetailRequest { order_id: resp.id };
+                let fees = self.oneshot(req).await?;
+                if fees.iter().all(|x| x.fee_deduct_currency.is_empty()) {
+                    Fee::Base(fees.iter().map(|x| x.filled_fees).sum())
+                } else {
+                    Fee::Quote(symbol.fee * resp.field_cash_amount)
+                }
+            } else {
+                Fee::Quote(0.0)
+            };
             Order {
                 order_id: resp.id.to_string(),
                 vol: symbol.token_size(resp.amount.abs()),
@@ -123,7 +134,7 @@ impl Htx {
                 } else {
                     symbol.token_price(resp.field_cash_amount / resp.field_amount)
                 },
-                fee: Fee::Quote(resp.field_fees),
+                fee,
                 state: resp.state.into(),
                 side: resp.r#type.into(),
             }

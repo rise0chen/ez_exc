@@ -19,9 +19,15 @@ async fn main() -> anyhow::Result<()> {
     htx.run();
     tokio::time::sleep(Duration::from_secs(2)).await;
 
-    let symbol = Symbol::derivative(Asset::try_from("XAUT").unwrap(), Asset::usdt());
-    let order_req = PlaceOrderRequest::new(1.0, 4000.0, OrderType::Limit);
+    let mut symbol = Symbol::derivative(Asset::try_from("XAUT").unwrap(), Asset::usdt());
+    htx.perfect_symbol(&mut symbol).await.unwrap();
+    let order_req = PlaceOrderRequest::new(0.001, 4000.0, OrderType::Limit);
     let order_id = htx.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
+    let order = htx.get_order(order_id.clone()).await;
+    tracing::info!("{:?}", order);
+    tokio::time::sleep(Duration::from_secs(3)).await;
+    let order = htx.get_order(order_id.clone()).await;
+    tracing::info!("{:?}", order);
     tokio::time::sleep(Duration::from_secs(10)).await;
     let order_id = htx.cancel_order(order_id).await.unwrap();
     let order = htx.get_order(order_id).await.unwrap();

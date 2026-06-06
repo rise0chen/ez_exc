@@ -129,3 +129,39 @@ impl Rest for GetOrderRequest {
         true
     }
 }
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetOrderDetailRequest {
+    #[serde(skip)]
+    pub order_id: u64,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub struct GetOrderDetailResponse {
+    pub fee_currency: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub filled_fees: f64,
+    pub fee_deduct_currency: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub filled_points: f64,
+}
+
+impl Rest for GetOrderDetailRequest {
+    type Response = Vec<GetOrderDetailResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::SpotApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        format!("/v1/order/orders/{}/matchresults", self.order_id)
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
