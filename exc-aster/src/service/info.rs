@@ -40,7 +40,10 @@ impl Aster {
                     Filter::MinNotional { notional } => min_usd = notional,
                 }
             }
-            fee = 0.0004;
+            let req = crate::futures_api::http::account::GetFeeRequest { symbol: symbol_id };
+            if let Ok(info) = self.oneshot(req).await {
+                fee = info.taker_commission_rate;
+            };
         }
         if symbol.multi_price != multi_price {
             tracing::error!("aster multi_price from {} to {}", symbol.multi_price, multi_price);

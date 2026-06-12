@@ -7,13 +7,13 @@ pub struct StRate {
 
 pub fn common_st_rate(symbol: &str) -> Option<StRate> {
     let rate = match symbol.to_uppercase().as_str() {
-        "XBR" | "BZ" | "BRENTOIL" => StRate {
-            rate: 1.05,
+        "CL" | "WTI" | "XTI" | "USOIL" => StRate {
+            rate: 0.952,
             start_time: 0,
             apy: 0.0,
         },
         "USO" => StRate {
-            rate: 1.466,
+            rate: 1.396,
             start_time: 1776412800000,
             apy: -0.0152,
         },
