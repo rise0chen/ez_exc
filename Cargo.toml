@@ -5,6 +5,7 @@ members = [
   "exc-binance",
   "exc-bitget",
   "exc-bitmart",
+  "exc-bitmex",
   "exc-bitunix",
   "exc-bybit",
   "exc-coinw",
