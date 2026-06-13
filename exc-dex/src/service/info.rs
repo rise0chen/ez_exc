@@ -51,6 +51,9 @@ impl Dex {
             tracing::info!("dex precision_price from {} to {}", symbol.precision_price, quote_decimals);
             symbol.precision_price = quote_decimals;
         }
+        if let Ok(position) = self.get_position(symbol).await {
+            symbol.position = position.size;
+        }
         Ok(())
     }
 

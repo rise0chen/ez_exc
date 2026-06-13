@@ -44,8 +44,12 @@ pub struct Symbol {
     pub fee: f64,
     /// 手续费币种价格
     pub fee_coin: f64,
+    /// 是否可以交易
+    pub can_trade: bool,
     /// 是否可以开仓
     pub can_open: bool,
+    /// 仓位
+    pub position: f64,
 }
 impl Symbol {
     pub fn unknown(base: Asset, quote: Asset) -> Self {
@@ -65,7 +69,9 @@ impl Symbol {
             min_size: 0.0,
             fee: 0.0,
             fee_coin: 1.0,
+            can_trade: true,
             can_open: true,
+            position: 0.0,
         }
     }
     pub fn spot(base: Asset, quote: Asset) -> Self {

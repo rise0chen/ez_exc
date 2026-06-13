@@ -30,7 +30,7 @@ impl Xt {
             min_size = a.min_qty;
             min_usd = a.min_notional;
             fee = a.taker_fee;
-            can_open = a.open_switch;
+            can_open = a.open_switch && a.risk_expire_time.is_none();
         }
 
         if symbol.multi_price != multi_price {
@@ -64,6 +64,9 @@ impl Xt {
         if symbol.can_open != can_open {
             tracing::warn!("xt can_open from {} to {}", symbol.can_open, can_open);
             symbol.can_open = can_open;
+        }
+        if let Ok(position) = self.get_position(symbol).await {
+            symbol.position = position.size;
         }
         Ok(())
     }

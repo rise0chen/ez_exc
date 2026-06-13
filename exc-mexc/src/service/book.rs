@@ -12,20 +12,34 @@ impl Mexc {
             use crate::spot_api::http::book::GetDepthRequest;
             let req = GetDepthRequest { symbol: symbol_id, limit };
             let resp = self.oneshot(req).await?;
-            Depth {
-                bid: resp.bids.iter().map(|x| symbol.order(x.0, x.1)).collect(),
-                ask: resp.asks.iter().map(|x| symbol.order(x.0, x.1)).collect(),
-                version: (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64,
-            }
+            let bid = if symbol.can_trade && (symbol.can_open || symbol.position > 0.0) {
+                resp.bids.iter().map(|x| symbol.order(x.0, x.1)).collect()
+            } else {
+                Vec::new()
+            };
+            let ask = if symbol.can_trade && (symbol.can_open || symbol.position < 0.0) {
+                resp.asks.iter().map(|x| symbol.order(x.0, x.1)).collect()
+            } else {
+                Vec::new()
+            };
+            let version = (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64;
+            Depth { bid, ask, version }
         } else {
             use crate::futures_web::http::book::GetDepthRequest;
             let req = GetDepthRequest { symbol: symbol_id, limit };
             let resp = self.oneshot(req).await?;
-            Depth {
-                bid: resp.bids.iter().map(|x| symbol.order(x.0, x.1)).collect(),
-                ask: resp.asks.iter().map(|x| symbol.order(x.0, x.1)).collect(),
-                version: resp.timestamp,
-            }
+            let bid = if symbol.can_trade && (symbol.can_open || symbol.position > 0.0) {
+                resp.bids.iter().map(|x| symbol.order(x.0, x.1)).collect()
+            } else {
+                Vec::new()
+            };
+            let ask = if symbol.can_trade && (symbol.can_open || symbol.position < 0.0) {
+                resp.asks.iter().map(|x| symbol.order(x.0, x.1)).collect()
+            } else {
+                Vec::new()
+            };
+            let version = resp.timestamp;
+            Depth { bid, ask, version }
         };
         Ok(bid_ask)
     }

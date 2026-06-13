@@ -59,6 +59,9 @@ impl Dydx {
             tracing::warn!("dydx fee from {} to {}", symbol.fee, fee);
             symbol.fee = fee;
         }
+        if let Ok(position) = self.get_position(symbol).await {
+            symbol.position = position.size;
+        }
         Ok(())
     }
 

@@ -69,13 +69,6 @@ impl Xt {
             todo!();
         } else {
             let (size, is_close) = self.get_order_size(symbol, size, price).await;
-            if !is_close && !symbol.can_open {
-                return Ok(OrderId {
-                    symbol: symbol.clone(),
-                    order_id: None,
-                    custom_order_id: None,
-                });
-            }
             let size = symbol.contract_size(size);
             let price = symbol.contract_price(price, size.is_sign_positive());
 

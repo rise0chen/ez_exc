@@ -16,11 +16,17 @@ impl Toobit {
                 limit: 15,
             };
             let resp = self.oneshot(req).await?;
-            Depth {
-                bid: resp.b.iter().map(|x| symbol.order(x.0, x.1)).collect(),
-                ask: resp.a.iter().map(|x| symbol.order(x.0, x.1)).collect(),
-                version: resp.t,
-            }
+            let bid = if symbol.can_trade && (symbol.can_open || symbol.position > 0.0) {
+                resp.b.iter().map(|x| symbol.order(x.0, x.1)).collect()
+            } else {
+                Vec::new()
+            };
+            let ask = if symbol.can_trade && (symbol.can_open || symbol.position < 0.0) {
+                resp.a.iter().map(|x| symbol.order(x.0, x.1)).collect()
+            } else {
+                Vec::new()
+            };
+            Depth { bid, ask, version: resp.t }
         };
         Ok(bid_ask)
     }

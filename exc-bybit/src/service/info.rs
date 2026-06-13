@@ -68,6 +68,9 @@ impl Bybit {
             tracing::warn!("bybit fee from {} to {}", symbol.fee, fee);
             symbol.fee = fee;
         }
+        if let Ok(position) = self.get_position(symbol).await {
+            symbol.position = position.size;
+        }
         Ok(())
     }
     pub async fn get_index_price(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
