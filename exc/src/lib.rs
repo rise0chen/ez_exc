@@ -7,6 +7,7 @@ use exc_aster::{key::Key as AsterKey, service::Aster};
 use exc_binance::{key::Key as BinanceKey, service::Binance};
 use exc_bitget::{key::Key as BitgetKey, service::Bitget};
 use exc_bitmart::{key::Key as BitmartKey, service::Bitmart};
+use exc_bitmex::{key::Key as BitmexKey, service::Bitmex};
 use exc_bitunix::{key::Key as BitunixKey, service::Bitunix};
 use exc_bybit::{key::Key as BybitKey, service::Bybit};
 use exc_coinw::{key::Key as CoinwKey, service::Coinw};
@@ -94,6 +95,10 @@ pub enum ExchangeConfig {
         #[serde(flatten)]
         key: BitmartKey,
     },
+    Bitmex {
+        #[serde(flatten)]
+        key: BitmexKey,
+    },
     Bitunix {
         #[serde(flatten)]
         key: BitunixKey,
@@ -150,6 +155,7 @@ pub enum Exchange {
     Bybit(Bybit),
     Bitget(Bitget),
     Bitmart(Bitmart),
+    Bitmex(Bitmex),
     Bitunix(Bitunix),
     Binance(Binance),
     Aster(Aster),
@@ -204,6 +210,11 @@ impl Exchange {
                 exc.run();
                 Self::Bitmart(exc)
             }
+            ExchangeConfig::Bitmex { key } => {
+                let exc = Bitmex::new(key);
+                exc.run();
+                Self::Bitmex(exc)
+            }
             ExchangeConfig::Bitunix { key } => {
                 let exc = Bitunix::new(key);
                 exc.run();
@@ -251,6 +262,7 @@ impl Exchange {
             Exchange::Bybit(e) => e.get_balance().await,
             Exchange::Bitget(e) => e.get_balance().await,
             Exchange::Bitmart(e) => e.get_balance().await,
+            Exchange::Bitmex(e) => e.get_balance().await,
             Exchange::Bitunix(e) => e.get_balance().await,
             Exchange::Binance(e) => e.get_balance().await,
             Exchange::Aster(e) => e.get_balance().await,
@@ -281,6 +293,7 @@ impl Exchange {
             Exchange::Bybit(e) => e.get_position(symbol).await,
             Exchange::Bitget(e) => e.get_position(symbol).await,
             Exchange::Bitmart(e) => e.get_position(symbol).await,
+            Exchange::Bitmex(e) => e.get_position(symbol).await,
             Exchange::Bitunix(e) => e.get_position(symbol).await,
             Exchange::Binance(e) => e.get_position(symbol).await,
             Exchange::Aster(e) => e.get_position(symbol).await,
@@ -311,6 +324,7 @@ impl Exchange {
             Exchange::Bybit(e) => e.perfect_symbol(symbol).await,
             Exchange::Bitget(e) => e.perfect_symbol(symbol).await,
             Exchange::Bitmart(e) => e.perfect_symbol(symbol).await,
+            Exchange::Bitmex(e) => e.perfect_symbol(symbol).await,
             Exchange::Bitunix(e) => e.perfect_symbol(symbol).await,
             Exchange::Binance(e) => e.perfect_symbol(symbol).await,
             Exchange::Aster(e) => e.perfect_symbol(symbol).await,
@@ -341,6 +355,7 @@ impl Exchange {
             Exchange::Bybit(e) => e.get_index_price(symbol).await,
             Exchange::Bitget(e) => e.get_index_price(symbol).await,
             Exchange::Bitmart(e) => e.get_index_price(symbol).await,
+            Exchange::Bitmex(e) => e.get_index_price(symbol).await,
             Exchange::Bitunix(e) => e.get_index_price(symbol).await,
             Exchange::Binance(e) => e.get_index_price(symbol).await,
             Exchange::Aster(e) => e.get_index_price(symbol).await,
@@ -371,6 +386,7 @@ impl Exchange {
             Exchange::Bybit(e) => e.get_funding_rate(symbol).await,
             Exchange::Bitget(e) => e.get_funding_rate(symbol).await,
             Exchange::Bitmart(e) => e.get_funding_rate(symbol).await,
+            Exchange::Bitmex(e) => e.get_funding_rate(symbol).await,
             Exchange::Bitunix(e) => e.get_funding_rate(symbol).await,
             Exchange::Binance(e) => e.get_funding_rate(symbol).await,
             Exchange::Aster(e) => e.get_funding_rate(symbol).await,
@@ -401,6 +417,7 @@ impl Exchange {
             Exchange::Bybit(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Bitget(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Bitmart(e) => e.get_funding_rate_history(symbol, day).await,
+            Exchange::Bitmex(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Bitunix(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Binance(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Aster(e) => e.get_funding_rate_history(symbol, day).await,
@@ -431,6 +448,7 @@ impl Exchange {
             Exchange::Bybit(e) => e.get_st_rate(symbol).await,
             Exchange::Bitget(e) => e.get_st_rate(symbol).await,
             Exchange::Bitmart(e) => e.get_st_rate(symbol).await,
+            Exchange::Bitmex(e) => e.get_st_rate(symbol).await,
             Exchange::Bitunix(e) => e.get_st_rate(symbol).await,
             Exchange::Binance(e) => e.get_st_rate(symbol).await,
             Exchange::Aster(e) => e.get_st_rate(symbol).await,
@@ -461,6 +479,7 @@ impl Exchange {
             Exchange::Bybit(e) => e.get_depth(symbol, limit).await,
             Exchange::Bitget(e) => e.get_depth(symbol, limit).await,
             Exchange::Bitmart(e) => e.get_depth(symbol, limit).await,
+            Exchange::Bitmex(e) => e.get_depth(symbol, limit).await,
             Exchange::Bitunix(e) => e.get_depth(symbol, limit).await,
             Exchange::Binance(e) => e.get_depth(symbol, limit).await,
             Exchange::Aster(e) => e.get_depth(symbol, limit).await,
@@ -491,6 +510,7 @@ impl Exchange {
             Exchange::Bybit(e) => e.get_order(id).await,
             Exchange::Bitget(e) => e.get_order(id).await,
             Exchange::Bitmart(e) => e.get_order(id).await,
+            Exchange::Bitmex(e) => e.get_order(id).await,
             Exchange::Bitunix(e) => e.get_order(id).await,
             Exchange::Binance(e) => e.get_order(id).await,
             Exchange::Aster(e) => e.get_order(id).await,
@@ -521,6 +541,7 @@ impl Exchange {
             Exchange::Bybit(e) => e.place_order(symbol, order_req).await,
             Exchange::Bitget(e) => e.place_order(symbol, order_req).await,
             Exchange::Bitmart(e) => e.place_order(symbol, order_req).await,
+            Exchange::Bitmex(e) => e.place_order(symbol, order_req).await,
             Exchange::Bitunix(e) => e.place_order(symbol, order_req).await,
             Exchange::Binance(e) => e.place_order(symbol, order_req).await,
             Exchange::Aster(e) => e.place_order(symbol, order_req).await,
@@ -551,6 +572,7 @@ impl Exchange {
             Exchange::Bybit(e) => e.cancel_order(id).await,
             Exchange::Bitget(e) => e.cancel_order(id).await,
             Exchange::Bitmart(e) => e.cancel_order(id).await,
+            Exchange::Bitmex(e) => e.cancel_order(id).await,
             Exchange::Bitunix(e) => e.cancel_order(id).await,
             Exchange::Binance(e) => e.cancel_order(id).await,
             Exchange::Aster(e) => e.cancel_order(id).await,

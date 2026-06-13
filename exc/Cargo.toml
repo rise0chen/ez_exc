@@ -20,6 +20,7 @@ exc-aster = {path = "../exc-aster", default-features = false}
 exc-binance = {path = "../exc-binance", default-features = false}
 exc-bitget = {path = "../exc-bitget", default-features = false}
 exc-bitmart = {path = "../exc-bitmart", default-features = false}
+exc-bitmex = {path = "../exc-bitmex", default-features = false}
 exc-bitunix = {path = "../exc-bitunix", default-features = false}
 exc-bybit = {path = "../exc-bybit", default-features = false}
 exc-coinw = {path = "../exc-coinw", default-features = false}
