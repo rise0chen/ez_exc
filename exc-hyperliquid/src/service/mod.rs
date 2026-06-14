@@ -20,11 +20,13 @@ pub struct Hyperliquid {
 impl Hyperliquid {
     pub fn new(key: Key) -> Self {
         let http = Arc::new(hypercore::mainnet());
-        let ws = Ws::new(key.market.split(',').map(ToOwned::to_owned).collect());
+        let symbols = key.market.split(',');
+        let symbols = symbols.filter_map(|x| if x.is_empty() { None } else { Some(x.to_owned()) }).collect();
+        let ws = Ws::new(symbols);
         Self { key, http, ws }
     }
     pub fn run(&self) {
-        if self.ws.symbols[0].is_empty() {
+        if self.ws.symbols.is_empty() {
             return;
         }
         let ws = self.ws.clone();

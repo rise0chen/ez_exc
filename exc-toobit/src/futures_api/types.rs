@@ -89,12 +89,13 @@ impl From<exc_util::types::order::OrderType> for TimeInForce {
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum OrderStatus {
-    Unknown = 0,
-    New = 1,
-    PartiallyFilled = 2,
-    Filled = 3,
-    Canceled = 4,
-    Rejected = 5,
+    Unknown,
+    New,
+    PartiallyFilled,
+    PartiallyCanceled,
+    Filled,
+    Canceled,
+    Rejected,
 }
 impl From<OrderStatus> for exc_util::types::order::OrderStatus {
     fn from(value: OrderStatus) -> Self {
@@ -104,6 +105,7 @@ impl From<OrderStatus> for exc_util::types::order::OrderStatus {
             OrderStatus::Filled => Self::Filled,
             OrderStatus::Canceled | OrderStatus::Rejected => Self::Canceled,
             OrderStatus::PartiallyFilled => Self::PartiallyFilled,
+            OrderStatus::PartiallyCanceled => Self::PartiallyCanceled,
         }
     }
 }

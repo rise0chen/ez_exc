@@ -25,11 +25,13 @@ pub struct Gate {
 impl Gate {
     pub fn new(key: Key) -> Self {
         let http = ServiceBuilder::default().service(Client::new(None));
-        let ws_spot = crate::spot_api::ws::Ws::new(key.symbol.split(',').map(ToOwned::to_owned).collect());
+        let symbols = key.symbol.split(',');
+        let symbols = symbols.filter_map(|x| if x.is_empty() { None } else { Some(x.to_owned()) }).collect();
+        let ws_spot = crate::spot_api::ws::Ws::new(symbols);
         Self { key, http, ws_spot }
     }
     pub fn run(&self) {
-        if self.ws_spot.symbols[0].is_empty() {
+        if self.ws_spot.symbols.is_empty() {
             return;
         }
         let ws = self.ws_spot.clone();

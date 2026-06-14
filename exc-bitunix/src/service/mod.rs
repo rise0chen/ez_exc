@@ -25,11 +25,13 @@ pub struct Bitunix {
 impl Bitunix {
     pub fn new(key: Key) -> Self {
         let http = ServiceBuilder::default().service(Client::new(None));
-        let ws = crate::futures_api::ws::Ws::new(key.symbol.split(',').map(ToOwned::to_owned).collect());
+        let symbols = key.symbol.split(',');
+        let symbols = symbols.filter_map(|x| if x.is_empty() { None } else { Some(x.to_owned()) }).collect();
+        let ws = crate::futures_api::ws::Ws::new(symbols);
         Self { key, http, ws }
     }
     pub fn run(&self) {
-        if self.ws.symbols[0].is_empty() {
+        if self.ws.symbols.is_empty() {
             return;
         }
         let ws = self.ws.clone();
