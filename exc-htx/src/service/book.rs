@@ -35,7 +35,9 @@ impl Htx {
                     return Ok(book);
                 }
             }
-            tracing::warn!("htx get depth {} by http", symbol_id);
+            if !self.ws.symbols.is_empty() {
+                tracing::warn!("htx get depth {} by http", symbol_id);
+            }
             use crate::futures_api::http::book::GetDepthRequest;
             let req = GetDepthRequest {
                 contract_code: symbol_id,

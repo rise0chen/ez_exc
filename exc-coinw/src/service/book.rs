@@ -24,7 +24,9 @@ impl Coinw {
                     return Ok(book);
                 }
             }
-            tracing::warn!("coinw get depth {} by http", symbol_id);
+            if !self.ws.symbols.is_empty() {
+                tracing::warn!("coinw get depth {} by http", symbol_id);
+            }
             use crate::futures_api::http::book::GetDepthRequest;
             let req = GetDepthRequest { base: symbol_id };
             let resp = self.oneshot(req).await?;

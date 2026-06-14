@@ -24,7 +24,9 @@ impl Bitmart {
                     return Ok(book);
                 }
             }
-            tracing::warn!("bitmart get depth {} by http", symbol_id);
+            if !self.ws.symbols.is_empty() {
+                tracing::warn!("bitmart get depth {} by http", symbol_id);
+            }
             use crate::futures_api::http::book::GetDepthRequest;
             let req = GetDepthRequest { symbol: symbol_id };
             let resp = self.oneshot(req).await?;

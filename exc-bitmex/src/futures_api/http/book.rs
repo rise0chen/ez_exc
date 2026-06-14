@@ -19,7 +19,7 @@ pub struct GetDepthResponse {
     pub size: i64,
     pub price: f64,
     #[serde_as(as = "time::format_description::well_known::Rfc3339")]
-    pub transact_time: OffsetDateTime,
+    pub timestamp: OffsetDateTime,
 }
 
 impl Rest for GetDepthRequest {

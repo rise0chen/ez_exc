@@ -26,14 +26,16 @@ impl Bitmex {
                     return Ok(book);
                 }
             }
-            tracing::warn!("bitmex get depth {} by http", symbol_id);
+            if !self.ws.symbols.is_empty() {
+                tracing::warn!("bitmex get depth {} by http", symbol_id);
+            }
             use crate::futures_api::http::book::GetDepthRequest;
             let req = GetDepthRequest {
                 symbol: symbol_id,
                 depth: limit,
             };
             let resp = self.oneshot(req).await?;
-            let version = resp.iter().map(|x| x.transact_time.unix_timestamp_nanos()).max();
+            let version = resp.iter().map(|x| x.timestamp.unix_timestamp_nanos()).max();
             let version = (version.unwrap_or(OffsetDateTime::now_utc().unix_timestamp_nanos()) / 1_000_000) as u64;
             let mut bid = Vec::new();
             let mut ask = Vec::new();

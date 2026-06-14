@@ -22,7 +22,9 @@ impl Gate {
                     return Ok(book);
                 }
             }
-            tracing::warn!("gate get depth spot:{} by http", symbol_id);
+            if !self.ws_spot.symbols.is_empty() {
+                tracing::warn!("gate get depth spot:{} by http", symbol_id);
+            }
             use crate::spot_api::http::book::GetDepthRequest;
             let req = GetDepthRequest {
                 currency_pair: symbol_id,

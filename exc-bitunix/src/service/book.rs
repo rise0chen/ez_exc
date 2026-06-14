@@ -25,7 +25,9 @@ impl Bitunix {
                     return Ok(book);
                 }
             }
-            tracing::warn!("bitunix get depth {} by http", symbol_id);
+            if !self.ws.symbols.is_empty() {
+                tracing::warn!("bitunix get depth {} by http", symbol_id);
+            }
             use crate::futures_api::http::book::GetDepthRequest;
             let req = GetDepthRequest {
                 symbol: symbol_id,
