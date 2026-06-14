@@ -32,7 +32,7 @@ pub fn common_st_rate(symbol: &str) -> Option<StRate> {
             start_time: 1776412800000,
             apy: -0.0025,
         },
-        "SLVON" => StRate {
+        "SLV" | "SLVON" => StRate {
             rate: 0.905,
             start_time: 1776412800000,
             apy: -0.005,

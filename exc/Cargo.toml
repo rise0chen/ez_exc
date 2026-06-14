@@ -32,6 +32,7 @@ exc-grvt = {path = "../exc-grvt", default-features = false}
 exc-htx = {path = "../exc-htx", default-features = false}
 exc-hyperliquid = {path = "../exc-hyperliquid", default-features = false}
 exc-kcex = {path = "../exc-kcex", default-features = false}
+exc-lbank = {path = "../exc-lbank", default-features = false}
 exc-lighter = {path = "../exc-lighter", default-features = false}
 exc-mexc = {path = "../exc-mexc", default-features = false}
 exc-okx = {path = "../exc-okx", default-features = false}

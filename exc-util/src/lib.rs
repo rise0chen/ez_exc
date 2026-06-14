@@ -4,4 +4,5 @@ pub mod error;
 pub mod http;
 pub mod interface;
 pub mod symbol;
+pub mod traits;
 pub mod types;

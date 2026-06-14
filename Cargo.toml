@@ -17,6 +17,7 @@ members = [
   "exc-htx",
   "exc-hyperliquid",
   "exc-kcex",
+  "exc-lbank",
   "exc-lighter",
   "exc-mexc",
   "exc-okx",
