@@ -6,38 +6,30 @@ use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
+use std::vec;
 use time::OffsetDateTime;
 use tokio::sync::watch;
 use tokio_tungstenite::tungstenite::Message;
 
-const HOST: &str = "wss://ws.futurescw.com/perpum";
+const HOST: &str = "wss://ws.bitmex.com/realtime";
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum Event {
+#[serde(tag = "op", content = "args")]
+#[serde(rename_all = "camelCase")]
+pub enum TxRequest {
     Ping,
     Pong,
-    Sub,
-    Unsub,
-}
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct TxRequestParams {
-    pub r#type: String,
-    pub biz: String,
-    pub pair_code: String,
-}
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TxRequest {
-    pub event: Event,
-    pub params: Option<TxRequestParams>,
+    Subscribe(Vec<String>),
+    Unsubscribe(Vec<String>),
+    CancelAllAfter(u64),
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(tag = "type")]
-#[serde(rename_all = "snake_case")]
+#[serde(tag = "table")]
+#[serde(rename_all = "camelCase")]
 pub enum RxResponseData {
-    Depth(book::GetDepthResponse),
+    OrderBookL2_25(book::GetOrdersResponse),
+    OrderBook10(book::GetDepthResponse),
 }
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
@@ -66,14 +58,7 @@ impl Ws {
         tracing::info!(base_url = HOST, "WebSocket connected");
         let (mut write, mut read) = ws_stream.split();
         for s in &self.symbols {
-            let req_price = TxRequest {
-                event: Event::Sub,
-                params: Some(TxRequestParams {
-                    r#type: "depth".into(),
-                    biz: "futures".into(),
-                    pair_code: s.into(),
-                }),
-            };
+            let req_price = TxRequest::Subscribe(vec![format!("orderBook10:{s}")]);
             write.send(Message::Text(serde_json::to_string(&req_price)?.into())).await?;
         }
 
@@ -87,11 +72,6 @@ impl Ws {
                     if now - last_time > 30 {
                         return Ok(());
                     }
-                    let req_ping = TxRequest {
-                        event: Event::Ping,
-                        params: None,
-                    };
-                    write.send(Message::Text(serde_json::to_string(&req_ping)?.into())).await?;
                     write.send(Message::Ping("".into())).await?;
                     continue;
                 }
@@ -132,21 +112,42 @@ impl Ws {
             };
             match m {
                 RxResponse::Event(e) => {
-                    if matches!(e.event, Event::Pong) {
+                    if matches!(e, TxRequest::Pong) {
                         last_time = OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000_000;
                     } else {
                         tracing::warn!(e = ?e, "Unhandled Event");
                     }
                 }
                 RxResponse::Data(d) => match d {
-                    RxResponseData::Depth(d) => {
-                        let symbol = d.pair_code;
-                        if let Some(ch) = self.books.get(&symbol) {
+                    RxResponseData::OrderBook10(d) => {
+                        let d = d.data.first().unwrap();
+                        let symbol = &d.symbol;
+                        if let Some(ch) = self.books.get(symbol) {
                             ch.send_replace(Depth {
-                                bid: d.data.bids.iter().map(|x| Order::new(x.p, x.m)).collect(),
-                                ask: d.data.asks.iter().map(|x| Order::new(x.p, x.m)).collect(),
-                                version: d.data.t,
+                                bid: d.bids.iter().map(|x| Order::new(x.0, x.1)).collect(),
+                                ask: d.asks.iter().map(|x| Order::new(x.0, x.1)).collect(),
+                                version: (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64,
                             });
+                        } else {
+                            tracing::warn!("Not init {}", symbol);
+                        }
+                    }
+                    RxResponseData::OrderBookL2_25(d) => {
+                        let symbol = d.data[0].symbol.clone();
+                        if let Some(ch) = self.books.get(&symbol) {
+                            let mut bid = Vec::new();
+                            let mut ask = Vec::new();
+                            for x in d.data {
+                                if x.side.is_buy() {
+                                    bid.push(Order::new(x.price, x.size as f64));
+                                } else {
+                                    ask.push(Order::new(x.price, x.size as f64));
+                                }
+                            }
+                            bid.sort_by(|a, b| b.price.total_cmp(&a.price));
+                            ask.sort_by(|a, b| a.price.total_cmp(&b.price));
+                            let version = (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64;
+                            ch.send_replace(Depth { bid, ask, version });
                         } else {
                             tracing::warn!("Not init {}", symbol);
                         }

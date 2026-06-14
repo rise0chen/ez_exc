@@ -1,29 +1,40 @@
+use crate::futures_api::types::OrderSide;
 use serde::Deserialize;
-use serde_with::{DisplayFromStr, serde_as};
 
-#[serde_as]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// price, size
+pub enum Action {
+    Partial,
+    Update,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Order {
-    #[serde_as(as = "DisplayFromStr")]
-    pub p: f64,
-    #[serde_as(as = "DisplayFromStr")]
-    pub m: f64,
+    pub symbol: String,
+    pub side: OrderSide,
+    pub size: i64,
+    pub price: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetOrdersResponse {
+    pub action: Action,
+    pub data: Vec<Order>,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Depth {
-    pub asks: Vec<Order>,
-    pub bids: Vec<Order>,
-    pub t: u64,
+    pub symbol: String,
+    pub bids: Vec<(f64, f64)>,
+    pub asks: Vec<(f64, f64)>,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GetDepthResponse {
-    pub biz: String,
-    pub pair_code: String,
-    pub data: Depth,
+    pub action: Action,
+    pub data: Vec<Depth>,
 }

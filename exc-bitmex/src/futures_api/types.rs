@@ -22,6 +22,11 @@ pub enum OrderSide {
     Buy,
     Sell,
 }
+impl OrderSide {
+    pub fn is_buy(&self) -> bool {
+        matches!(self, OrderSide::Buy)
+    }
+}
 impl From<OrderSide> for exc_util::types::order::OrderSide {
     fn from(value: OrderSide) -> Self {
         match value {
