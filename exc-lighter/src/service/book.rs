@@ -10,6 +10,7 @@ impl Lighter {
         let Some(resp) = self.ws.get_order_book(&symbol.base_id).await else {
             return Ok(Depth::default());
         };
+        let version = (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64;
         let mut bids = BTreeMap::new();
         let mut asks = BTreeMap::new();
         resp.bids.into_iter().for_each(|x| {
@@ -23,16 +24,14 @@ impl Lighter {
                 .or_insert(x.size.parse::<f64>().unwrap());
         });
         let mut bid: Vec<_> = bids.into_iter().map(|(p, s)| symbol.order(p.parse().unwrap(), s)).collect();
+        bid.retain(|x| x.price >= symbol.min_price);
         bid.sort_by(|a, b| b.price.total_cmp(&a.price));
         bid.truncate(limit as usize);
         let mut ask: Vec<_> = asks.into_iter().map(|(p, s)| symbol.order(p.parse().unwrap(), s)).collect();
+        ask.retain(|x| x.price <= symbol.max_price);
         ask.sort_by(|a, b| a.price.total_cmp(&b.price));
         ask.truncate(limit as usize);
-        let bid_ask = Depth {
-            bid,
-            ask,
-            version: (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64,
-        };
+        let bid_ask = Depth { bid, ask, version };
         Ok(bid_ask)
     }
 }

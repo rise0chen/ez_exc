@@ -41,7 +41,8 @@ impl Dex {
                 return Err(map_err(e));
             }
         };
-        let (bid, ask) = if self.key.pool_cfg.base_is_0 {
+        let version = depth.timestamp.to::<u64>() * 1000;
+        let (mut bid, mut ask): (Vec<Order>, Vec<Order>) = if self.key.pool_cfg.base_is_0 {
             let bid = depth.bids.iter().filter_map(|x| map_order0(x, symbol)).collect();
             let ask = depth.asks.iter().filter_map(|x| map_order0(x, symbol)).collect();
             (bid, ask)
@@ -50,11 +51,10 @@ impl Dex {
             let ask = depth.bids.iter().filter_map(|x| map_order1(x, symbol)).collect();
             (bid, ask)
         };
-        let bid_ask = Depth {
-            bid,
-            ask,
-            version: depth.timestamp.to::<u64>() * 1000,
-        };
-        Ok(bid_ask)
+        bid.retain(|x| x.price >= symbol.min_price);
+        bid.sort_by(|a, b| b.price.total_cmp(&a.price));
+        ask.retain(|x| x.price <= symbol.max_price);
+        ask.sort_by(|a, b| a.price.total_cmp(&b.price));
+        Ok(Depth { bid, ask, version })
     }
 }

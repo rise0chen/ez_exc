@@ -33,6 +33,8 @@ impl Bitmex {
             min_size = 0.0;
             min_usd = 0.0;
             fee = a.taker_fee;
+            symbol.min_price = a.low_price;
+            symbol.max_price = a.high_price;
         }
         if symbol.multi_price != multi_price {
             tracing::error!("bitmex multi_price from {} to {}", symbol.multi_price, multi_price);

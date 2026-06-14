@@ -1,7 +1,7 @@
 use super::Bitunix;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::book::Depth;
+use exc_util::types::book::{Depth, Order};
 use time::OffsetDateTime;
 use tower::ServiceExt;
 
@@ -22,6 +22,10 @@ impl Bitunix {
                         x.price = symbol.token_price(x.price);
                         x.size = symbol.token_size(x.size);
                     });
+                    book.bid.retain(|x| x.price >= symbol.min_price);
+                    book.bid.sort_by(|a, b| b.price.total_cmp(&a.price));
+                    book.ask.retain(|x| x.price <= symbol.max_price);
+                    book.ask.sort_by(|a, b| a.price.total_cmp(&b.price));
                     return Ok(book);
                 }
             }
@@ -34,11 +38,14 @@ impl Bitunix {
                 limit: 15,
             };
             let resp = self.oneshot(req).await?;
-            Depth {
-                bid: resp.bids.iter().map(|x| symbol.order(x.0, x.1)).collect(),
-                ask: resp.asks.iter().map(|x| symbol.order(x.0, x.1)).collect(),
-                version: (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64,
-            }
+            let version = (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64;
+            let mut bid: Vec<Order> = resp.bids.iter().map(|x| symbol.order(x.0, x.1)).collect();
+            let mut ask: Vec<Order> = resp.asks.iter().map(|x| symbol.order(x.0, x.1)).collect();
+            bid.retain(|x| x.price >= symbol.min_price);
+            bid.sort_by(|a, b| b.price.total_cmp(&a.price));
+            ask.retain(|x| x.price <= symbol.max_price);
+            ask.sort_by(|a, b| a.price.total_cmp(&b.price));
+            Depth { bid, ask, version }
         };
         Ok(bid_ask)
     }

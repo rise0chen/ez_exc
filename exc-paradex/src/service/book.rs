@@ -1,7 +1,7 @@
 use super::Paradex;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::book::Depth;
+use exc_util::types::book::{Depth, Order};
 
 impl Paradex {
     pub async fn get_depth(&mut self, symbol: &Symbol, limit: u16) -> Result<Depth, ExchangeError> {
@@ -21,10 +21,12 @@ impl Paradex {
                 .map_err(|e| ExchangeError::Other(e.into()))?;
             (resp.asks, resp.bids, resp.last_updated_at)
         };
-        Ok(Depth {
-            bid: bid.iter().map(|(p, s)| symbol.order(p.parse().unwrap(), s.parse().unwrap())).collect(),
-            ask: ask.iter().map(|(p, s)| symbol.order(p.parse().unwrap(), s.parse().unwrap())).collect(),
-            version,
-        })
+        let mut bid: Vec<Order> = bid.iter().map(|(p, s)| symbol.order(p.parse().unwrap(), s.parse().unwrap())).collect();
+        let mut ask: Vec<Order> = ask.iter().map(|(p, s)| symbol.order(p.parse().unwrap(), s.parse().unwrap())).collect();
+        bid.retain(|x| x.price >= symbol.min_price);
+        bid.sort_by(|a, b| b.price.total_cmp(&a.price));
+        ask.retain(|x| x.price <= symbol.max_price);
+        ask.sort_by(|a, b| a.price.total_cmp(&b.price));
+        Ok(Depth { bid, ask, version })
     }
 }

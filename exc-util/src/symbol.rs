@@ -36,6 +36,10 @@ pub struct Symbol {
     pub precision: i8,
     /// 价格精度
     pub precision_price: i8,
+    /// 最小价格
+    pub min_price: f64,
+    /// 最大价格
+    pub max_price: f64,
     /// 最小下单金额
     pub min_usd: f64,
     /// 最小下单数量
@@ -65,6 +69,8 @@ impl Symbol {
             multi_size: 1.0,
             precision: 0,
             precision_price: 2,
+            min_price: f64::MIN,
+            max_price: f64::MAX,
             min_usd: 5.0,
             min_size: 0.0,
             fee: 0.0,

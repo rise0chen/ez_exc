@@ -16,17 +16,22 @@ impl Toobit {
                 limit: 15,
             };
             let resp = self.oneshot(req).await?;
-            let bid = if symbol.can_trade && (symbol.can_open || symbol.position > 0.0) {
+            let version = resp.t;
+            let mut bid = if symbol.can_trade && (symbol.can_open || symbol.position > 0.0) {
                 resp.b.iter().map(|x| symbol.order(x.0, x.1)).collect()
             } else {
                 Vec::new()
             };
-            let ask = if symbol.can_trade && (symbol.can_open || symbol.position < 0.0) {
+            let mut ask = if symbol.can_trade && (symbol.can_open || symbol.position < 0.0) {
                 resp.a.iter().map(|x| symbol.order(x.0, x.1)).collect()
             } else {
                 Vec::new()
             };
-            Depth { bid, ask, version: resp.t }
+            bid.retain(|x| x.price >= symbol.min_price);
+            bid.sort_by(|a, b| b.price.total_cmp(&a.price));
+            ask.retain(|x| x.price <= symbol.max_price);
+            ask.sort_by(|a, b| a.price.total_cmp(&b.price));
+            Depth { bid, ask, version }
         };
         Ok(bid_ask)
     }

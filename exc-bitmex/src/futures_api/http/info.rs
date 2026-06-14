@@ -18,6 +18,8 @@ pub struct GetInfoResponse {
     pub quote_to_settle_multiplier: i64,
     pub lot_size: i64,
     pub tick_size: f64,
+    pub high_price: f64,
+    pub low_price: f64,
     pub taker_fee: f64,
     pub maker_fee: f64,
 

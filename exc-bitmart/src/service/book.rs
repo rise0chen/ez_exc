@@ -1,7 +1,7 @@
 use super::Bitmart;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::book::Depth;
+use exc_util::types::book::{Depth, Order};
 use tower::ServiceExt;
 
 impl Bitmart {
@@ -21,6 +21,10 @@ impl Bitmart {
                         x.price = symbol.token_price(x.price);
                         x.size = symbol.token_size(x.size);
                     });
+                    book.bid.retain(|x| x.price >= symbol.min_price);
+                    book.bid.sort_by(|a, b| b.price.total_cmp(&a.price));
+                    book.ask.retain(|x| x.price <= symbol.max_price);
+                    book.ask.sort_by(|a, b| a.price.total_cmp(&b.price));
                     return Ok(book);
                 }
             }
@@ -30,11 +34,14 @@ impl Bitmart {
             use crate::futures_api::http::book::GetDepthRequest;
             let req = GetDepthRequest { symbol: symbol_id };
             let resp = self.oneshot(req).await?;
-            Depth {
-                bid: resp.bids.iter().map(|x| symbol.order(x.0, x.1)).collect(),
-                ask: resp.asks.iter().map(|x| symbol.order(x.0, x.1)).collect(),
-                version: resp.timestamp,
-            }
+            let version = resp.timestamp;
+            let mut bid: Vec<Order> = resp.bids.iter().map(|x| symbol.order(x.0, x.1)).collect();
+            let mut ask: Vec<Order> = resp.asks.iter().map(|x| symbol.order(x.0, x.1)).collect();
+            bid.retain(|x| x.price >= symbol.min_price);
+            bid.sort_by(|a, b| b.price.total_cmp(&a.price));
+            ask.retain(|x| x.price <= symbol.max_price);
+            ask.sort_by(|a, b| a.price.total_cmp(&b.price));
+            Depth { bid, ask, version }
         };
         Ok(bid_ask)
     }
