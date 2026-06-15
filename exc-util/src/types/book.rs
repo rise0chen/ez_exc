@@ -14,7 +14,7 @@ impl PartialEq for Order {
     }
 }
 
-pub fn depth_price(book: &[Order], depth: f64) -> f64 {
+pub fn depth_price(book: &[Order], depth: f64) -> Option<f64> {
     let mut remain = depth;
     let mut size = 0.0;
     for order in book {
@@ -28,7 +28,7 @@ pub fn depth_price(book: &[Order], depth: f64) -> f64 {
             remain -= val;
         }
     }
-    (depth - remain) / size
+    (size != 0.0).then_some((depth - remain) / size)
 }
 
 #[derive(Debug, Default, Clone)]
@@ -39,20 +39,27 @@ pub struct Depth {
 }
 impl Depth {
     pub fn is_valid(&self) -> bool {
-        if self.bid.len() < 2 || self.ask.len() < 2 {
-            return false;
-        }
         if self.is_expired() {
             return false;
         }
-        self.bid[self.bid.len() - 1].price <= self.ask[self.ask.len() - 1].price
-            && self.ask[0].price < self.ask[1].price
-            && self.bid[0].price > self.bid[1].price
+        if self.bid.is_empty() && self.ask.is_empty() {
+            return false;
+        }
+        if !self.bid.is_empty() && !self.ask.is_empty() && self.bid[self.bid.len() - 1].price > self.ask[self.ask.len() - 1].price {
+            return false;
+        }
+        if self.bid.len() > 1 && self.bid[0].price < self.bid[1].price {
+            return false;
+        }
+        if self.ask.len() > 1 && self.ask[0].price > self.ask[1].price {
+            return false;
+        }
+        true
     }
     pub fn is_expired(&self) -> bool {
         ((self.version / 1000) as i64 - time::OffsetDateTime::now_utc().unix_timestamp()).abs() > 5 * 60
     }
-    pub fn depth_price(&self, depth: f64) -> (f64, f64) {
+    pub fn depth_price(&self, depth: f64) -> (Option<f64>, Option<f64>) {
         (depth_price(&self.bid, depth), depth_price(&self.ask, depth))
     }
 }
