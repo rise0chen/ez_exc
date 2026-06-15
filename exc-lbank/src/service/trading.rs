@@ -53,6 +53,13 @@ impl Lbank {
             leverage: _,
             open_type: _,
         } = data;
+        let price = if size > 0.0 && price > symbol.max_price {
+            symbol.max_price
+        } else if size < 0.0 && price < symbol.min_price {
+            symbol.min_price
+        } else {
+            price
+        };
         let custom_id = format!(
             "{:08x?}{:04x?}{:08x?}",
             time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u32,

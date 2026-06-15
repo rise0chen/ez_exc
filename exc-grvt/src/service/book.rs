@@ -15,9 +15,7 @@ impl Grvt {
         let version = (resp.event_time / 1_000_000) as u64;
         let mut bid: Vec<Order> = resp.bids.iter().map(|x| symbol.order(x.price, x.size)).collect();
         let mut ask: Vec<Order> = resp.asks.iter().map(|x| symbol.order(x.price, x.size)).collect();
-        bid.retain(|x| x.price >= symbol.min_price);
         bid.sort_by(|a, b| b.price.total_cmp(&a.price));
-        ask.retain(|x| x.price <= symbol.max_price);
         ask.sort_by(|a, b| a.price.total_cmp(&b.price));
         Ok(Depth { bid, ask, version })
     }

@@ -14,6 +14,13 @@ impl Grvt {
             leverage: _,
             open_type: _,
         } = data;
+        let price = if size > 0.0 && price > symbol.max_price {
+            symbol.max_price
+        } else if size < 0.0 && price < symbol.min_price {
+            symbol.min_price
+        } else {
+            price
+        };
         let size = symbol.contract_size(size);
         let price = symbol.contract_price(price, size.is_sign_positive());
         let custom_id = format!("{}", time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64 | 2_u64.pow(63));

@@ -31,9 +31,7 @@ impl Lbank {
                     ask.push(symbol.order(x.price, x.volume));
                 }
             }
-            bid.retain(|x| x.price >= symbol.min_price);
             bid.sort_by(|a, b| b.price.total_cmp(&a.price));
-            ask.retain(|x| x.price <= symbol.max_price);
             ask.sort_by(|a, b| a.price.total_cmp(&b.price));
             Depth { bid, ask, version }
         };

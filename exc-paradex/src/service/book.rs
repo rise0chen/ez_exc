@@ -23,9 +23,7 @@ impl Paradex {
         };
         let mut bid: Vec<Order> = bid.iter().map(|(p, s)| symbol.order(p.parse().unwrap(), s.parse().unwrap())).collect();
         let mut ask: Vec<Order> = ask.iter().map(|(p, s)| symbol.order(p.parse().unwrap(), s.parse().unwrap())).collect();
-        bid.retain(|x| x.price >= symbol.min_price);
         bid.sort_by(|a, b| b.price.total_cmp(&a.price));
-        ask.retain(|x| x.price <= symbol.max_price);
         ask.sort_by(|a, b| a.price.total_cmp(&b.price));
         Ok(Depth { bid, ask, version })
     }

@@ -20,9 +20,7 @@ impl Dydx {
             .iter()
             .map(|x| symbol.order(x.price.to_f64().unwrap(), x.size.to_f64().unwrap()))
             .collect();
-        bid.retain(|x| x.price >= symbol.min_price);
         bid.sort_by(|a, b| b.price.total_cmp(&a.price));
-        ask.retain(|x| x.price <= symbol.max_price);
         ask.sort_by(|a, b| a.price.total_cmp(&b.price));
         Ok(Depth { bid, ask, version })
     }

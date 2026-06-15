@@ -49,6 +49,13 @@ impl Bitunix {
             leverage: _,
             open_type: _,
         } = data;
+        let price = if size > 0.0 && price > symbol.max_price {
+            symbol.max_price
+        } else if size < 0.0 && price < symbol.min_price {
+            symbol.min_price
+        } else {
+            price
+        };
         let custom_id = format!("{}", 116 * time::OffsetDateTime::now_utc().unix_timestamp_nanos() / 100);
         let mut ret = OrderId {
             symbol: symbol.clone(),

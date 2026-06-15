@@ -20,6 +20,13 @@ impl Dex {
             leverage: _,
             open_type: _,
         } = data;
+        let price = if size > 0.0 && price > symbol.max_price {
+            symbol.max_price
+        } else if size < 0.0 && price < symbol.min_price {
+            symbol.min_price
+        } else {
+            price
+        };
         let size = symbol.contract_size(size);
         let price = symbol.contract_price(price, size.is_sign_positive());
         let price = price.to_f64().unwrap() * 10.0f64.powi((symbol.precision_price - symbol.precision) as i32);

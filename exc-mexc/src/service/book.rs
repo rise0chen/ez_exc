@@ -23,9 +23,7 @@ impl Mexc {
             } else {
                 Vec::new()
             };
-            bid.retain(|x| x.price >= symbol.min_price);
             bid.sort_by(|a, b| b.price.total_cmp(&a.price));
-            ask.retain(|x| x.price <= symbol.max_price);
             ask.sort_by(|a, b| a.price.total_cmp(&b.price));
             Depth { bid, ask, version }
         } else {
@@ -43,9 +41,7 @@ impl Mexc {
             } else {
                 Vec::new()
             };
-            bid.retain(|x| x.price >= symbol.min_price);
             bid.sort_by(|a, b| b.price.total_cmp(&a.price));
-            ask.retain(|x| x.price <= symbol.max_price);
             ask.sort_by(|a, b| a.price.total_cmp(&b.price));
             Depth { bid, ask, version }
         };

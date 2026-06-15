@@ -18,9 +18,7 @@ impl Bitget {
             let version = resp.ts;
             let mut bid: Vec<Order> = resp.b.iter().map(|x| symbol.order(x.0, x.1)).collect();
             let mut ask: Vec<Order> = resp.a.iter().map(|x| symbol.order(x.0, x.1)).collect();
-            bid.retain(|x| x.price >= symbol.min_price);
             bid.sort_by(|a, b| b.price.total_cmp(&a.price));
-            ask.retain(|x| x.price <= symbol.max_price);
             ask.sort_by(|a, b| a.price.total_cmp(&b.price));
             Depth { bid, ask, version }
         } else {
@@ -34,9 +32,7 @@ impl Bitget {
             let version = resp.ts;
             let mut bid: Vec<Order> = resp.b.iter().map(|x| symbol.order(x.0, x.1)).collect();
             let mut ask: Vec<Order> = resp.a.iter().map(|x| symbol.order(x.0, x.1)).collect();
-            bid.retain(|x| x.price >= symbol.min_price);
             bid.sort_by(|a, b| b.price.total_cmp(&a.price));
-            ask.retain(|x| x.price <= symbol.max_price);
             ask.sort_by(|a, b| a.price.total_cmp(&b.price));
             Depth { bid, ask, version }
         };

@@ -17,9 +17,7 @@ impl Hyperliquid {
                     x.price = symbol.token_price(x.price);
                     x.size = symbol.token_size(x.size);
                 });
-                book.bid.retain(|x| x.price >= symbol.min_price);
                 book.bid.sort_by(|a, b| b.price.total_cmp(&a.price));
-                book.ask.retain(|x| x.price <= symbol.max_price);
                 book.ask.sort_by(|a, b| a.price.total_cmp(&b.price));
                 return Ok(book);
             }

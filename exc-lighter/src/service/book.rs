@@ -24,11 +24,9 @@ impl Lighter {
                 .or_insert(x.size.parse::<f64>().unwrap());
         });
         let mut bid: Vec<_> = bids.into_iter().map(|(p, s)| symbol.order(p.parse().unwrap(), s)).collect();
-        bid.retain(|x| x.price >= symbol.min_price);
         bid.sort_by(|a, b| b.price.total_cmp(&a.price));
         bid.truncate(limit as usize);
         let mut ask: Vec<_> = asks.into_iter().map(|(p, s)| symbol.order(p.parse().unwrap(), s)).collect();
-        ask.retain(|x| x.price <= symbol.max_price);
         ask.sort_by(|a, b| a.price.total_cmp(&b.price));
         ask.truncate(limit as usize);
         let bid_ask = Depth { bid, ask, version };

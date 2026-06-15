@@ -13,6 +13,13 @@ impl Htx {
             leverage: _,
             open_type,
         } = data;
+        let price = if size > 0.0 && price > symbol.max_price {
+            symbol.max_price
+        } else if size < 0.0 && price < symbol.min_price {
+            symbol.min_price
+        } else {
+            price
+        };
         let price = if kind == OrderType::Market {
             if size.is_sign_positive() {
                 1.01 * price

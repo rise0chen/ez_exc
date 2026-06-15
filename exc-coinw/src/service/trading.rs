@@ -52,6 +52,13 @@ impl Coinw {
             leverage,
             open_type,
         } = data;
+        let price = if size > 0.0 && price > symbol.max_price {
+            symbol.max_price
+        } else if size < 0.0 && price < symbol.min_price {
+            symbol.min_price
+        } else {
+            price
+        };
         let custom_id = format!(
             "t-{:08x?}{:04x?}{:016x?}",
             price.to_f32().unwrap().ln().to_bits(),

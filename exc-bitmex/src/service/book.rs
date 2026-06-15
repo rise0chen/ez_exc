@@ -23,9 +23,7 @@ impl Bitmex {
                         x.price = symbol.token_price(x.price);
                         x.size = symbol.token_size(x.size / symbol.multi_size);
                     });
-                    book.bid.retain(|x| x.price >= symbol.min_price);
                     book.bid.sort_by(|a, b| b.price.total_cmp(&a.price));
-                    book.ask.retain(|x| x.price <= symbol.max_price);
                     book.ask.sort_by(|a, b| a.price.total_cmp(&b.price));
                     return Ok(book);
                 }
@@ -50,9 +48,7 @@ impl Bitmex {
                     ask.push(symbol.order(x.price, x.size as f64));
                 }
             }
-            bid.retain(|x| x.price >= symbol.min_price);
             bid.sort_by(|a, b| b.price.total_cmp(&a.price));
-            ask.retain(|x| x.price <= symbol.max_price);
             ask.sort_by(|a, b| a.price.total_cmp(&b.price));
             Depth { bid, ask, version }
         };

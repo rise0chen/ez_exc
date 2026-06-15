@@ -51,9 +51,7 @@ impl Dex {
             let ask = depth.bids.iter().filter_map(|x| map_order1(x, symbol)).collect();
             (bid, ask)
         };
-        bid.retain(|x| x.price >= symbol.min_price);
         bid.sort_by(|a, b| b.price.total_cmp(&a.price));
-        ask.retain(|x| x.price <= symbol.max_price);
         ask.sort_by(|a, b| a.price.total_cmp(&b.price));
         Ok(Depth { bid, ask, version })
     }
