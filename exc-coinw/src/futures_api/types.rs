@@ -73,6 +73,8 @@ pub enum OrderStatus {
     Part,
     Finish,
     Cancel,
+    SysCancel,
+    CancelAll,
 }
 impl From<OrderStatus> for exc_util::types::order::OrderStatus {
     fn from(value: OrderStatus) -> Self {
@@ -83,6 +85,8 @@ impl From<OrderStatus> for exc_util::types::order::OrderStatus {
             OrderStatus::Part => Self::PartiallyCanceled,
             OrderStatus::Finish => Self::Filled,
             OrderStatus::Cancel => Self::Canceled,
+            OrderStatus::SysCancel => Self::Canceled,
+            OrderStatus::CancelAll => Self::Canceled,
         }
     }
 }

@@ -107,6 +107,7 @@ impl Rest for CancelOrderRequest {
 #[serde(rename_all = "camelCase")]
 pub struct Order {
     pub id: Id,
+    pub order_id: Option<Id>,
     pub third_order_id: Option<String>,
     pub status: OpenSide,
     pub direction: PositionSide,
@@ -153,6 +154,8 @@ impl Rest for GetOpenOrdersRequest {
 pub struct GetOrderHistoryRequest {
     pub instrument: String,
     pub origin_type: &'static str,
+    pub position_model: i8,
+    pub order_status: &'static str,
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -170,7 +173,7 @@ impl Rest for GetOrderHistoryRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/v1/perpum/orders/history".into()
+        "/v1/perpum/orders/deals".into()
     }
     fn need_sign(&self) -> bool {
         true

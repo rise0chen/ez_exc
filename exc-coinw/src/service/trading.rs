@@ -150,14 +150,16 @@ impl Coinw {
             todo!();
         } else {
             use crate::futures_api::http::trading::{GetOpenOrdersRequest, GetOrderHistoryRequest};
+            let filter_order = |x: &crate::futures_api::http::trading::Order| {
+                let id = x.order_id.as_ref().unwrap_or(&x.id).to_string();
+                Some(id.to_string()) == order_id || (custom_order_id.is_some() && x.third_order_id == custom_order_id)
+            };
             let req = GetOpenOrdersRequest {
                 instrument: symbol_id(&symbol),
                 position_type: "plan",
             };
             let resp = self.oneshot(req).await?.rows;
-            let resp = resp
-                .into_iter()
-                .find(|x| x.third_order_id == custom_order_id || Some(x.id.to_string()) == order_id);
+            let resp = resp.into_iter().find(filter_order);
             let order = if let Some(mut order) = resp {
                 if matches!(order.order_status, OrderStatus::Part) {
                     order.order_status = OrderStatus::PartFill;
@@ -167,10 +169,11 @@ impl Coinw {
                 let req = GetOrderHistoryRequest {
                     instrument: symbol_id(&symbol),
                     origin_type: "plan",
+                    position_model: 1,
+                    order_status: "",
                 };
                 let resp = self.oneshot(req).await?.rows;
-                resp.into_iter()
-                    .find(|x| x.third_order_id == custom_order_id || Some(x.id.to_string()) == order_id)
+                resp.into_iter().find(filter_order)
             };
             let Some(resp) = order else {
                 return Err(ExchangeError::OrderNotFound);
@@ -179,7 +182,7 @@ impl Coinw {
             let deal_avg_price = symbol.token_price(resp.avg_price.unwrap_or_default());
             let fee = symbol.fee * deal_vol * deal_avg_price;
             Order {
-                order_id: resp.id.to_string(),
+                order_id: resp.order_id.as_ref().unwrap_or(&resp.id).to_string(),
                 vol: symbol.token_size(resp.total_piece),
                 deal_vol,
                 deal_avg_price,

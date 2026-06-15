@@ -87,6 +87,7 @@ impl Toobit {
         }
         let mut symbol = symbol.clone();
         symbol.kind = exc_util::symbol::SymbolKind::Spot;
+        symbol.suffix = String::new();
         let symbol_id = crate::symnol::symbol_id(&symbol);
         use crate::futures_api::http::info::GetIndexPriceRequest;
         let req = GetIndexPriceRequest { symbol: symbol_id };
