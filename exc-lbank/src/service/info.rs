@@ -132,7 +132,7 @@ impl Lbank {
         Ok(resp
             .into_iter()
             .map(|x| FundingRate {
-                rate: x.funding_rate,
+                rate: x.funding_rate / 100.0,
                 time: x.funding_time * 1000,
                 interval,
                 premium_interval: interval,
