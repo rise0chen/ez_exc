@@ -48,13 +48,14 @@ impl Rest for GetBalanceRequest {
 #[serde(rename_all = "camelCase")]
 pub struct GetPositionRequest {
     pub product_group: &'static str,
-    pub instrument: String,
+    pub instrument_i_d: String,
 }
 
 #[serde_as]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct GetPositionResponse {
+    pub instrument_i_d: String,
     pub position_i_d: String,
     #[serde_as(as = "DisplayFromStr")]
     pub posi_direction: i8,

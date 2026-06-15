@@ -23,9 +23,10 @@ impl Lbank {
             use crate::futures_web::http::account::GetPositionRequest;
             let req = GetPositionRequest {
                 product_group: "SwapU",
-                instrument: symbol_id,
+                instrument_i_d: symbol_id.clone(),
             };
-            let resp = self.oneshot(req).await?.data;
+            let mut resp = self.oneshot(req).await?.data;
+            resp.retain(|x| x.instrument_i_d == symbol_id);
             let (mut short_id, mut short_size, mut short_val) = (String::new(), 0.0, 0.0);
             let (mut long_id, mut long_size, mut long_val) = (String::new(), 0.0, 0.0);
             for x in resp {
