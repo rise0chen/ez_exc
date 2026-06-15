@@ -8,12 +8,12 @@ use tower::ServiceExt;
 
 impl Coinw {
     pub async fn get_balance(&mut self) -> Result<Balance, ExchangeError> {
-        use crate::futures_api::http::account::{GetAssetsRequest, GetBalanceRequest};
-        let req = GetBalanceRequest {};
-        let ballance = self.oneshot(req).await?;
+        use crate::futures_api::http::account::{GetAllPositionRequest, GetAssetsRequest};
+        let req = GetAllPositionRequest {};
+        let profit: f64 = self.oneshot(req).await?.iter().map(|x| x.profit_unreal).sum();
         let req = GetAssetsRequest {};
         let assets = self.oneshot(req).await?;
-        Ok(Balance::new(0.0, ballance.value + assets.al_freeze + assets.al_margin, 0.0))
+        Ok(Balance::new(0.0, profit + assets.available_margin, 0.0))
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
