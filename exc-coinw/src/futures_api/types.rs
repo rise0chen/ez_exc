@@ -82,7 +82,7 @@ impl From<OrderStatus> for exc_util::types::order::OrderStatus {
             OrderStatus::Unknown => Self::Unknown,
             OrderStatus::UnFinish => Self::New,
             OrderStatus::PartFill => Self::PartiallyFilled,
-            OrderStatus::Part => Self::PartiallyCanceled,
+            OrderStatus::Part => Self::PartiallyFilled,
             OrderStatus::Finish => Self::Filled,
             OrderStatus::Cancel => Self::Canceled,
             OrderStatus::SysCancel => Self::Canceled,
