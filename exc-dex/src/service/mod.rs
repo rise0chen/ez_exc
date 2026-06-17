@@ -8,7 +8,7 @@ use crate::abi::Cex::{self, Pool};
 use crate::key::Key;
 use alloy::primitives::Address;
 use alloy::providers::{DynProvider, Provider, ProviderBuilder, WsConnect};
-use alloy::signers::local::PrivateKeySigner;
+use alloy_signer_local::PrivateKeySigner;
 use rand::seq::IndexedRandom;
 
 async fn connect(key: &Key) -> anyhow::Result<DynProvider> {

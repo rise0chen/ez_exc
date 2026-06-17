@@ -13,22 +13,12 @@ version = "0.7.0"
 
 [dependencies]
 exc-util = {path = "../exc-util"}
-futures-util = {version = "0.3"}
-tracing = {version = "0.1"}
-
-
-[dependencies.tokio]
-features = ["sync", "rt-multi-thread", "time", "macros"]
-version = "1"
-
-[dependencies.tower]
-features = ["util", "reconnect", "buffer", "timeout", "retry", "ready-cache"]
-version = "0.5"
-
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
+futures-util = {version = "0.3", default-features = false}
+smol_str = {version = "0.3", default-features = false, features = ["std"]}
+tokio = {version = "1", default-features = false, features = ["sync", "rt-multi-thread", "time", "macros"]}
+tower = {version = "0.5", default-features = false, features = ["util", "reconnect", "buffer", "timeout", "retry", "ready-cache"]}
+tracing = {version = "0.1", default-features = false}
 
 [dev-dependencies]
-dotenvy = {version = "0.15"}
-tracing-subscriber = {version = "0.3.16", features = ["env-filter", "json"]}
+dotenvy = {version = "0.15", default-features = false}
+tracing-subscriber = {version = "0.3", default-features = false, features = ["std", "fmt", "env-filter"]}

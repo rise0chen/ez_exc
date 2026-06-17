@@ -1,5 +1,5 @@
 use alloy::primitives::{Address, FixedBytes, I256, U160, U256};
-use alloy::sol;
+use alloy_sol_types::sol;
 
 sol!(
     #[allow(missing_docs)]

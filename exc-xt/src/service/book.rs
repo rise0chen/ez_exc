@@ -1,7 +1,7 @@
 use super::Xt;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::book::{Depth, Order};
+use exc_util::types::book::Depth;
 use tower::ServiceExt;
 
 impl Xt {

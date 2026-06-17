@@ -18,7 +18,7 @@ impl Hyperliquid {
         let user_fees = self.http.user_fees(self.key.user.parse().unwrap()).await?;
         let symbol_id = crate::symnol::symbol_id(symbol);
         if symbol.is_spot() {
-            fee = user_fees.spot_taker_rate.as_f64() * (1.0 - user_fees.referral_discount.as_f64());
+            fee = user_fees.spot_taker_rate.as_f64() * (1.0 - user_fees.active_referral_discount.as_f64());
             let Some(a) = self.http.spot().await?.into_iter().find(|x| x.name == symbol_id) else {
                 return Err(ExchangeError::OrderNotFound);
             };
@@ -29,7 +29,7 @@ impl Hyperliquid {
             min_size = 0.0;
             min_usd = 10.0;
         } else {
-            fee = user_fees.taker_rate.as_f64() * (1.0 - user_fees.referral_discount.as_f64());
+            fee = user_fees.taker_rate.as_f64() * (1.0 - user_fees.active_referral_discount.as_f64());
             let a = if let Some(dex) = crate::symnol::dex_symbol(symbol).0 {
                 let dex = self.http.perp_dexes().await?.into_iter().find(|x| x.name() == dex).unwrap();
                 let fee_scale = dex.deployer_fee_scale().unwrap().as_f64();
