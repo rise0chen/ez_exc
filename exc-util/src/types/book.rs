@@ -1,3 +1,6 @@
+use rust_decimal::Decimal;
+use std::collections::BTreeMap;
+
 #[derive(Debug, Clone, Copy)]
 pub struct Order {
     pub price: f64,
@@ -68,5 +71,47 @@ impl PartialEq for Depth {
         let ask_len = self.ask.len().min(depth.ask.len());
         let bid_len = self.bid.len().min(depth.bid.len());
         self.ask[0..ask_len] == depth.ask[0..ask_len] && self.bid[0..bid_len] == depth.bid[0..bid_len]
+    }
+}
+
+#[derive(Default)]
+pub struct DepthManger {
+    pub version: u64,
+    ask: BTreeMap<Decimal, f64>,
+    bid: BTreeMap<Decimal, f64>,
+}
+impl DepthManger {
+    pub fn new() -> Self {
+        Self::default()
+    }
+    pub fn clear(&mut self) {
+        self.version = 0;
+        self.ask.clear();
+        self.bid.clear();
+    }
+    fn update_price_level<T: IntoIterator<Item = (Decimal, f64)>>(level: &mut BTreeMap<Decimal, f64>, update: T) {
+        update.into_iter().for_each(|(p, s)| {
+            if s > 0.0 {
+                level.insert(p, s);
+            } else {
+                level.remove(&p);
+            }
+        })
+    }
+    pub fn update<T: IntoIterator<Item = (Decimal, f64)>>(&mut self, bids: T, asks: T) {
+        self.version = (time::OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64;
+        Self::update_price_level(&mut self.bid, bids);
+        Self::update_price_level(&mut self.ask, asks);
+    }
+    pub fn get_depth(&self, limit: usize) -> Depth {
+        let bid = self.bid.iter().rev().take(limit);
+        let bid = bid.map(|(p, s)| Order::new(p.as_f64(), *s)).collect();
+        let ask = self.ask.iter().take(limit);
+        let ask = ask.map(|(p, s)| Order::new(p.as_f64(), *s)).collect();
+        Depth {
+            version: self.version,
+            bid,
+            ask,
+        }
     }
 }

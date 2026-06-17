@@ -12,6 +12,7 @@ use exc_util::http::Client;
 use exc_util::interface::{ApiKind, Rest};
 use futures_util::future::{BoxFuture, ready};
 use futures_util::{FutureExt, TryFutureExt};
+use std::sync::Arc;
 use tower::{Service, ServiceBuilder};
 
 /// Bitmex API.
@@ -19,7 +20,7 @@ use tower::{Service, ServiceBuilder};
 pub struct Bitmex {
     key: Key,
     http: Client,
-    ws: crate::futures_api::ws::Ws,
+    ws: Arc<crate::futures_api::ws::Ws>,
 }
 
 impl Bitmex {
@@ -27,7 +28,7 @@ impl Bitmex {
         let http = ServiceBuilder::default().service(Client::new(None));
         let symbols = key.symbol.split(',');
         let symbols = symbols.filter_map(|x| if x.is_empty() { None } else { Some(x.to_owned()) }).collect();
-        let ws = crate::futures_api::ws::Ws::new(symbols);
+        let ws = Arc::new(crate::futures_api::ws::Ws::new(symbols));
         Self { key, http, ws }
     }
     pub fn run(&self) {

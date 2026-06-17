@@ -1,14 +1,13 @@
 pub mod book;
 
 use core::time::Duration;
-use exc_util::types::book::{Depth, Order};
+use exc_util::types::book::{Depth, DepthManger, Order};
 use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::Arc;
 use std::vec;
 use time::OffsetDateTime;
-use tokio::sync::watch;
+use tokio::sync::{Mutex, watch};
 use tokio_tungstenite::tungstenite::Message;
 
 const HOST: &str = "wss://ws.bitmex.com/realtime";
@@ -38,15 +37,20 @@ pub enum RxResponse {
     Event(TxRequest),
 }
 
-#[derive(Clone)]
 pub struct Ws {
     pub symbols: Vec<String>,
-    pub books: Arc<HashMap<String, watch::Sender<Depth>>>,
+    pub book_mangers: HashMap<String, Mutex<DepthManger>>,
+    pub books: HashMap<String, watch::Sender<Depth>>,
 }
 impl Ws {
     pub fn new(symbols: Vec<String>) -> Ws {
-        let books = Arc::new(symbols.iter().map(|s| (s.clone(), watch::channel(Depth::default()).0)).collect());
-        Ws { symbols, books }
+        let book_mangers = symbols.iter().map(|s| (s.clone(), Mutex::new(DepthManger::new()))).collect();
+        let books = symbols.iter().map(|s| (s.clone(), watch::channel(Depth::default()).0)).collect();
+        Ws {
+            symbols,
+            book_mangers,
+            books,
+        }
     }
     pub fn clear(&self) {
         self.books.values().for_each(|x| {
@@ -58,7 +62,7 @@ impl Ws {
         tracing::info!(base_url = HOST, "WebSocket connected");
         let (mut write, mut read) = ws_stream.split();
         for s in &self.symbols {
-            let req_price = TxRequest::Subscribe(vec![format!("orderBook10:{s}")]);
+            let req_price = TxRequest::Subscribe(vec![format!("orderBookL2_25:{s}")]);
             write.send(Message::Text(serde_json::to_string(&req_price)?.into())).await?;
         }
 
@@ -134,20 +138,26 @@ impl Ws {
                     }
                     RxResponseData::OrderBookL2_25(d) => {
                         let symbol = d.data[0].symbol.clone();
-                        if let Some(ch) = self.books.get(&symbol) {
-                            let mut bid = Vec::new();
-                            let mut ask = Vec::new();
-                            for x in d.data {
-                                if x.side.is_buy() {
-                                    bid.push(Order::new(x.price, x.size as f64));
-                                } else {
-                                    ask.push(Order::new(x.price, x.size as f64));
-                                }
+                        let mut bid = Vec::new();
+                        let mut ask = Vec::new();
+                        for x in d.data {
+                            if x.side.is_buy() {
+                                bid.push((x.price, x.size.unwrap_or(0) as f64));
+                            } else {
+                                ask.push((x.price, x.size.unwrap_or(0) as f64));
                             }
-                            bid.sort_by(|a, b| b.price.total_cmp(&a.price));
-                            ask.sort_by(|a, b| a.price.total_cmp(&b.price));
-                            let version = (OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000) as u64;
-                            ch.send_replace(Depth { bid, ask, version });
+                        }
+                        let Some(manger) = self.book_mangers.get(&symbol) else {
+                            tracing::warn!("book_manger not init {}", symbol);
+                            continue;
+                        };
+                        let mut manger = manger.lock().await;
+                        if d.action.is_init() {
+                            manger.clear();
+                        }
+                        manger.update(bid, ask);
+                        if let Some(ch) = self.books.get(&symbol) {
+                            ch.send_replace(manger.get_depth(usize::MAX));
                         } else {
                             tracing::warn!("Not init {}", symbol);
                         }
