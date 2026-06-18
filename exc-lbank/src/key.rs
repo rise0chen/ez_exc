@@ -21,6 +21,8 @@ pub enum ParamsFormat {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Key {
     pub web_key: Str,
+    #[serde(default)]
+    pub symbol: Str,
 }
 
 impl Key {

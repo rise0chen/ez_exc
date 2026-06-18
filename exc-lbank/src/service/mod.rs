@@ -6,12 +6,15 @@ mod trading;
 
 use crate::key::Key;
 use crate::response::FullHttpResponse;
+use core::time::Duration;
 use exc_util::error::ExchangeError;
 use exc_util::http::Client;
 use exc_util::interface::{ApiKind, Rest};
+use exc_util::symbol::{Asset, Symbol};
 use exc_util::traits::*;
 use futures_util::future::{BoxFuture, ready};
 use futures_util::{FutureExt, TryFutureExt};
+use std::sync::Arc;
 use tower::{Service, ServiceBuilder};
 
 /// Lbank API.
@@ -19,14 +22,53 @@ use tower::{Service, ServiceBuilder};
 pub struct Lbank {
     key: Key,
     http: Client,
+    ws: Arc<crate::futures_web::ws::Ws>,
 }
 
 impl Lbank {
     pub fn new(key: Key) -> Self {
         let http = ServiceBuilder::default().service(Client::new(None));
-        Self { key, http }
+        let symbols = key.symbol.split(',');
+        let symbols = symbols.filter_map(|x| if x.is_empty() { None } else { Some(x.to_owned()) }).collect();
+        let ws = Arc::new(crate::futures_web::ws::Ws::new(symbols));
+        Self { key, http, ws }
     }
-    pub fn run(&self) {}
+    pub fn run(&mut self) {
+        if self.ws.symbols.is_empty() {
+            return;
+        }
+        let symbols = self.ws.symbols.clone().into_iter();
+        let price_tick: Vec<_> = symbols
+            .map(|s| {
+                tokio::task::block_in_place(|| {
+                    let rt = tokio::runtime::Handle::current();
+                    let mut symbol = Symbol::derivative(Asset::try_from(s.as_str()).unwrap(), Asset::try_from("").unwrap());
+                    let mut failed_times = 0;
+
+                    loop {
+                        match rt.block_on(self.perfect_symbol(&mut symbol)) {
+                            Ok(_) => {
+                                break 10.0f64.powi(-symbol.precision_price as i32);
+                            }
+                            Err(_) => {
+                                failed_times += 1;
+                                rt.block_on(tokio::time::sleep(Duration::from_secs(5 * failed_times)))
+                            }
+                        }
+                    }
+                })
+            })
+            .collect();
+        let ws = self.ws.clone();
+        tokio::spawn(async move {
+            loop {
+                let ret = ws.run(&price_tick).await;
+                ws.clear();
+                tracing::info!("lbank ws exit: {ret:?}");
+                tokio::time::sleep(Duration::from_secs(5)).await;
+            }
+        });
+    }
 }
 
 impl<Req: Rest> Service<Req> for Lbank {

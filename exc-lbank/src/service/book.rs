@@ -12,6 +12,25 @@ impl Lbank {
         let bid_ask = if symbol.is_spot() {
             todo!();
         } else {
+            if let Some(ch) = self.ws.books.get(&symbol_id) {
+                let mut book = ch.borrow().clone();
+                if book.is_valid() {
+                    book.ask.iter_mut().for_each(|x| {
+                        x.price = symbol.token_price(x.price);
+                        x.size = symbol.token_size(x.size / symbol.multi_size);
+                    });
+                    book.bid.iter_mut().for_each(|x| {
+                        x.price = symbol.token_price(x.price);
+                        x.size = symbol.token_size(x.size / symbol.multi_size);
+                    });
+                    book.bid.sort_by(|a, b| b.price.total_cmp(&a.price));
+                    book.ask.sort_by(|a, b| a.price.total_cmp(&b.price));
+                    return Ok(book);
+                }
+            }
+            if !self.ws.symbols.is_empty() {
+                tracing::warn!("lbank get depth {} by http", symbol_id);
+            }
             use crate::futures_web::http::book::GetDepthRequest;
             let req = GetDepthRequest {
                 exchange_i_d: "Exchange",

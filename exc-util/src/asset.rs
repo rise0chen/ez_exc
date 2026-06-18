@@ -35,9 +35,7 @@ impl<'a> TryFrom<&'a str> for Asset {
     type Error = ParseAssetError;
 
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
-        if value.is_empty() {
-            Err(ParseAssetError::Empty)
-        } else if !value.is_ascii() {
+        if !value.is_ascii() {
             Err(ParseAssetError::NonAscii)
         } else {
             Ok(Self { inner: Str::new(value) })
