@@ -133,7 +133,7 @@ impl Dydx {
         }
         Ok(ret)
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
         if order_id.order_id.as_deref().unwrap_or_default().is_empty() {
             return Err(ExchangeError::OrderNotFound);
         }
@@ -158,7 +158,7 @@ impl Dydx {
             .cancel_order(&mut account, place_id, until)
             .await
             .map_err(|e| ExchangeError::UnexpectedResponseType(e.to_string()))?;
-        Ok(order_id)
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let order_id = order_id.order_id.unwrap_or_default();

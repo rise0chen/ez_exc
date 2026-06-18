@@ -99,14 +99,14 @@ impl Grvt {
         };
         Ok(ret)
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
         let req = CancelOrderRequest {
             sub_account_id: self.key.account_id.to_string(),
-            order_id: order_id.order_id.clone(),
-            client_order_id: order_id.custom_order_id.clone(),
+            order_id: order_id.order_id,
+            client_order_id: order_id.custom_order_id,
         };
         let _ = self.http.cancel_order_full(&req).await.map_err(|e| ExchangeError::Other(e.into()))?;
-        Ok(order_id)
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {

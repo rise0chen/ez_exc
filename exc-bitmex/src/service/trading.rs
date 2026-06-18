@@ -105,27 +105,23 @@ impl Bitmex {
             Err(e) => Err((ret, e)),
         }
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
         if order_id.symbol.is_spot() {
             todo!();
         } else {
             let req = crate::futures_api::http::trading::CancelOrderRequest {
-                order_i_d: if let Some(id) = &order_id.order_id {
-                    vec![id.clone()]
-                } else {
-                    Vec::new()
-                },
                 cl_ord_i_d: if order_id.order_id.is_none()
-                    && let Some(id) = &order_id.custom_order_id
+                    && let Some(id) = order_id.custom_order_id
                 {
-                    vec![id.clone()]
+                    vec![id]
                 } else {
                     Vec::new()
                 },
+                order_i_d: if let Some(id) = order_id.order_id { vec![id] } else { Vec::new() },
             };
             let _resp = self.oneshot(req).await?;
         }
-        Ok(order_id)
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {

@@ -23,7 +23,7 @@ async fn main() -> anyhow::Result<()> {
     order_req.set_leverage(20.0);
     let order_id = weex.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     tokio::time::sleep(Duration::from_secs(32)).await;
-    let order_id = weex.cancel_order(order_id).await.unwrap();
+    tracing::info!("{:?}", weex.cancel_order(order_id.clone()).await);
     let order = weex.get_order(order_id).await.unwrap();
     tracing::info!("{:?}", order);
     Ok(())

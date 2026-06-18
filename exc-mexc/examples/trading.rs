@@ -22,7 +22,7 @@ async fn main() -> anyhow::Result<()> {
     let order_req = PlaceOrderRequest::new(20.0, 0.3, OrderType::Limit);
     let order_id = mexc.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     tokio::time::sleep(Duration::from_secs(2)).await;
-    let order_id = mexc.cancel_order(order_id).await.unwrap();
+    tracing::info!("{:?}", mexc.cancel_order(order_id.clone()).await);
     let order = mexc.get_order(order_id).await.unwrap();
     tracing::info!("{:?}", order);
 
@@ -32,7 +32,7 @@ async fn main() -> anyhow::Result<()> {
     order_req.set_leverage(10.0);
     let order_id = mexc.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     tokio::time::sleep(Duration::from_secs(2)).await;
-    let order_id = mexc.cancel_order(order_id).await.unwrap();
+    tracing::info!("{:?}", mexc.cancel_order(order_id.clone()).await);
     let order = mexc.get_order(order_id).await.unwrap();
     tracing::info!("{:?}", order);
     Ok(())

@@ -13,7 +13,7 @@ pub struct PlaceOrderRequest {
 #[derive(Debug)]
 pub struct CancelOrderRequest {
     pub order: OrderId,
-    pub ch: Sender<Result<OrderId, ExchangeError>>,
+    pub ch: Sender<Result<(), ExchangeError>>,
 }
 
 #[derive(Debug)]

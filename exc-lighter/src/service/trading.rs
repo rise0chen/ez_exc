@@ -94,24 +94,13 @@ impl Lighter {
             Err(e) => Err((ret, ExchangeError::Other(e.into()))),
         }
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
-        let OrderId {
-            symbol,
-            order_id,
-            custom_order_id,
-        } = order_id;
-        let symbol_id = crate::symnol::symbol_id(&symbol);
-        let order = {
-            let order_id = if let Some(order_id) = order_id {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
+        let symbol_id = crate::symnol::symbol_id(&order_id.symbol);
+        {
+            let order_id = if let Some(order_id) = order_id.order_id {
                 order_id
             } else {
-                let order = self
-                    .get_order(OrderId {
-                        symbol: symbol.clone(),
-                        order_id: order_id.clone(),
-                        custom_order_id: custom_order_id.clone(),
-                    })
-                    .await?;
+                let order = self.get_order(order_id).await?;
                 order.order_id
             };
             let req = CancelOrderTxReq {
@@ -126,13 +115,8 @@ impl Lighter {
             if let Err(e) = resp {
                 return Err(ExchangeError::Other(e.into()));
             }
-            OrderId {
-                symbol,
-                order_id: Some(order_id),
-                custom_order_id,
-            }
-        };
-        Ok(order)
+        }
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {

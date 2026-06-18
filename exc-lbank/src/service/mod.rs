@@ -107,7 +107,7 @@ impl ExchangeTrait for Lbank {
         self.place_order(symbol, order_req).await
     }
 
-    async fn cancel_order(&mut self, id: OrderId) -> Result<OrderId, ExchangeError> {
+    async fn cancel_order(&mut self, id: OrderId) -> Result<(), ExchangeError> {
         self.cancel_order(id).await
     }
 }

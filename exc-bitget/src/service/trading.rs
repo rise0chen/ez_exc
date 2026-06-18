@@ -88,38 +88,28 @@ impl Bitget {
             Err(e) => Err((ret, e)),
         }
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
         let OrderId {
             symbol,
             order_id,
             custom_order_id,
         } = order_id;
-        let order_id = if symbol.is_spot() {
+        if symbol.is_spot() {
             let req = crate::api::http::trading::CancelOrderRequest {
                 category: "SPOT",
                 order_id,
                 client_oid: custom_order_id,
             };
-            let resp = self.oneshot(req).await?;
-            OrderId {
-                symbol,
-                order_id: Some(resp.order_id.to_string()),
-                custom_order_id: resp.client_oid,
-            }
+            let _resp = self.oneshot(req).await?;
         } else {
             let req = crate::api::http::trading::CancelOrderRequest {
                 category: "USDT-FUTURES",
                 order_id,
                 client_oid: custom_order_id,
             };
-            let resp = self.oneshot(req).await?;
-            OrderId {
-                symbol,
-                order_id: Some(resp.order_id.to_string()),
-                custom_order_id: resp.client_oid,
-            }
-        };
-        Ok(order_id)
+            let _resp = self.oneshot(req).await?;
+        }
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {

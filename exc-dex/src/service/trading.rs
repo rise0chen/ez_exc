@@ -85,9 +85,9 @@ impl Dex {
             Err(e) => Err((ret, map_err(e.into()))),
         }
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
         if order_id.custom_order_id.as_deref().unwrap_or_default() == "" && order_id.order_id.as_deref().unwrap_or_default() == "" {
-            Ok(order_id)
+            Ok(())
         } else {
             Err(ExchangeError::Forbidden(anyhow::anyhow!("")))
         }

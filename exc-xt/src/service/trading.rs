@@ -103,13 +103,13 @@ impl Xt {
             Err(e) => Err((ret, e)),
         }
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
         let OrderId {
             symbol,
             order_id,
             custom_order_id,
         } = order_id;
-        let order = if symbol.is_spot() {
+        if symbol.is_spot() {
             todo!();
         } else {
             use crate::futures_api::http::trading::CancelOrderRequest;
@@ -118,13 +118,8 @@ impl Xt {
                 client_order_id: custom_order_id.clone(),
             };
             let _ = self.oneshot(req).await?;
-            OrderId {
-                symbol,
-                order_id,
-                custom_order_id,
-            }
         };
-        Ok(order)
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {

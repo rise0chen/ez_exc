@@ -577,7 +577,7 @@ impl Exchange {
         }
     }
 
-    pub async fn cancel_order(&mut self, id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, id: OrderId) -> Result<(), ExchangeError> {
         match self {
             Exchange::Xt(e) => e.cancel_order(id).await,
             Exchange::Mexc(e) => e.cancel_order(id).await,

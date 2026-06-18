@@ -24,7 +24,7 @@ async fn main() -> anyhow::Result<()> {
     let order = grvt.get_order(order_id.clone()).await;
     tracing::info!("{:?}", order);
     tokio::time::sleep(Duration::from_secs(5)).await;
-    let order_id = grvt.cancel_order(order_id).await.unwrap();
+    tracing::info!("{:?}", grvt.cancel_order(order_id.clone()).await);
     let order = grvt.get_order(order_id).await.unwrap();
     tracing::info!("{:?}", order);
     Ok(())

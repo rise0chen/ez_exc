@@ -25,7 +25,7 @@ async fn main() -> anyhow::Result<()> {
     let order = aster.get_order(order_id.clone()).await.unwrap();
     tracing::info!("{:?}", order);
     tokio::time::sleep(Duration::from_secs(32)).await;
-    let order_id = aster.cancel_order(order_id).await.unwrap();
+    tracing::info!("{:?}", aster.cancel_order(order_id.clone()).await);
     let order = aster.get_order(order_id).await.unwrap();
     tracing::info!("{:?}", order);
     Ok(())

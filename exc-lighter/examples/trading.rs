@@ -28,7 +28,7 @@ async fn main() -> anyhow::Result<()> {
     let order = lighter.get_order(order_id.clone()).await;
     tracing::info!("{:?}", order);
     tokio::time::sleep(Duration::from_secs(32)).await;
-    let order_id = lighter.cancel_order(order_id).await.unwrap();
+    tracing::info!("{:?}", lighter.cancel_order(order_id.clone()).await);
     let order = lighter.get_order(order_id).await;
     tracing::info!("{:?}", order);
     Ok(())

@@ -30,7 +30,7 @@ async fn main() -> anyhow::Result<()> {
     let order = bitunix.get_order(order_id.clone()).await;
     tracing::info!("{:?}", order);
     tokio::time::sleep(Duration::from_secs(32)).await;
-    let order_id = bitunix.cancel_order(order_id).await.unwrap();
+    tracing::info!("{:?}", bitunix.cancel_order(order_id.clone()).await);
     let order = bitunix.get_order(order_id).await;
     tracing::info!("{:?}", order);
     Ok(())

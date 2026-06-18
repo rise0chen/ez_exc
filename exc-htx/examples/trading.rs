@@ -29,7 +29,7 @@ async fn main() -> anyhow::Result<()> {
     let order = htx.get_order(order_id.clone()).await;
     tracing::info!("{:?}", order);
     tokio::time::sleep(Duration::from_secs(10)).await;
-    let order_id = htx.cancel_order(order_id).await.unwrap();
+    tracing::info!("{:?}", htx.cancel_order(order_id.clone()).await);
     let order = htx.get_order(order_id).await.unwrap();
     tracing::info!("{:?}", order);
     Ok(())

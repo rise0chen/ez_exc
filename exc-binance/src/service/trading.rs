@@ -78,39 +78,29 @@ impl Binance {
             Err(e) => Err((ret, e)),
         }
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
         let OrderId {
             symbol,
             order_id,
             custom_order_id,
         } = order_id;
         let symbol_id = crate::symnol::symbol_id(&symbol);
-        let order_id = if symbol.is_spot() {
+        if symbol.is_spot() {
             let req = crate::spot_api::http::trading::CancelOrderRequest {
                 order_id,
                 orig_client_order_id: custom_order_id,
                 symbol: symbol_id,
             };
-            let resp = self.oneshot(req).await?;
-            OrderId {
-                symbol,
-                order_id: Some(resp.order_id.to_string()),
-                custom_order_id: resp.orig_client_order_id,
-            }
+            let _resp = self.oneshot(req).await?;
         } else {
             let req = crate::futures_api::http::trading::CancelOrderRequest {
                 order_id,
                 orig_client_order_id: custom_order_id,
                 symbol: symbol_id,
             };
-            let resp = self.oneshot(req).await?;
-            OrderId {
-                symbol,
-                order_id: Some(resp.order_id.to_string()),
-                custom_order_id: resp.client_order_id,
-            }
-        };
-        Ok(order_id)
+            let _resp = self.oneshot(req).await?;
+        }
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {

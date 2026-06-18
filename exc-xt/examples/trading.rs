@@ -23,7 +23,7 @@ async fn main() -> anyhow::Result<()> {
     order_req.set_leverage(20.0);
     let order_id = xt.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     tokio::time::sleep(Duration::from_secs(32)).await;
-    let order_id = xt.cancel_order(order_id).await.unwrap();
+    tracing::info!("{:?}", xt.cancel_order(order_id.clone()).await);
     let order = xt.get_order(order_id).await.unwrap();
     tracing::info!("{:?}", order);
     Ok(())

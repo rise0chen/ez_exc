@@ -19,7 +19,7 @@ impl Custom {
             .map_err(|e| (OrderId::new(symbol.clone()), ExchangeError::Other(e.into())))?;
         rx.await.map_err(|e| (OrderId::new(symbol.clone()), ExchangeError::Other(e.into())))?
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
         let (tx, rx) = oneshot::channel();
         let req = CancelOrderRequest { order: order_id, ch: tx };
         self.oneshot(req.into()).await?;

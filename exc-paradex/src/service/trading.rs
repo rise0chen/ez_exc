@@ -76,23 +76,20 @@ impl Paradex {
         ret.order_id = Some(result.id);
         Ok(ret)
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
-        match (&order_id.order_id, &order_id.custom_order_id) {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
+        match (order_id.order_id, order_id.custom_order_id) {
             (_, Some(custom_order_id)) => {
                 self.http
-                    .cancel_order_by_client_id(custom_order_id.clone())
+                    .cancel_order_by_client_id(custom_order_id)
                     .await
                     .map_err(|e| ExchangeError::Other(e.into()))?;
             }
             (Some(order_id), None) => {
-                self.http
-                    .cancel_order(order_id.clone())
-                    .await
-                    .map_err(|e| ExchangeError::Other(e.into()))?;
+                self.http.cancel_order(order_id).await.map_err(|e| ExchangeError::Other(e.into()))?;
             }
             (None, None) => {}
         };
-        Ok(order_id)
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {

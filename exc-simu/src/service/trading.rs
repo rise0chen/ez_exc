@@ -10,8 +10,8 @@ impl Simu {
         id.order_id = Some(format!("{},{}", v, data.size));
         Ok(id)
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
-        Ok(order_id)
+    pub async fn cancel_order(&mut self, _order_id: OrderId) -> Result<(), ExchangeError> {
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let order_id = order_id.order_id.unwrap();

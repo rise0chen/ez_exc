@@ -28,7 +28,7 @@ async fn main() -> anyhow::Result<()> {
     let order = bitmex.get_order(order_id.clone()).await;
     tracing::info!("{:?}", order);
     tokio::time::sleep(Duration::from_secs(32)).await;
-    let order_id = bitmex.cancel_order(order_id).await.unwrap();
+    tracing::info!("{:?}", bitmex.cancel_order(order_id.clone()).await);
     tokio::time::sleep(Duration::from_secs(3)).await;
     let order = bitmex.get_order(order_id).await.unwrap();
     tracing::info!("{:?}", order);

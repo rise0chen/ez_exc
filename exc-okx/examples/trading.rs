@@ -25,7 +25,7 @@ async fn main() -> anyhow::Result<()> {
     order_req.set_leverage(10.0);
     let order_id = okx.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
     tokio::time::sleep(Duration::from_secs(2)).await;
-    let order_id = okx.cancel_order(order_id).await.unwrap();
+    tracing::info!("{:?}", okx.cancel_order(order_id.clone()).await);
     let order = okx.get_order(order_id).await.unwrap();
     tracing::info!("{:?}", order);
     Ok(())

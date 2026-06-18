@@ -28,7 +28,7 @@ async fn main() -> anyhow::Result<()> {
     let order = toobit.get_order(order_id.clone()).await;
     tracing::info!("{:?}", order);
     tokio::time::sleep(Duration::from_secs(32)).await;
-    let order_id = toobit.cancel_order(order_id).await.unwrap();
+    tracing::info!("{:?}", toobit.cancel_order(order_id.clone()).await);
     let order = toobit.get_order(order_id).await;
     tracing::info!("{:?}", order);
     Ok(())

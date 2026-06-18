@@ -58,7 +58,7 @@ impl Bybit {
             Err(e) => Err((ret, e)),
         }
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
         let OrderId {
             symbol,
             order_id,
@@ -71,12 +71,8 @@ impl Bybit {
             order_id,
             order_link_id: custom_order_id,
         };
-        let resp = self.oneshot(req).await?;
-        Ok(OrderId {
-            symbol,
-            order_id: Some(resp.order_id),
-            custom_order_id: resp.order_link_id,
-        })
+        let _resp = self.oneshot(req).await?;
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {

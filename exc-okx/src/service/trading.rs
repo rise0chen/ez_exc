@@ -57,7 +57,7 @@ impl Okx {
             Err(e) => Err((ret, e)),
         }
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
         let OrderId {
             symbol,
             order_id,
@@ -69,13 +69,10 @@ impl Okx {
             ord_id: order_id,
             cl_ord_id: custom_order_id,
         };
-        let resp = self.oneshot(req).await?.pop();
-        resp.map(|resp| OrderId {
-            symbol,
-            order_id: Some(resp.ord_id),
-            custom_order_id: resp.cl_ord_id,
-        })
-        .ok_or(ExchangeError::OrderNotFound)
+        let Some(_resp) = self.oneshot(req).await?.pop() else {
+            return Err(ExchangeError::OrderNotFound);
+        };
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {

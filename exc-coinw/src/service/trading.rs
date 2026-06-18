@@ -127,21 +127,21 @@ impl Coinw {
             Err(e) => Err((ret, e)),
         }
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
         if order_id.symbol.is_spot() {
             todo!();
         } else {
-            let id = if let Some(id) = &order_id.order_id {
-                id.clone()
+            let id = if let Some(id) = order_id.order_id {
+                id
             } else if order_id.custom_order_id.is_some() {
-                self.get_order(order_id.clone()).await?.order_id
+                self.get_order(order_id).await?.order_id
             } else {
-                return Ok(order_id);
+                return Ok(());
             };
             let req = crate::futures_api::http::trading::CancelOrderRequest { id };
             let _resp = self.oneshot(req).await?;
         }
-        Ok(order_id)
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {

@@ -24,7 +24,7 @@ async fn main() -> anyhow::Result<()> {
     let order = paradex.get_order(order_id.clone()).await;
     tracing::info!("{:?}", order);
     tokio::time::sleep(Duration::from_secs(5)).await;
-    let order_id = paradex.cancel_order(order_id).await.unwrap();
+    tracing::info!("{:?}", paradex.cancel_order(order_id.clone()).await);
     let order = paradex.get_order(order_id).await.unwrap();
     tracing::info!("{:?}", order);
     Ok(())

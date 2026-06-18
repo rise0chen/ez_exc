@@ -117,42 +117,34 @@ impl Bitunix {
             Err(e) => Err((ret, e)),
         }
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
         let OrderId {
             symbol,
             order_id,
             custom_order_id,
         } = order_id;
         let symbol_id = crate::symnol::symbol_id(&symbol);
-        let order = if symbol.is_spot() {
+        if symbol.is_spot() {
             todo!();
         } else {
-            let client_id = if order_id.is_none() { custom_order_id.clone() } else { None };
+            let client_id = if order_id.is_none() { custom_order_id } else { None };
             if self.key.web_key.is_some() {
                 use crate::futures_web::http::trading::CancelOrderRequest;
                 let req = CancelOrderRequest {
                     symbol: symbol_id,
-                    order_id: order_id.clone().or(client_id),
+                    order_id: order_id.or(client_id),
                 };
                 let _ = self.oneshot(req).await?;
             } else {
                 use crate::futures_api::http::trading::{CancelOrderRequest, GetOrderRequest};
                 let req = CancelOrderRequest {
                     symbol: symbol_id,
-                    order_list: vec![GetOrderRequest {
-                        order_id: order_id.clone(),
-                        client_id,
-                    }],
+                    order_list: vec![GetOrderRequest { order_id, client_id }],
                 };
                 let _ = self.oneshot(req).await?;
             }
-            OrderId {
-                symbol,
-                order_id,
-                custom_order_id,
-            }
-        };
-        Ok(order)
+        }
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {

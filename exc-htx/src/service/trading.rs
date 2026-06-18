@@ -75,37 +75,27 @@ impl Htx {
             Err(e) => Err((ret, e)),
         }
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
         let OrderId {
             symbol,
             order_id,
             custom_order_id,
         } = order_id;
-        let order_id = if symbol.is_spot() {
+        if symbol.is_spot() {
             let req = crate::spot_api::http::trading::CancelOrderRequest {
                 order_id,
-                client_order_id: custom_order_id.clone(),
+                client_order_id: custom_order_id,
             };
-            let resp = self.oneshot(req).await?;
-            OrderId {
-                symbol,
-                order_id: Some(resp.data),
-                custom_order_id,
-            }
+            let _resp = self.oneshot(req).await?;
         } else {
             let req = crate::futures_api::http::trading::CancelOrderRequest {
                 contract_code: crate::symnol::symbol_id(&symbol),
                 order_id,
                 client_order_id: custom_order_id.clone(),
             };
-            let resp = self.oneshot(req).await?;
-            OrderId {
-                symbol,
-                order_id: Some(resp.order_id),
-                custom_order_id,
-            }
-        };
-        Ok(order_id)
+            let _resp = self.oneshot(req).await?;
+        }
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {

@@ -18,7 +18,7 @@ pub trait ExchangeTrait {
     async fn get_depth(&mut self, symbol: &Symbol, limit: u16) -> Result<Depth, ExchangeError>;
     async fn get_order(&mut self, id: OrderId) -> Result<Order, ExchangeError>;
     async fn place_order(&mut self, symbol: &Symbol, order_req: PlaceOrderRequest) -> Result<OrderId, (OrderId, ExchangeError)>;
-    async fn cancel_order(&mut self, id: OrderId) -> Result<OrderId, ExchangeError>;
+    async fn cancel_order(&mut self, id: OrderId) -> Result<(), ExchangeError>;
 
     async fn get_position(&mut self, symbol: &Symbol) -> Result<Position, ExchangeError> {
         self.get_positions(symbol).await.map(|(long, short)| {

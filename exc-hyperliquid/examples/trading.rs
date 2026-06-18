@@ -29,7 +29,7 @@ async fn main() -> anyhow::Result<()> {
     tokio::time::sleep(Duration::from_secs(5)).await;
     let order = hyperliquid.get_order(order_id.clone()).await;
     tracing::info!("{:?}", order);
-    let order_id = hyperliquid.cancel_order(order_id).await.unwrap();
+    tracing::info!("{:?}", hyperliquid.cancel_order(order_id.clone()).await);
     tokio::time::sleep(Duration::from_secs(10)).await;
     let order = hyperliquid.get_order(order_id).await.unwrap();
     tracing::info!("{:?}", order);

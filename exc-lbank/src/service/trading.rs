@@ -105,22 +105,18 @@ impl Lbank {
             Err(e) => Err((ret, e)),
         }
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
         if order_id.symbol.is_spot() {
             todo!();
         } else {
             let req = crate::futures_web::http::trading::CancelOrderRequest {
                 action_flag: 1,
-                order_sys_i_d: order_id.order_id.clone(),
-                local_i_d: if order_id.order_id.is_none() {
-                    order_id.custom_order_id.clone()
-                } else {
-                    None
-                },
+                local_i_d: if order_id.order_id.is_none() { order_id.custom_order_id } else { None },
+                order_sys_i_d: order_id.order_id,
             };
             let _resp = self.oneshot(req).await?;
         }
-        Ok(order_id)
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {

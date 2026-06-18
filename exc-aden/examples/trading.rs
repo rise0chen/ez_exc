@@ -25,7 +25,7 @@ async fn main() -> anyhow::Result<()> {
     let order = aden.get_order(order_id.clone()).await.unwrap();
     tracing::info!("{:?}", order);
     tokio::time::sleep(Duration::from_secs(32)).await;
-    let order_id = aden.cancel_order(order_id).await.unwrap();
+    tracing::info!("{:?}", aden.cancel_order(order_id.clone()).await);
     let order = aden.get_order(order_id).await.unwrap();
     tracing::info!("{:?}", order);
     Ok(())

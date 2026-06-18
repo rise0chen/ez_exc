@@ -62,30 +62,25 @@ impl Aster {
             Err(e) => Err((ret, e)),
         }
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
         let OrderId {
             symbol,
             order_id,
             custom_order_id,
         } = order_id;
         let symbol_id = crate::symnol::symbol_id(&symbol);
-        let order = if symbol.is_spot() {
+        if symbol.is_spot() {
             todo!();
         } else {
             use crate::futures_api::http::trading::CancelOrderRequest;
             let req = CancelOrderRequest {
                 symbol: symbol_id,
-                order_id: order_id.clone(),
-                orig_client_order_id: custom_order_id.clone(),
+                order_id,
+                orig_client_order_id: custom_order_id,
             };
             let _ = self.oneshot(req).await?;
-            OrderId {
-                symbol,
-                order_id,
-                custom_order_id,
-            }
-        };
-        Ok(order)
+        }
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let OrderId {

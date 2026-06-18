@@ -94,13 +94,13 @@ impl Hyperliquid {
         }
         None
     }
-    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
+    pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
         use hypersdk::hypercore::{BatchCancel, BatchCancelCloid, Cancel, CancelByCloid};
         let asset: u32 = order_id.symbol.base_id.parse().unwrap();
         let signer: PrivateKeySigner = self.key.secret_key.parse().unwrap();
         let nonce = chrono::Utc::now().timestamp_millis() as u64;
         let Some(oid) = self.order_id(&order_id) else {
-            return Ok(order_id);
+            return Ok(());
         };
         let resp = match oid {
             OidOrCloid::Right(cid) => {
@@ -139,7 +139,7 @@ impl Hyperliquid {
                 return Err(ExchangeError::OrderNotFound);
             }
         }
-        Ok(order_id)
+        Ok(())
     }
     pub async fn get_order(&mut self, order_id: OrderId) -> Result<Order, ExchangeError> {
         let Some(oid) = self.order_id(&order_id) else {
