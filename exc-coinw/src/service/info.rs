@@ -89,7 +89,7 @@ impl Coinw {
         let resp = self.oneshot(req).await?.pop();
         resp.map(|x| FundingRate {
             rate: x.settlement_rate,
-            time: x.settled_at * 1000,
+            time: x.settled_at,
             interval: x.settled_period * 60 * 60 * 1000,
             premium_interval: 8 * 60 * 60 * 1000,
         })

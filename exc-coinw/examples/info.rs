@@ -23,6 +23,7 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("{:?}", info);
     let rate = coinw.get_funding_rate(&symbol).await.unwrap();
     assert!(rate.time > info[0].time + 58 * 60 * 1000);
+    assert!(rate.time < info[0].time + 25 * 60 * 60 * 1000);
     tracing::info!("{:?}", rate);
     let info = coinw.get_index_price(&symbol).await.unwrap();
     tracing::info!("{:?}", info);

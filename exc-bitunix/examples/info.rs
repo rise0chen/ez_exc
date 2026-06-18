@@ -26,6 +26,7 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("{:?}", info);
     let rate = bitunix.get_funding_rate(&symbol).await.unwrap();
     assert!(rate.time > info[0].time + 58 * 60 * 1000);
+    assert!(rate.time < info[0].time + 25 * 60 * 60 * 1000);
     tracing::info!("{:?}", rate);
     assert_eq!(info[0].interval, rate.interval);
     let info = bitunix.get_index_price(&symbol).await.unwrap();

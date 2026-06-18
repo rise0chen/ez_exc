@@ -21,7 +21,8 @@ async fn main() -> anyhow::Result<()> {
     assert!(info[0].time > info[1].time + 4 * 1000);
     tracing::info!("{:?}", info);
     let rate = grvt.get_funding_rate(&symbol).await.unwrap();
-    assert!(rate.time > info[0].time + 4 * 1000);
+    assert!(rate.time > info[0].time + 58 * 60 * 1000);
+    assert!(rate.time < info[0].time + 25 * 60 * 60 * 1000);
     tracing::info!("{:?}", rate);
     let info = grvt.get_index_price(&symbol).await.unwrap();
     tracing::info!("{:?}", info);
