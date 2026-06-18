@@ -3,7 +3,7 @@ use crate::futures_api::types::*;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::OrderSide;
-use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderStatus, PlaceOrderRequest};
+use exc_util::types::order::{Fee, Order, OrderId, OrderStatus, PlaceOrderRequest};
 use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
 
@@ -102,9 +102,6 @@ impl Xt {
             }
             Err(e) => Err((ret, e)),
         }
-    }
-    pub async fn amend_order(&mut self, _order: AmendOrder) -> Result<OrderId, ExchangeError> {
-        todo!();
     }
     pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
         let OrderId {

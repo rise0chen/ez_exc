@@ -8,7 +8,6 @@ pub enum Request {
     GetFundingRate(info::GetFundingRateRequest),
     GetFundingRateHistory(info::GetFundingRateHistoryRequest),
     PlaceOrder(trading::PlaceOrderRequest),
-    AmendOrder(trading::AmendOrderRequest),
     CancelOrder(trading::CancelOrderRequest),
     GetOrder(trading::GetOrderRequest),
 }
@@ -30,11 +29,6 @@ impl From<info::GetFundingRateHistoryRequest> for Request {
 impl From<trading::PlaceOrderRequest> for Request {
     fn from(value: trading::PlaceOrderRequest) -> Self {
         Self::PlaceOrder(value)
-    }
-}
-impl From<trading::AmendOrderRequest> for Request {
-    fn from(value: trading::AmendOrderRequest) -> Self {
-        Self::AmendOrder(value)
     }
 }
 impl From<trading::CancelOrderRequest> for Request {

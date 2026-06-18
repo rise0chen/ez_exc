@@ -2,7 +2,7 @@ use super::Custom;
 use crate::api::trading::*;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{self, AmendOrder, Order, OrderId};
+use exc_util::types::order::{self, Order, OrderId};
 use tokio::sync::oneshot;
 use tower::ServiceExt;
 
@@ -18,12 +18,6 @@ impl Custom {
             .await
             .map_err(|e| (OrderId::new(symbol.clone()), ExchangeError::Other(e.into())))?;
         rx.await.map_err(|e| (OrderId::new(symbol.clone()), ExchangeError::Other(e.into())))?
-    }
-    pub async fn amend_order(&mut self, order: AmendOrder) -> Result<OrderId, ExchangeError> {
-        let (tx, rx) = oneshot::channel();
-        let req = AmendOrderRequest { data: order, ch: tx };
-        self.oneshot(req.into()).await?;
-        rx.await.map_err(|e| ExchangeError::Other(e.into()))?
     }
     pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
         let (tx, rx) = oneshot::channel();

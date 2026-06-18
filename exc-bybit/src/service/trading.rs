@@ -2,7 +2,7 @@ use super::Bybit;
 use crate::api::types::OrderSide;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
+use exc_util::types::order::{Fee, Order, OrderId, PlaceOrderRequest};
 use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
 
@@ -57,28 +57,6 @@ impl Bybit {
             }
             Err(e) => Err((ret, e)),
         }
-    }
-    pub async fn amend_order(&mut self, order: AmendOrder) -> Result<OrderId, ExchangeError> {
-        let OrderId {
-            symbol,
-            order_id,
-            custom_order_id,
-        } = order.id;
-        let symbol_id = crate::symnol::symbol_id(&symbol);
-        let req = crate::api::http::trading::AmendOrderRequest {
-            category: symbol.kind,
-            symbol: symbol_id,
-            order_id,
-            order_link_id: custom_order_id,
-            qty: symbol.contract_size(order.size),
-            price: order.price.map(|x| symbol.contract_price(x, order.size > 0.0)),
-        };
-        let resp = self.oneshot(req).await?;
-        Ok(OrderId {
-            symbol,
-            order_id: Some(resp.order_id),
-            custom_order_id: resp.order_link_id,
-        })
     }
     pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
         let OrderId {

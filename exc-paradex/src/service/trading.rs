@@ -3,7 +3,7 @@ use bigdecimal::ToPrimitive as _;
 use core::time::Duration;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderSide, OrderStatus, OrderType, PlaceOrderRequest};
+use exc_util::types::order::{Fee, Order, OrderId, OrderSide, OrderStatus, OrderType, PlaceOrderRequest};
 use paradex::error::Error;
 use paradex::structs::{OrderInstruction, OrderUpdate, Side};
 
@@ -75,9 +75,6 @@ impl Paradex {
         };
         ret.order_id = Some(result.id);
         Ok(ret)
-    }
-    pub async fn amend_order(&mut self, _order: AmendOrder) -> Result<OrderId, ExchangeError> {
-        todo!();
     }
     pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
         match (&order_id.order_id, &order_id.custom_order_id) {

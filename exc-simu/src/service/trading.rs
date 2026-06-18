@@ -1,7 +1,7 @@
 use super::Simu;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{self, AmendOrder, Fee, Order, OrderId, OrderSide, OrderStatus};
+use exc_util::types::order::{self, Fee, Order, OrderId, OrderSide, OrderStatus};
 
 impl Simu {
     pub async fn place_order(&mut self, symbol: &Symbol, data: order::PlaceOrderRequest) -> Result<OrderId, (OrderId, ExchangeError)> {
@@ -9,9 +9,6 @@ impl Simu {
         let v = self.price_version();
         id.order_id = Some(format!("{},{}", v, data.size));
         Ok(id)
-    }
-    pub async fn amend_order(&mut self, order: AmendOrder) -> Result<OrderId, ExchangeError> {
-        Ok(order.id)
     }
     pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
         Ok(order_id)

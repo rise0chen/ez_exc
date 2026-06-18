@@ -3,7 +3,7 @@ use crate::futures_api::types::{OpenSide, OrderStatus, PositionSide};
 use crate::symnol::symbol_id;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{AmendOrder, Fee, FuturesOpenType, Order, OrderId, OrderSide, OrderType, PlaceOrderRequest};
+use exc_util::types::order::{Fee, FuturesOpenType, Order, OrderId, OrderSide, OrderType, PlaceOrderRequest};
 use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
 
@@ -126,9 +126,6 @@ impl Coinw {
             }
             Err(e) => Err((ret, e)),
         }
-    }
-    pub async fn amend_order(&mut self, _order: AmendOrder) -> Result<OrderId, ExchangeError> {
-        todo!();
     }
     pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
         if order_id.symbol.is_spot() {

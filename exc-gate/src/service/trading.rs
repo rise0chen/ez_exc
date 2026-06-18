@@ -2,7 +2,7 @@ use super::Gate;
 use crate::spot_api::types::OrderSide;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderStatus, OrderType, PlaceOrderRequest};
+use exc_util::types::order::{Fee, Order, OrderId, OrderStatus, OrderType, PlaceOrderRequest};
 use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use tower::ServiceExt;
@@ -79,44 +79,6 @@ impl Gate {
             }
             Err(e) => Err((ret, e)),
         }
-    }
-    pub async fn amend_order(&mut self, order: AmendOrder) -> Result<OrderId, ExchangeError> {
-        let OrderId {
-            symbol,
-            order_id,
-            custom_order_id,
-        } = order.id;
-
-        let symbol_id = crate::symnol::symbol_id(&symbol);
-        let order_id = if symbol.is_spot() {
-            let req = crate::spot_api::http::trading::AmendOrderRequest {
-                order_id,
-                text: custom_order_id,
-                currency_pair: symbol_id,
-                amount: symbol.contract_size(order.size),
-                price: order.price.map(|x| symbol.contract_price(x, order.size > 0.0)),
-            };
-            let resp = self.oneshot(req).await?;
-            OrderId {
-                symbol,
-                order_id: Some(resp.id.to_string()),
-                custom_order_id: resp.text,
-            }
-        } else {
-            let req = crate::futures_api::http::trading::AmendOrderRequest {
-                order_id,
-                external_oid: custom_order_id,
-                size: symbol.contract_size(order.size),
-                price: order.price.map(|x| symbol.contract_price(x, order.size > 0.0)),
-            };
-            let resp = self.oneshot(req).await?;
-            OrderId {
-                symbol,
-                order_id: Some(resp.id.to_string()),
-                custom_order_id: resp.text,
-            }
-        };
-        Ok(order_id)
     }
     pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
         let OrderId {

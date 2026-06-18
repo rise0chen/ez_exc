@@ -2,7 +2,7 @@ use super::Lighter;
 use crate::futures_api::types::*;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
+use exc_util::types::order::{Fee, Order, OrderId, PlaceOrderRequest};
 use exc_util::types::order::{OrderSide, OrderType};
 use lighter_rs::types::{CancelOrderTxReq, CreateOrderTxReq, TransactOpts};
 use lighter_rs::LighterError;
@@ -93,9 +93,6 @@ impl Lighter {
             Ok(_) => Ok(ret),
             Err(e) => Err((ret, ExchangeError::Other(e.into()))),
         }
-    }
-    pub async fn amend_order(&mut self, _order: AmendOrder) -> Result<OrderId, ExchangeError> {
-        todo!();
     }
     pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
         let OrderId {

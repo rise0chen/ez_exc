@@ -2,7 +2,7 @@ use super::Okx;
 use crate::api::types::OrderSide;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
+use exc_util::types::order::{Fee, Order, OrderId, PlaceOrderRequest};
 use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
 
@@ -56,28 +56,6 @@ impl Okx {
             }
             Err(e) => Err((ret, e)),
         }
-    }
-    pub async fn amend_order(&mut self, order: AmendOrder) -> Result<OrderId, ExchangeError> {
-        let OrderId {
-            symbol,
-            order_id,
-            custom_order_id,
-        } = order.id;
-        let inst_id = crate::symnol::symbol_id(&symbol);
-        let req = crate::api::http::trading::AmendOrderRequest {
-            inst_id,
-            ord_id: order_id,
-            cl_ord_id: custom_order_id,
-            new_sz: symbol.contract_size(order.size),
-            new_px: order.price.map(|x| symbol.contract_price(x, order.size > 0.0)),
-        };
-        let resp = self.oneshot(req).await?.pop();
-        resp.map(|resp| OrderId {
-            symbol,
-            order_id: Some(resp.ord_id),
-            custom_order_id: resp.cl_ord_id,
-        })
-        .ok_or(ExchangeError::OrderNotFound)
     }
     pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
         let OrderId {

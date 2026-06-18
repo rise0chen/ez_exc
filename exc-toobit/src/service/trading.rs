@@ -1,7 +1,7 @@
 use super::Toobit;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, PlaceOrderRequest};
+use exc_util::types::order::{Fee, Order, OrderId, PlaceOrderRequest};
 use rust_decimal::Decimal;
 use rust_decimal::prelude::FromPrimitive;
 use tower::ServiceExt;
@@ -121,9 +121,6 @@ impl Toobit {
             }
             Err(e) => Err((ret, e)),
         }
-    }
-    pub async fn amend_order(&mut self, _order: AmendOrder) -> Result<OrderId, ExchangeError> {
-        todo!();
     }
     pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
         let OrderId {

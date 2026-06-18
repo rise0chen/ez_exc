@@ -1,7 +1,7 @@
 use super::Mexc;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderSide, OrderType, PlaceOrderRequest};
+use exc_util::types::order::{Fee, Order, OrderId, OrderSide, OrderType, PlaceOrderRequest};
 use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
 
@@ -119,31 +119,6 @@ impl Mexc {
             }
             Err(e) => Err((ret, e)),
         }
-    }
-    pub async fn amend_order(&mut self, order: AmendOrder) -> Result<OrderId, ExchangeError> {
-        let OrderId {
-            symbol,
-            order_id,
-            custom_order_id,
-        } = order.id;
-        let order = if symbol.is_spot() {
-            use crate::spot_web::http::trading::AmendOrderRequest;
-            let req = AmendOrderRequest {
-                order_id,
-                client_order_id: custom_order_id.clone(),
-                quantity: symbol.contract_size(order.size),
-                price: order.price.map(|x| symbol.contract_price(x, order.size > 0.0)),
-            };
-            let resp = self.oneshot(req).await?;
-            OrderId {
-                symbol,
-                order_id: Some(resp.new_order_id),
-                custom_order_id,
-            }
-        } else {
-            todo!()
-        };
-        Ok(order)
     }
     pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
         let OrderId {

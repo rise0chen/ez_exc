@@ -7,7 +7,7 @@ use dydx::node::{OrderBuilder, OrderGoodUntil, OrderId as PlaceId, OrderSide as 
 use dydx_proto::dydxprotocol::clob::order::TimeInForce;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
-use exc_util::types::order::{AmendOrder, Fee, Order, OrderId, OrderSide, OrderStatus, OrderType, PlaceOrderRequest};
+use exc_util::types::order::{Fee, Order, OrderId, OrderSide, OrderStatus, OrderType, PlaceOrderRequest};
 
 fn order_side(side: DydxSide) -> OrderSide {
     if side == DydxSide::Buy {
@@ -132,9 +132,6 @@ impl Dydx {
             }
         }
         Ok(ret)
-    }
-    pub async fn amend_order(&mut self, _order: AmendOrder) -> Result<OrderId, ExchangeError> {
-        todo!();
     }
     pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<OrderId, ExchangeError> {
         if order_id.order_id.as_deref().unwrap_or_default().is_empty() {
