@@ -75,6 +75,7 @@ impl Ws {
         }
         let (ws_stream, _) = tokio_tungstenite::connect_async(HOST).await?;
         tracing::info!(base_url = HOST, "WebSocket connected");
+        tokio::time::sleep(Duration::from_secs(1)).await;
         let (mut write, mut read) = ws_stream.split();
         for (i, s) in self.symbols.iter().enumerate() {
             let ch = format!("{s}_{}_25", tick[i]);

@@ -65,6 +65,7 @@ impl Ws {
     pub async fn run(&self) -> Result<(), anyhow::Error> {
         let (ws_stream, _) = tokio_tungstenite::connect_async(HOST).await?;
         tracing::info!(base_url = HOST, "WebSocket connected");
+        tokio::time::sleep(Duration::from_secs(1)).await;
         let (mut write, mut read) = ws_stream.split();
         for s in &self.symbols {
             let req_price = Tx {
