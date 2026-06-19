@@ -181,12 +181,12 @@ impl Exchange {
             ExchangeConfig::Xt { key } => Self::Xt(Xt::new(key)),
             ExchangeConfig::Mexc { key } => Self::Mexc(Mexc::new(key)),
             ExchangeConfig::Lighter { key } => {
-                let exc = Lighter::new(key);
+                let mut exc = Lighter::new(key);
                 exc.run();
                 Self::Lighter(exc)
             }
             ExchangeConfig::Lbank { key } => {
-                let exc = Lbank::new(key);
+                let mut exc = Lbank::new(key);
                 exc.run();
                 Self::Lbank(exc)
             }
@@ -197,7 +197,7 @@ impl Exchange {
             })),
             ExchangeConfig::Weex { key } => Self::Weex(Weex::new(key)),
             ExchangeConfig::Gate { key } => {
-                let exc = Gate::new(key);
+                let mut exc = Gate::new(key);
                 exc.run();
                 Self::Gate(exc)
             }
@@ -205,29 +205,29 @@ impl Exchange {
                 tokio::runtime::Handle::current().block_on(Grvt::new(key))
             })),
             ExchangeConfig::Htx { key } => {
-                let exc = Htx::new(key);
+                let mut exc = Htx::new(key);
                 exc.run();
                 Self::Htx(exc)
             }
             ExchangeConfig::Hyperliquid { key } => {
-                let exc = Hyperliquid::new(key);
+                let mut exc = Hyperliquid::new(key);
                 exc.run();
                 Self::Hyperliquid(exc)
             }
             ExchangeConfig::Bybit { key } => Self::Bybit(Bybit::new(key)),
             ExchangeConfig::Bitget { key } => Self::Bitget(Bitget::new(key)),
             ExchangeConfig::Bitmart { key } => {
-                let exc = Bitmart::new(key);
+                let mut exc = Bitmart::new(key);
                 exc.run();
                 Self::Bitmart(exc)
             }
             ExchangeConfig::Bitmex { key } => {
-                let exc = Bitmex::new(key);
+                let mut exc = Bitmex::new(key);
                 exc.run();
                 Self::Bitmex(exc)
             }
             ExchangeConfig::Bitunix { key } => {
-                let exc = Bitunix::new(key);
+                let mut exc = Bitunix::new(key);
                 exc.run();
                 Self::Bitunix(exc)
             }
@@ -241,7 +241,7 @@ impl Exchange {
                 tokio::runtime::Handle::current().block_on(Dydx::new(key))
             })),
             ExchangeConfig::Coinw { key } => {
-                let exc = Coinw::new(key);
+                let mut exc = Coinw::new(key);
                 exc.run();
                 Self::Coinw(exc)
             }

@@ -44,7 +44,7 @@ impl Lighter {
             ws: Arc::new(ws),
         }
     }
-    pub fn run(&self) {
+    pub fn run(&mut self) {
         let ws = self.ws.clone();
         tokio::spawn(async move {
             loop {

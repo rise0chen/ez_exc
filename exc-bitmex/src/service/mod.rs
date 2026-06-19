@@ -31,7 +31,7 @@ impl Bitmex {
         let ws = Arc::new(crate::futures_api::ws::Ws::new(symbols));
         Self { key, http, ws }
     }
-    pub fn run(&self) {
+    pub fn run(&mut self) {
         if self.ws.symbols.is_empty() {
             return;
         }

@@ -30,7 +30,7 @@ impl Gate {
         let ws_spot = crate::spot_api::ws::Ws::new(symbols);
         Self { key, http, ws_spot }
     }
-    pub fn run(&self) {
+    pub fn run(&mut self) {
         if self.ws_spot.symbols.is_empty() {
             return;
         }
