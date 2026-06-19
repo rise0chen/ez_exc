@@ -1,5 +1,5 @@
 use super::Paradex;
-use crate::futures::http::info::{GetAccountInfoResponse, GetFundingRateHistoryResponse};
+use crate::futures::http::info::{GetAccountInfoResponse, GetFundingRateHistoryResponse, TierInfo};
 use core::time::Duration;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
@@ -31,13 +31,29 @@ impl Paradex {
             .fee_config
             .map(|x| if self.key.pro { x.api_fee } else { x.interactive_fee }.taker_fee.fee)
             .unwrap_or(0.0);
-        if let Ok(a) = self
+        if let Some(a) = self
             .http
             .request_cursor::<GetAccountInfoResponse>("/v1/account/info".into(), None, None, None, true)
             .await
+            .ok()
+            .and_then(|mut x| x.pop())
         {
-            if let Some(a) = a.first() {
-                fee = a.fees.taker_rate;
+            if let Ok(tiers) = self
+                .http
+                .request_cursor::<TierInfo>("/v1/system/volume-tiers".into(), None, None, None, false)
+                .await
+            {
+                let tier = tiers.iter().find(|x| {
+                    if self.key.pro {
+                        x.kind == "pro" && x.tier_name == a.volume_tiers.pro.tier
+                    } else {
+                        x.kind == "retail" && x.tier_name == a.volume_tiers.retail.tier
+                    }
+                });
+                println!("{:?}", tier);
+                if let Some(tier) = tier {
+                    fee = tier.fee_rates.taker_rate_rate;
+                }
             }
         };
 

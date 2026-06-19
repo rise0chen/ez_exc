@@ -35,9 +35,43 @@ pub struct AccountFee {
     #[serde_as(as = "DisplayFromStr")]
     pub perp_option_taker_rate: f64,
 }
+
+#[serde_as]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub struct TierFee {
+    #[serde_as(as = "DisplayFromStr")]
+    pub maker_rate_rate: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub taker_rate_rate: f64,
+}
+#[serde_as]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TierInfo {
+    pub kind: String,
+    pub tier_name: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub min_volume: f64,
+    pub fee_rates: TierFee,
+}
+
+#[serde_as]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Tier {
+    pub tier: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub volume: f64,
+}
+#[serde_as]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AccountTier {
+    pub pro: Tier,
+    pub retail: Tier,
+}
 #[serde_as]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetAccountInfoResponse {
     pub fees: AccountFee,
+    pub volume_tiers: AccountTier,
     pub has_ecosystem_nft: bool,
 }
