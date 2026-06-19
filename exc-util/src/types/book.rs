@@ -41,6 +41,9 @@ pub struct Depth {
     pub ask: Vec<Order>,
 }
 impl Depth {
+    pub fn is_empty(&self) -> bool {
+        self.bid.is_empty() || self.ask.is_empty()
+    }
     pub fn is_valid(&self) -> bool {
         if self.is_expired() {
             return false;

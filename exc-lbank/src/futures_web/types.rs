@@ -60,6 +60,7 @@ pub enum OrderStatus {
     #[default]
     Unknown = 0,
     Filled = 1,
+    PartiallyCanceled = 3,
     New = 4,
     Canceled = 6,
     Rejected,
@@ -73,6 +74,7 @@ impl From<OrderStatus> for exc_util::types::order::OrderStatus {
             OrderStatus::New => Self::New,
             OrderStatus::Rejected => Self::Canceled,
             OrderStatus::PartiallyFilled => Self::PartiallyFilled,
+            OrderStatus::PartiallyCanceled => Self::PartiallyCanceled,
             OrderStatus::Filled => Self::Filled,
             OrderStatus::PendingCancel => Self::New,
             OrderStatus::Canceled => Self::Canceled,

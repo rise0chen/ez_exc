@@ -8,7 +8,7 @@ impl Hyperliquid {
         let coin = crate::symnol::symbol_id(symbol);
         if let Some(ch) = self.ws.books.get(&coin) {
             let mut book = ch.borrow().clone();
-            if book.is_valid() {
+            if !book.is_empty() {
                 book.ask.iter_mut().for_each(|x| {
                     x.price = symbol.token_price(x.price);
                     x.size = symbol.token_size(x.size);

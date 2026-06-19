@@ -10,11 +10,11 @@ use core::time::Duration;
 use exc_util::error::ExchangeError;
 use exc_util::http::Client;
 use exc_util::interface::{ApiKind, Rest};
-use exc_util::symbol::{Asset, Symbol};
 use exc_util::traits::*;
 use futures_util::future::{BoxFuture, ready};
 use futures_util::{FutureExt, TryFutureExt};
 use std::sync::Arc;
+use tower::ServiceExt;
 use tower::{Service, ServiceBuilder};
 
 /// Lbank API.
@@ -42,13 +42,19 @@ impl Lbank {
             .map(|s| {
                 tokio::task::block_in_place(|| {
                     let rt = tokio::runtime::Handle::current();
-                    let mut symbol = Symbol::derivative(Asset::try_from(s.as_str()).unwrap(), Asset::try_from("").unwrap());
                     let mut failed_times = 0;
 
                     loop {
-                        match rt.block_on(self.perfect_symbol(&mut symbol)) {
-                            Ok(_) => {
-                                break 10.0f64.powi(-symbol.precision_price as i32);
+                        match rt.block_on(async {
+                            use crate::futures_web::http::info::GetInfoRequest;
+                            let req = GetInfoRequest {
+                                product_group: "SwapU",
+                                instrument: s.clone(),
+                            };
+                            self.oneshot(req).await.map(|x| x.price_tick)
+                        }) {
+                            Ok(tick) => {
+                                break tick;
                             }
                             Err(_) => {
                                 failed_times += 1;

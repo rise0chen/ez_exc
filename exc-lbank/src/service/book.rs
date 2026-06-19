@@ -14,7 +14,7 @@ impl Lbank {
         } else {
             if let Some(ch) = self.ws.books.get(&symbol_id) {
                 let mut book = ch.borrow().clone();
-                if book.is_valid() {
+                if !book.is_empty() {
                     book.ask.iter_mut().for_each(|x| {
                         x.price = symbol.token_price(x.price);
                         x.size = symbol.token_size(x.size / symbol.multi_size);
