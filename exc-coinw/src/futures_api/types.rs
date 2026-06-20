@@ -76,6 +76,11 @@ pub enum OrderStatus {
     SysCancel,
     CancelAll,
 }
+impl OrderStatus {
+    pub fn is_finished(self) -> bool {
+        exc_util::types::order::OrderStatus::from(self).is_finished()
+    }
+}
 impl From<OrderStatus> for exc_util::types::order::OrderStatus {
     fn from(value: OrderStatus) -> Self {
         match value {

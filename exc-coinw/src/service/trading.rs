@@ -1,10 +1,9 @@
 use super::Coinw;
-use crate::futures_api::types::{OpenSide, OrderStatus, PositionSide};
+use crate::futures_api::types::{OpenSide, PositionSide};
 use crate::symnol::symbol_id;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{Fee, FuturesOpenType, Order, OrderId, OrderSide, OrderType, PlaceOrderRequest};
-use rust_decimal::prelude::ToPrimitive;
 use tower::ServiceExt;
 
 impl Coinw {
@@ -59,12 +58,7 @@ impl Coinw {
         } else {
             price
         };
-        let custom_id = format!(
-            "t-{:08x?}{:04x?}{:016x?}",
-            price.to_f32().unwrap().ln().to_bits(),
-            price.to_i16().unwrap().to_be(),
-            time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64
-        );
+        let custom_id = format!("{}", time::OffsetDateTime::now_utc().unix_timestamp_nanos());
         let mut ret = OrderId {
             symbol: symbol.clone(),
             order_id: None,
@@ -163,12 +157,9 @@ impl Coinw {
                 position_type: "plan",
             };
             let resp = self.oneshot(req).await?.rows;
-            let resp = resp.into_iter().find(filter_order);
-            let order = if let Some(mut order) = resp {
-                if matches!(order.order_status, OrderStatus::Part) {
-                    order.order_status = OrderStatus::PartFill;
-                }
-                Some(order)
+            let orders: Vec<_> = resp.into_iter().filter(filter_order).collect();
+            let orders = if !orders.is_empty() {
+                orders
             } else {
                 let req = GetOrderHistoryRequest {
                     instrument: symbol_id(&symbol),
@@ -177,22 +168,25 @@ impl Coinw {
                     order_status: "",
                 };
                 let resp = self.oneshot(req).await?.rows;
-                resp.into_iter().find(filter_order)
+                resp.into_iter().filter(filter_order).collect()
             };
-            let Some(resp) = order else {
+            if orders.is_empty() {
                 return Err(ExchangeError::OrderNotFound);
-            };
-            let deal_vol = symbol.token_size(resp.trade_piece.unwrap_or_default());
-            let deal_avg_price = symbol.token_price(resp.avg_price.unwrap_or_default());
+            }
+            let deal_vol: f64 = orders.iter().map(|x| x.trade_piece.unwrap_or(0.0)).sum();
+            let deal_value: f64 = orders.iter().map(|x| x.trade_piece.unwrap_or(0.0) * x.avg_price.unwrap_or(0.0)).sum();
+            let avg_price = if deal_vol == 0.0 { 0.0 } else { deal_value / deal_vol };
+            let deal_vol = symbol.token_size(deal_vol);
+            let deal_avg_price = symbol.token_price(avg_price);
             let fee = symbol.fee * deal_vol * deal_avg_price;
             Order {
-                order_id: resp.order_id.as_ref().unwrap_or(&resp.id).to_string(),
-                vol: symbol.token_size(resp.total_piece),
+                order_id: orders[0].order_id.as_ref().unwrap_or(&orders[0].id).to_string(),
+                vol: symbol.token_size(orders[0].total_piece),
                 deal_vol,
                 deal_avg_price,
                 fee: Fee::Quote(fee),
-                state: resp.order_status.into(),
-                side: match (resp.status, resp.direction) {
+                state: orders[0].order_status.into(),
+                side: match (orders[0].status, orders[0].direction) {
                     (OpenSide::Open, PositionSide::Long) => OrderSide::Buy,
                     (OpenSide::Open, PositionSide::Short) => OrderSide::Sell,
                     (OpenSide::Close, PositionSide::Long) => OrderSide::CloseBuy,
