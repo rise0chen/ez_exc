@@ -69,6 +69,7 @@ pub enum OrderStatus {
     CanceledPositionNotAllowed,
     CanceledMarginNotAllowed,
     CanceledTooMuchSlippage,
+    CanceledInvalidBalance,
     CanceledNotEnoughLiquidity,
     CanceledSelfTrade,
     CanceledExpired,

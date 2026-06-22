@@ -29,11 +29,11 @@ num_enum = {version = "0.7", default-features = false}
 pin-project-lite = {version = "0.2", default-features = false}
 rust_decimal = {version = "1", default-features = false, features = ["serde"]}
 serde = {version = "1", default-features = false, features = ["derive"]}
+serde_json = {version = "1", default-features = false, features = ["alloc"]}
 time = {version = "0.3", default-features = false, features = ["serde-human-readable", "macros"]}
 tokio = {version = "1", default-features = false, features = ["sync", "rt-multi-thread", "time", "macros"]}
 tracing = {version = "0.1", default-features = false}
 
 [dev-dependencies]
 dotenvy = {version = "0.15", default-features = false}
-serde_json = {version = "1", default-features = false, features = ["alloc"]}
 tracing-subscriber = {version = "0.3", default-features = false, features = ["std", "fmt", "env-filter"]}

@@ -42,6 +42,7 @@ impl Ws {
                 coin: coin.into(),
                 n_sig_figs: None,
                 mantissa: None,
+                fast: false,
             });
         }
         while let Some(event) = ws.next().await {

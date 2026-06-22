@@ -2,7 +2,7 @@ use super::Hyperliquid;
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
 use exc_util::types::order::{Fee, Order, OrderId, OrderSide, OrderStatus, OrderType, PlaceOrderRequest};
-use hypersdk::hypercore::{OidOrCloid, OrderGrouping, OrderResponseStatus, PrivateKeySigner, Side};
+use hypersdk::hypercore::{Builder, OidOrCloid, OrderGrouping, OrderResponseStatus, PrivateKeySigner, Side};
 use time::OffsetDateTime;
 
 impl Hyperliquid {
@@ -50,7 +50,10 @@ impl Hyperliquid {
                 cloid: custom_id.to_be_bytes().into(),
             }],
             grouping: OrderGrouping::Na,
-            builder: None,
+            builder: self.key.builder.as_ref().map(|x| Builder {
+                builder_address: x.parse().unwrap(),
+                fee: self.key.builder_fee.unwrap_or(0),
+            }),
         };
         let nonce = chrono::Utc::now().timestamp_millis() as u64;
         let result = match self.http.place(&signer, order, nonce, None, None).await {
