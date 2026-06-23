@@ -23,6 +23,7 @@ members = [
   "exc-okx",
   "exc-paradex",
   "exc-simu",
+  "exc-standx",
   "exc-toobit",
   "exc-util",
   "exc-weex",

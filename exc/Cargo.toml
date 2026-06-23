@@ -38,6 +38,7 @@ exc-mexc = {path = "../exc-mexc", default-features = false}
 exc-okx = {path = "../exc-okx", default-features = false}
 exc-paradex = {path = "../exc-paradex", default-features = false}
 exc-simu = {path = "../exc-simu", default-features = false}
+exc-standx = {path = "../exc-standx", default-features = false}
 exc-toobit = {path = "../exc-toobit", default-features = false}
 exc-util = {path = "../exc-util", default-features = false}
 exc-weex = {path = "../exc-weex", default-features = false}

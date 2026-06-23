@@ -1,10 +1,10 @@
 [package]
 authors = ["rise0chen"]
-description = "Toobit exchange services"
-edition = "2024"
-keywords = ["exchange", "tower", "toobit"]
+description = "STANDX exchange services"
+edition = "2021"
+keywords = ["exchange", "tower", "standx"]
 license = "MIT"
-name = "exc-toobit"
+name = "exc-standx"
 readme = "./README.md"
 repository = ""
 version = "0.7.0"
@@ -18,13 +18,14 @@ rustls-tls = ["exc-util/rustls-tls"]
 anyhow = {version = "1", default-features = false}
 async-stream = {version = "0.3", default-features = false}
 atomic-waker = {version = "1", default-features = false}
-base64 = {version = "0.22", default-features = false}
+base64 = {version = "0.22", default-features = false, features = ["alloc"]}
+bs58 = {version = "0.5", default-features = false, features = ["alloc"]}
 cfg-if = {version = "1", default-features = false}
+ed25519-consensus = {version = "2", default-features = false}
 either = {version = "1", default-features = false}
 exc-util = {path = "../exc-util"}
 futures-util = {version = "0.3", default-features = false}
 hex = {version = "0.4", default-features = false, features = ["alloc"]}
-hmac = {version = "0.12", default-features = false}
 http = {version = "1", default-features = false}
 http-body-util = {version = "0.1", default-features = false}
 hyper = {version = "1", default-features = false, features = ["client", "http1"]}
@@ -35,7 +36,6 @@ serde = {version = "1", default-features = false, features = ["derive"]}
 serde_json = {version = "1", default-features = false, features = ["alloc"]}
 serde_urlencoded = {version = "0.7", default-features = false}
 serde_with = {version = "3", default-features = false, features = ["std", "macros", "time_0_3"]}
-sha2 = {version = "0.10", default-features = false}
 time = {version = "0.3", default-features = false, features = ["serde-well-known", "macros"]}
 tokio = {version = "1", default-features = false, features = ["sync", "rt-multi-thread", "time", "macros"]}
 tower = {version = "0.5", default-features = false, features = ["util", "reconnect", "buffer", "timeout", "retry", "ready-cache"]}

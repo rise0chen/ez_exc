@@ -25,6 +25,7 @@ use exc_mexc::{key::Key as MexcKey, service::Mexc};
 use exc_okx::{key::Key as OkxKey, service::Okx};
 use exc_paradex::{key::Key as ParadexKey, service::Paradex};
 use exc_simu::service::Simu;
+use exc_standx::{key::Key as StandxKey, service::Standx};
 use exc_toobit::{key::Key as ToobitKey, service::Toobit};
 use exc_util::error::ExchangeError;
 use exc_util::symbol::Symbol;
@@ -132,6 +133,10 @@ pub enum ExchangeConfig {
         #[serde(flatten)]
         key: CoinwKey,
     },
+    Standx {
+        #[serde(flatten)]
+        key: StandxKey,
+    },
     Toobit {
         #[serde(flatten)]
         key: ToobitKey,
@@ -169,6 +174,7 @@ pub enum Exchange {
     Dex(Dex),
     Dydx(Dydx),
     Coinw(Coinw),
+    Standx(Standx),
     Toobit(Toobit),
     Custom(Custom),
     Simu(Simu),
@@ -245,6 +251,7 @@ impl Exchange {
                 exc.run();
                 Self::Coinw(exc)
             }
+            ExchangeConfig::Standx { key } => Self::Standx(Standx::new(key)),
             ExchangeConfig::Toobit { key } => Self::Toobit(Toobit::new(key)),
             ExchangeConfig::Simu { path, interval } => {
                 let data = std::fs::read(path).unwrap();
@@ -282,6 +289,7 @@ impl Exchange {
             Exchange::Dex(e) => e.get_balance().await,
             Exchange::Dydx(e) => e.get_balance().await,
             Exchange::Coinw(e) => e.get_balance().await,
+            Exchange::Standx(e) => e.get_balance().await,
             Exchange::Toobit(e) => e.get_balance().await,
             Exchange::Custom(_) => todo!(),
             Exchange::Simu(_) => todo!(),
@@ -314,6 +322,7 @@ impl Exchange {
             Exchange::Dex(e) => e.get_position(symbol).await,
             Exchange::Dydx(e) => e.get_position(symbol).await,
             Exchange::Coinw(e) => e.get_position(symbol).await,
+            Exchange::Standx(e) => e.get_position(symbol).await,
             Exchange::Toobit(e) => e.get_position(symbol).await,
             Exchange::Custom(_) => todo!(),
             Exchange::Simu(_) => Ok(Position::default()),
@@ -346,6 +355,7 @@ impl Exchange {
             Exchange::Dex(e) => e.perfect_symbol(symbol).await,
             Exchange::Dydx(e) => e.perfect_symbol(symbol).await,
             Exchange::Coinw(e) => e.perfect_symbol(symbol).await,
+            Exchange::Standx(e) => e.perfect_symbol(symbol).await,
             Exchange::Toobit(e) => e.perfect_symbol(symbol).await,
             Exchange::Custom(_) => todo!(),
             Exchange::Simu(_) => Ok(()),
@@ -378,6 +388,7 @@ impl Exchange {
             Exchange::Dex(e) => e.get_index_price(symbol).await,
             Exchange::Dydx(e) => e.get_index_price(symbol).await,
             Exchange::Coinw(e) => e.get_index_price(symbol).await,
+            Exchange::Standx(e) => e.get_index_price(symbol).await,
             Exchange::Toobit(e) => e.get_index_price(symbol).await,
             Exchange::Custom(e) => e.get_index_price(symbol).await,
             Exchange::Simu(e) => e.get_index_price(symbol).await,
@@ -410,6 +421,7 @@ impl Exchange {
             Exchange::Dex(e) => e.get_funding_rate(symbol).await,
             Exchange::Dydx(e) => e.get_funding_rate(symbol).await,
             Exchange::Coinw(e) => e.get_funding_rate(symbol).await,
+            Exchange::Standx(e) => e.get_funding_rate(symbol).await,
             Exchange::Toobit(e) => e.get_funding_rate(symbol).await,
             Exchange::Custom(e) => e.get_funding_rate(symbol).await,
             Exchange::Simu(e) => e.get_funding_rate(symbol).await,
@@ -442,6 +454,7 @@ impl Exchange {
             Exchange::Dex(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Dydx(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Coinw(e) => e.get_funding_rate_history(symbol, day).await,
+            Exchange::Standx(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Toobit(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Custom(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Simu(e) => e.get_funding_rate_history(symbol, day).await,
@@ -474,6 +487,7 @@ impl Exchange {
             Exchange::Dex(e) => e.get_st_rate(symbol).await,
             Exchange::Dydx(e) => e.get_st_rate(symbol).await,
             Exchange::Coinw(e) => e.get_st_rate(symbol).await,
+            Exchange::Standx(e) => e.get_st_rate(symbol).await,
             Exchange::Toobit(e) => e.get_st_rate(symbol).await,
             Exchange::Custom(_e) => todo!(),
             Exchange::Simu(_) => todo!(),
@@ -506,6 +520,7 @@ impl Exchange {
             Exchange::Dex(e) => e.get_depth(symbol, limit).await,
             Exchange::Dydx(e) => e.get_depth(symbol, limit).await,
             Exchange::Coinw(e) => e.get_depth(symbol, limit).await,
+            Exchange::Standx(e) => e.get_depth(symbol, limit).await,
             Exchange::Toobit(e) => e.get_depth(symbol, limit).await,
             Exchange::Custom(e) => e.get_depth(symbol, limit).await,
             Exchange::Simu(e) => e.get_depth(symbol, limit).await,
@@ -538,6 +553,7 @@ impl Exchange {
             Exchange::Dex(e) => e.get_order(id).await,
             Exchange::Dydx(e) => e.get_order(id).await,
             Exchange::Coinw(e) => e.get_order(id).await,
+            Exchange::Standx(e) => e.get_order(id).await,
             Exchange::Toobit(e) => e.get_order(id).await,
             Exchange::Custom(e) => e.get_order(id).await,
             Exchange::Simu(e) => e.get_order(id).await,
@@ -570,6 +586,7 @@ impl Exchange {
             Exchange::Dex(e) => e.place_order(symbol, order_req).await,
             Exchange::Dydx(e) => e.place_order(symbol, order_req).await,
             Exchange::Coinw(e) => e.place_order(symbol, order_req).await,
+            Exchange::Standx(e) => e.place_order(symbol, order_req).await,
             Exchange::Toobit(e) => e.place_order(symbol, order_req).await,
             Exchange::Custom(e) => e.place_order(symbol, order_req).await,
             Exchange::Simu(e) => e.place_order(symbol, order_req).await,
@@ -602,6 +619,7 @@ impl Exchange {
             Exchange::Dex(e) => e.cancel_order(id).await,
             Exchange::Dydx(e) => e.cancel_order(id).await,
             Exchange::Coinw(e) => e.cancel_order(id).await,
+            Exchange::Standx(e) => e.cancel_order(id).await,
             Exchange::Toobit(e) => e.cancel_order(id).await,
             Exchange::Custom(e) => e.cancel_order(id).await,
             Exchange::Simu(e) => e.cancel_order(id).await,
