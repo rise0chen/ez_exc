@@ -47,6 +47,7 @@ pub struct Dex {
 }
 impl Dex {
     pub async fn new(key: Key) -> Self {
+        exc_util::init();
         let cex: Address = key.cex_addr.parse().unwrap();
         let quote: Address = key.quote_addr.parse().unwrap();
         let pool = Pool::from(&key.pool_cfg);

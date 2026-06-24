@@ -1,7 +1,6 @@
 use super::Dydx;
 use bigdecimal::{BigDecimal, ToPrimitive, Zero as _};
 use chrono::{TimeDelta, Utc};
-use core::time::Duration;
 use dydx::indexer::{types::ApiOrderStatus, ClientId, OrderSide as DydxSide, OrderStatus as DydxStatus};
 use dydx::node::{OrderBuilder, OrderGoodUntil, OrderId as PlaceId, OrderSide as PlaceSide};
 use dydx_proto::dydxprotocol::clob::order::TimeInForce;
@@ -80,36 +79,23 @@ impl Dydx {
             BigDecimal::new(price.mantissa().into(), price.scale() as i64),
             BigDecimal::new(qty.mantissa().into(), qty.scale() as i64),
         );
-        let until = match kind {
-            OrderType::Unknown => None,
-            OrderType::Limit => {
-                let until = Utc::now() + TimeDelta::days(1);
+        match kind {
+            OrderType::Unknown | OrderType::Limit => {
+                let until = Utc::now() + self.time_delta + TimeDelta::days(1);
                 order = order.time_in_force(TimeInForce::Unspecified).until(until).long_term();
-                None
             }
             OrderType::Market => {
-                let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(10);
-                order = order
-                    .price(BigDecimal::new(price.mantissa().into(), price.scale() as i64))
-                    .time_in_force(TimeInForce::Ioc)
-                    .until(until.clone())
-                    .short_term();
-                Some(until)
+                let until = Utc::now() + self.time_delta + TimeDelta::seconds(5);
+                order = order.price(BigDecimal::new(price.mantissa().into(), price.scale() as i64));
+                order = order.time_in_force(TimeInForce::Unspecified).until(until).long_term();
             }
             OrderType::LimitMaker => {
-                let until = Utc::now() + TimeDelta::days(1);
+                let until = Utc::now() + self.time_delta + TimeDelta::days(1);
                 order = order.time_in_force(TimeInForce::PostOnly).until(until).long_term();
-                None
             }
-            OrderType::ImmediateOrCancel => {
-                let until = Utc::now() + TimeDelta::seconds(15);
+            OrderType::ImmediateOrCancel | OrderType::FillOrKill => {
+                let until = Utc::now() + self.time_delta + TimeDelta::seconds(5);
                 order = order.time_in_force(TimeInForce::Unspecified).until(until).long_term();
-                None
-            }
-            OrderType::FillOrKill => {
-                let until = client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))?.ahead(10);
-                order = order.time_in_force(TimeInForce::FillOrKill).until(until.clone()).short_term();
-                Some(until)
             }
         };
         let (order_id, order) = order.build(custom_id).map_err(|e| (ret.clone(), e.into()))?;
@@ -118,7 +104,6 @@ impl Dydx {
                 order_id.clob_pair_id.to_string(),
                 order_id.order_flags.to_string(),
                 order_id.client_id.to_string(),
-                until.is_none().to_string(),
             ]
             .join(","),
         );
@@ -126,11 +111,6 @@ impl Dydx {
             .place_order(&mut account, order)
             .await
             .map_err(|e| (ret.clone(), ExchangeError::UnexpectedResponseType(e.to_string())))?;
-        if let Some(until) = until {
-            while client.latest_block_height().await.map_err(|e| (ret.clone(), e.into()))? < until {
-                tokio::time::sleep(Duration::from_secs(1)).await;
-            }
-        }
         Ok(ret)
     }
     pub async fn cancel_order(&mut self, order_id: OrderId) -> Result<(), ExchangeError> {
@@ -142,18 +122,17 @@ impl Dydx {
         let subaccount = account.subaccount(0)?;
 
         let mut order_id_split = order_id.order_id.as_ref().unwrap().split(",");
+        let (pair, flag, id) = match (order_id_split.next(), order_id_split.next(), order_id_split.next()) {
+            (Some(pair), Some(flag), Some(id)) => (pair, flag, id),
+            _ => return Err(ExchangeError::OrderNotFound),
+        };
         let place_id = PlaceId {
             subaccount_id: Some(subaccount.into()),
-            clob_pair_id: order_id_split.next().unwrap().parse().unwrap(),
-            order_flags: order_id_split.next().unwrap().parse().unwrap(),
-            client_id: order_id_split.next().unwrap().parse().unwrap(),
+            clob_pair_id: pair.parse().unwrap(),
+            order_flags: flag.parse().unwrap(),
+            client_id: id.parse().unwrap(),
         };
-        let is_long: bool = order_id_split.next().unwrap().parse().unwrap();
-        let until: OrderGoodUntil = if is_long {
-            (Utc::now() + TimeDelta::days(1)).into()
-        } else {
-            client.latest_block_height().await?.ahead(20).into()
-        };
+        let until: OrderGoodUntil = (Utc::now() + TimeDelta::days(1)).into();
         client
             .cancel_order(&mut account, place_id, until)
             .await
@@ -174,7 +153,12 @@ impl Dydx {
         if ret.order_id.is_empty() {
             return Err(ExchangeError::OrderNotFound);
         }
-        let client_id = ret.order_id.split(",").nth(2).unwrap().parse::<u32>().unwrap();
+        let mut order_id_split = ret.order_id.split(",");
+        let (_pair, _flag, id) = match (order_id_split.next(), order_id_split.next(), order_id_split.next()) {
+            (Some(pair), Some(flag), Some(id)) => (pair, flag, id),
+            _ => return Err(ExchangeError::OrderNotFound),
+        };
+        let client_id = id.parse::<u32>().unwrap();
         let account = self.wallet().account_offline(0)?;
         let subaccount = account.subaccount(0)?;
         let orders = self.indexer().accounts().get_subaccount_orders(&subaccount, None).await?;

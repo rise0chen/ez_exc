@@ -22,6 +22,7 @@ pub struct Binance {
 
 impl Binance {
     pub fn new(key: Key) -> Self {
+        exc_util::init();
         let http = ServiceBuilder::default().service(Client::new(None));
         Self { key, http }
     }

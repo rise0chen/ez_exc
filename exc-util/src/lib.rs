@@ -6,3 +6,7 @@ pub mod interface;
 pub mod symbol;
 pub mod traits;
 pub mod types;
+
+pub fn init() {
+    let _ = rustls::crypto::aws_lc_rs::default_provider().install_default();
+}

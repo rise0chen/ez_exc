@@ -20,13 +20,18 @@ async fn main() -> anyhow::Result<()> {
     let mut symbol = Symbol::derivative(Asset::try_from("APE").unwrap(), Asset::usd());
     dydx.perfect_symbol(&mut symbol).await.unwrap();
     let order_req = PlaceOrderRequest::new(20.0, 0.3, OrderType::Limit);
-    let order_id = dydx.place_order(&symbol, order_req).await.unwrap_or_else(|e| e.0);
-    tokio::time::sleep(Duration::from_secs(5)).await;
-    tracing::info!("{:?}", dydx.cancel_order(order_id.clone()).await);
-    let order = dydx.get_order(order_id.clone()).await.unwrap();
+    let order_id = dydx.place_order(&symbol, order_req).await.unwrap();
+    let order = dydx.get_order(order_id.clone()).await;
     tracing::info!("{:?}", order);
-    tokio::time::sleep(Duration::from_secs(10)).await;
-    let order = dydx.get_order(order_id).await.unwrap();
+    tokio::time::sleep(Duration::from_secs(5)).await;
+    let order = dydx.get_order(order_id.clone()).await;
+    tracing::info!("{:?}", order);
+    tokio::time::sleep(Duration::from_secs(30)).await;
+    tracing::info!("{:?}", dydx.cancel_order(order_id.clone()).await);
+    let order = dydx.get_order(order_id.clone()).await;
+    tracing::info!("{:?}", order);
+    tokio::time::sleep(Duration::from_secs(5)).await;
+    let order = dydx.get_order(order_id).await;
     tracing::info!("{:?}", order);
     Ok(())
 }

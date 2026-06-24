@@ -24,6 +24,7 @@ pub struct Bitunix {
 
 impl Bitunix {
     pub fn new(key: Key) -> Self {
+        exc_util::init();
         let http = ServiceBuilder::default().service(Client::new(None));
         let symbols = key.symbol.split(',');
         let symbols = symbols.filter_map(|x| if x.is_empty() { None } else { Some(x.to_owned()) }).collect();

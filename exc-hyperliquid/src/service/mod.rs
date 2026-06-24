@@ -19,6 +19,7 @@ pub struct Hyperliquid {
 }
 impl Hyperliquid {
     pub fn new(key: Key) -> Self {
+        exc_util::init();
         let http = Arc::new(hypercore::mainnet());
         let symbols = key.market.split(',');
         let symbols = symbols.filter_map(|x| if x.is_empty() { None } else { Some(x.to_owned()) }).collect();

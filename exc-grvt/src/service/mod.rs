@@ -15,6 +15,7 @@ pub struct Grvt {
 }
 impl Grvt {
     pub async fn new(key: Key) -> Self {
+        exc_util::init();
         let config = GrvtConfig {
             environment: Environment::Prod,
             api_key: key.api_key.to_string(),
