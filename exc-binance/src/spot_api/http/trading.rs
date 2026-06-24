@@ -16,6 +16,7 @@ pub struct PlaceOrderRequest {
     pub time_in_force: TimeInForce,
     pub quantity: Decimal,
     pub price: Decimal,
+    pub side_effect_type: &'static str,
 }
 
 #[derive(Debug, Deserialize)]

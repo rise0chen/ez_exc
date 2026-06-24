@@ -11,7 +11,7 @@ impl Binance {
             size,
             price,
             kind,
-            leverage: _,
+            leverage,
             open_type: _,
         } = data;
         let price = if size > 0.0 && price > symbol.max_price {
@@ -55,6 +55,7 @@ impl Binance {
                 side: if size.is_sign_positive() { OrderSide::Buy } else { OrderSide::Sell },
                 quantity: size.abs(),
                 price,
+                side_effect_type: if leverage <= 1.0 { "NO_SIDE_EFFECT" } else { "AUTO_BORROW_REPAY" },
             };
             self.oneshot(req).await.map(|resp| resp.order_id)
         } else {
