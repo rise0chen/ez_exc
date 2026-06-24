@@ -13,7 +13,7 @@ impl Lighter {
         };
         let resp = self.oneshot(req).await?.accounts.pop();
         let Some(resp) = resp else { return Err(ExchangeError::OrderNotFound) };
-        Ok(Balance::new(0.0, resp.cross_asset_value, 0.0))
+        Ok(Balance::new(0.0, resp.collateral, 0.0))
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
@@ -25,7 +25,8 @@ impl Lighter {
         let resp = self.oneshot(req).await?.accounts.pop();
         if symbol.is_spot() {
             let assets = resp.map(|resp| resp.assets).unwrap_or(Vec::new());
-            let balance = assets.iter().find(|x| x.symbol == *symbol.base).map(|x| x.balance).unwrap_or_default();
+            let balance = assets.iter().find(|x| x.symbol == *symbol.base);
+            let balance = balance.map(|x| x.balance + x.margin_balance).unwrap_or_default();
             Ok((
                 Position {
                     id: String::new(),

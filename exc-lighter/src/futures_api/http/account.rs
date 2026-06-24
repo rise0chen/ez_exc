@@ -17,6 +17,8 @@ pub struct Asset {
     pub symbol: String,
     #[serde_as(as = "DisplayFromStr")]
     pub balance: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub margin_balance: f64,
 }
 #[serde_as]
 #[derive(Debug, Deserialize)]
@@ -35,7 +37,7 @@ pub struct Position {
 #[serde(rename_all = "snake_case")]
 pub struct Account {
     #[serde_as(as = "DisplayFromStr")]
-    pub cross_asset_value: f64,
+    pub collateral: f64,
     pub assets: Vec<Asset>,
     pub positions: Vec<Position>,
 }
