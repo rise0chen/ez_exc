@@ -118,7 +118,7 @@ impl Dydx {
                 order_id.clob_pair_id.to_string(),
                 order_id.order_flags.to_string(),
                 order_id.client_id.to_string(),
-                matches!(kind, OrderType::Limit | OrderType::LimitMaker).to_string(),
+                until.is_none().to_string(),
             ]
             .join(","),
         );
