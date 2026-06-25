@@ -9,6 +9,25 @@ impl Paradex {
         Ok(Balance::new(0.0, resp.total_collateral, 0.0))
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
+        if symbol.is_spot() {
+            let resp = self.http.balance().await.map_err(|e| ExchangeError::Other(e.into()))?;
+            let resp = resp.results.iter().find(|x| symbol.base == x.token);
+            let balance = resp.map(|x| x.size).unwrap_or_default();
+            let price = resp.map(|x| x.average_entry_price.unwrap_or_default()).unwrap_or_default();
+            return Ok((
+                Position {
+                    id: String::new(),
+                    size: balance,
+                    price,
+                },
+                Position {
+                    id: String::new(),
+                    size: 0.0,
+                    price: 0.0,
+                },
+            ));
+        }
+
         let symbol_id = crate::symnol::symbol_id(symbol);
         let resp = self.http.positions().await.map_err(|e| ExchangeError::Other(e.into()))?;
         let resp = resp.results.iter().filter(|x| x.market == symbol_id);

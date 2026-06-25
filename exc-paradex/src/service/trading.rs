@@ -129,7 +129,7 @@ impl Paradex {
             deal_avg_price: symbol.token_price(avg_price),
             fee: Fee::Quote(symbol.fee * deal_vol * avg_price),
             state: if matches!(resp.status, paradex::structs::OrderStatus::CLOSED) {
-                OrderStatus::Filled
+                OrderStatus::PartiallyCanceled
             } else {
                 OrderStatus::New
             },
