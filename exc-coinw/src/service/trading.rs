@@ -158,7 +158,7 @@ impl Coinw {
             };
             let resp = self.oneshot(req).await?.rows;
             let orders: Vec<_> = resp.into_iter().filter(filter_order).collect();
-            let orders = if !orders.is_empty() {
+            let mut orders = if !orders.is_empty() {
                 orders
             } else {
                 let req = GetOrderHistoryRequest {
@@ -173,6 +173,15 @@ impl Coinw {
             if orders.is_empty() {
                 return Err(ExchangeError::OrderNotFound);
             }
+            orders.iter_mut().for_each(|x| {
+                if x.status.is_close() {
+                    x.trade_piece = x.trade_piece.or(x.closed_piece);
+                    x.avg_price = x.avg_price.or(x.close_price);
+                } else {
+                    x.trade_piece = x.trade_piece.or(x.current_piece);
+                    x.avg_price = x.avg_price.or(x.open_price);
+                }
+            });
             let deal_vol: f64 = orders.iter().map(|x| x.trade_piece.unwrap_or(0.0)).sum();
             let deal_value: f64 = orders.iter().map(|x| x.trade_piece.unwrap_or(0.0) * x.avg_price.unwrap_or(0.0)).sum();
             let avg_price = if deal_vol == 0.0 { 0.0 } else { deal_value / deal_vol };

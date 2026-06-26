@@ -113,12 +113,18 @@ pub struct Order {
     pub direction: PositionSide,
     #[serde_as(as = "PickFirst<(DisplayFromStr, _)>")]
     pub total_piece: f64,
-    #[serde(alias = "currentPiece")]
     #[serde_as(as = "Option<PickFirst<(DisplayFromStr, _)>>")]
     pub trade_piece: Option<f64>,
-    #[serde(alias = "openPrice")]
     #[serde_as(as = "Option<PickFirst<(DisplayFromStr, _)>>")]
     pub avg_price: Option<f64>,
+    #[serde_as(as = "Option<PickFirst<(DisplayFromStr, _)>>")]
+    pub current_piece: Option<f64>,
+    #[serde_as(as = "Option<PickFirst<(DisplayFromStr, _)>>")]
+    pub open_price: Option<f64>,
+    #[serde_as(as = "Option<PickFirst<(DisplayFromStr, _)>>")]
+    pub closed_piece: Option<f64>,
+    #[serde_as(as = "Option<PickFirst<(DisplayFromStr, _)>>")]
+    pub close_price: Option<f64>,
     pub order_status: OrderStatus,
 }
 

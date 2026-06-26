@@ -30,6 +30,11 @@ pub enum OpenSide {
     Open = 1,
     Close = 2,
 }
+impl OpenSide {
+    pub fn is_close(&self) -> bool {
+        matches!(self, OpenSide::Close)
+    }
+}
 #[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub enum PositionSide {
