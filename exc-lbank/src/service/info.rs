@@ -79,13 +79,12 @@ impl Lbank {
         if symbol.is_spot() {
             return Ok(0.0);
         }
-        use crate::futures_web::http::info::GetIndexRequest;
-        let req = GetIndexRequest {
-            product: "FUTURES",
-            symbol_in_list: symbol.base.to_string().to_ascii_lowercase(),
-        };
-        let resp = self.oneshot(req).await?.pop();
-        resp.map(|x| symbol.token_price(x.current_price)).ok_or(ExchangeError::OrderNotFound)
+        let symbol_id = crate::symnol::symbol_id(symbol);
+        if let Some(ch) = self.ws.index_prices.get(&symbol_id) {
+            Ok(symbol.token_price(*ch.borrow()))
+        } else {
+            Err(ExchangeError::OrderNotFound)
+        }
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {

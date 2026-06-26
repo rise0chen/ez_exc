@@ -1,4 +1,5 @@
 pub mod book;
+pub mod info;
 
 use core::time::Duration;
 use exc_util::types::book::{Depth, DepthManger, Order};
@@ -35,6 +36,8 @@ pub struct TxRequest {
 #[serde(untagged)]
 pub enum RxResponseData {
     OrderBook(book::GetDepthResponse),
+    Ticker(info::GetTickerResponse),
+    Tickers(Vec<info::GetTickerResponse>),
 }
 #[serde_as]
 #[derive(Debug, Deserialize)]
@@ -43,7 +46,8 @@ pub struct RxResponse {
     #[serde_as(as = "DisplayFromStr")]
     y: usize,
     #[serde(flatten)]
-    data: RxResponseData,
+    data: Option<RxResponseData>,
+    d: Option<RxResponseData>,
 }
 
 pub struct Ws {
@@ -51,17 +55,20 @@ pub struct Ws {
     pub ids: HashMap<usize, String>,
     pub book_mangers: HashMap<String, Mutex<DepthManger>>,
     pub books: HashMap<String, watch::Sender<Depth>>,
+    pub index_prices: HashMap<String, watch::Sender<f64>>,
 }
 impl Ws {
     pub fn new(symbols: Vec<String>) -> Ws {
         let book_mangers = symbols.iter().map(|s| (s.clone(), Mutex::new(DepthManger::new()))).collect();
         let books = symbols.iter().map(|s| (s.clone(), watch::channel(Depth::default()).0)).collect();
+        let index_prices = symbols.iter().map(|s| (s.clone(), watch::channel(0.0).0)).collect();
         let ids = symbols.iter().map(Clone::clone).enumerate().collect();
         Ws {
             symbols,
             ids,
             book_mangers,
             books,
+            index_prices,
         }
     }
     pub fn clear(&self) {
@@ -87,6 +94,14 @@ impl Ws {
                 a: Channel { i: ch },
             };
             write.send(Message::Text(serde_json::to_string(&req_price)?.into())).await?;
+            let req_index = TxRequest {
+                x: 1,
+                y: 1000000001 + i,
+                z: 1,
+                e: r#"{"bvc":"202","isUsd":1}"#,
+                a: Channel { i: s.clone() },
+            };
+            write.send(Message::Text(serde_json::to_string(&req_index)?.into())).await?;
         }
 
         // Message handling loop
@@ -139,8 +154,8 @@ impl Ws {
                     continue;
                 }
             };
-            match m.data {
-                RxResponseData::OrderBook(d) => {
+            match m.data.or(m.d) {
+                Some(RxResponseData::OrderBook(d)) => {
                     let Some(symbol) = self.ids.get(&(m.y - 3000000001)) else {
                         tracing::warn!("Not id {}", m.y);
                         continue;
@@ -154,6 +169,27 @@ impl Ws {
                     } else {
                         tracing::warn!("Not init {}", symbol);
                     }
+                }
+                Some(RxResponseData::Ticker(d)) => {
+                    let symbol = d.a;
+                    if let Some(ch) = self.index_prices.get(&symbol) {
+                        ch.send_replace(d.d);
+                    } else {
+                        tracing::warn!("Not init {}", symbol);
+                    }
+                }
+                Some(RxResponseData::Tickers(d)) => {
+                    for x in d {
+                        let symbol = x.a;
+                        if let Some(ch) = self.index_prices.get(&symbol) {
+                            ch.send_replace(x.d);
+                        } else {
+                            tracing::warn!("Not init {}", symbol);
+                        }
+                    }
+                }
+                None => {
+                    tracing::warn!(text = ?text, "Unhandled message");
                 }
             }
         }

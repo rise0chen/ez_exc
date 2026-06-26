@@ -45,41 +45,6 @@ impl Rest for GetInfoRequest {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct GetIndexRequest {
-    pub product: &'static str,
-    pub symbol_in_list: String,
-}
-
-#[serde_as]
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct GetIndexResponse {
-    #[serde_as(as = "DisplayFromStr")]
-    pub current_price: f64,
-}
-
-impl Rest for GetIndexRequest {
-    type Response = Vec<GetIndexResponse>;
-
-    fn host(&self) -> Option<&'static str> {
-        Some("https://www.lbank.com/lbk-api")
-    }
-    fn api_kind(&self) -> ApiKind {
-        ApiKind::FuturesWeb
-    }
-    fn method(&self) -> Method {
-        Method::GET
-    }
-    fn path(&self) -> String {
-        "/seo-coin-center/coin/marketInfoList".into()
-    }
-    fn need_sign(&self) -> bool {
-        false
-    }
-}
-
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct GetFundingRateRequest {
     pub asset: &'static str,
     pub product_group: &'static str,

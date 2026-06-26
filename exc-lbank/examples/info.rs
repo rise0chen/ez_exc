@@ -1,3 +1,4 @@
+use core::time::Duration;
 use exc_lbank::service::Lbank;
 use exc_util::symbol::{Asset, Symbol};
 use std::env::var;
@@ -14,6 +15,8 @@ async fn main() -> anyhow::Result<()> {
 
     let key = serde_json::from_str(&var("LBANK_KEY").unwrap_or_default()).unwrap();
     let mut lbank = Lbank::new(key);
+    lbank.run();
+    tokio::time::sleep(Duration::from_secs(2)).await;
 
     let mut symbol = Symbol::derivative(Asset::try_from("PEPE").unwrap(), Asset::usdt());
     lbank.perfect_symbol(&mut symbol).await.unwrap();
