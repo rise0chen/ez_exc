@@ -36,6 +36,7 @@ exc-lbank = {path = "../exc-lbank", default-features = false}
 exc-lighter = {path = "../exc-lighter", default-features = false}
 exc-mexc = {path = "../exc-mexc", default-features = false}
 exc-okx = {path = "../exc-okx", default-features = false}
+exc-pacifica = {path = "../exc-pacifica", default-features = false}
 exc-paradex = {path = "../exc-paradex", default-features = false}
 exc-simu = {path = "../exc-simu", default-features = false}
 exc-standx = {path = "../exc-standx", default-features = false}

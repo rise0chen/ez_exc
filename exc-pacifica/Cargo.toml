@@ -1,0 +1,47 @@
+[package]
+authors = ["rise0chen"]
+description = "PACIFICA exchange services"
+edition = "2021"
+keywords = ["exchange", "tower", "pacifica"]
+license = "MIT"
+name = "exc-pacifica"
+readme = "./README.md"
+repository = ""
+version = "0.7.0"
+
+[features]
+default = ["rustls-tls"]
+native-tls = ["exc-util/native-tls"]
+rustls-tls = ["exc-util/rustls-tls"]
+
+[dependencies]
+anyhow = {version = "1", default-features = false}
+async-stream = {version = "0.3", default-features = false}
+atomic-waker = {version = "1", default-features = false}
+bs58 = {version = "0.5", default-features = false, features = ["alloc"]}
+cfg-if = {version = "1", default-features = false}
+ed25519-consensus = {version = "2", default-features = false}
+either = {version = "1", default-features = false}
+exc-util = {path = "../exc-util"}
+futures-util = {version = "0.3", default-features = false}
+hex = {version = "0.4", default-features = false, features = ["alloc"]}
+http = {version = "1", default-features = false}
+http-body-util = {version = "0.1", default-features = false}
+hyper = {version = "1", default-features = false, features = ["client", "http1"]}
+num_enum = {version = "0.7", default-features = false}
+pin-project-lite = {version = "0.2", default-features = false}
+rust_decimal = {version = "1", default-features = false, features = ["serde"]}
+serde = {version = "1", default-features = false, features = ["derive"]}
+serde_json = {version = "1", default-features = false, features = ["alloc"]}
+serde_urlencoded = {version = "0.7", default-features = false}
+serde_with = {version = "3", default-features = false, features = ["std", "macros", "time_0_3"]}
+time = {version = "0.3", default-features = false, features = ["serde-well-known", "macros"]}
+tokio = {version = "1", default-features = false, features = ["sync", "rt-multi-thread", "time", "macros"]}
+tower = {version = "0.5", default-features = false, features = ["util", "reconnect", "buffer", "timeout", "retry", "ready-cache"]}
+tower-http = {version = "0.6", default-features = false, features = ["decompression-gzip"]}
+tracing = {version = "0.1", default-features = false}
+uuid = {version = "1", default-features = false, features = ["v4"]}
+
+[dev-dependencies]
+dotenvy = {version = "0.15", default-features = false}
+tracing-subscriber = {version = "0.3", default-features = false, features = ["std", "fmt", "env-filter"]}

@@ -21,6 +21,7 @@ members = [
   "exc-lighter",
   "exc-mexc",
   "exc-okx",
+  "exc-pacifica",
   "exc-paradex",
   "exc-simu",
   "exc-standx",

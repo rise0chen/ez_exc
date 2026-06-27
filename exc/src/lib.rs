@@ -23,6 +23,7 @@ use exc_lbank::{key::Key as LbankKey, service::Lbank};
 use exc_lighter::{key::Key as LighterKey, service::Lighter};
 use exc_mexc::{key::Key as MexcKey, service::Mexc};
 use exc_okx::{key::Key as OkxKey, service::Okx};
+use exc_pacifica::{key::Key as PacificaKey, service::Pacifica};
 use exc_paradex::{key::Key as ParadexKey, service::Paradex};
 use exc_simu::service::Simu;
 use exc_standx::{key::Key as StandxKey, service::Standx};
@@ -64,6 +65,10 @@ pub enum ExchangeConfig {
     Okx {
         #[serde(flatten)]
         key: OkxKey,
+    },
+    Pacifica {
+        #[serde(flatten)]
+        key: PacificaKey,
     },
     Paradex {
         #[serde(flatten)]
@@ -157,6 +162,7 @@ pub enum Exchange {
     Lbank(Lbank),
     Kcex(Kcex),
     Okx(Okx),
+    Pacifica(Pacifica),
     Paradex(Paradex),
     Weex(Weex),
     Gate(Gate),
@@ -198,6 +204,7 @@ impl Exchange {
             }
             ExchangeConfig::Kcex { key } => Self::Kcex(Kcex::new(key)),
             ExchangeConfig::Okx { key } => Self::Okx(Okx::new(key)),
+            ExchangeConfig::Pacifica { key } => Self::Pacifica(Pacifica::new(key)),
             ExchangeConfig::Paradex { key } => Self::Paradex(tokio::task::block_in_place(move || {
                 tokio::runtime::Handle::current().block_on(Paradex::new(key))
             })),
@@ -272,6 +279,7 @@ impl Exchange {
             Exchange::Lbank(e) => e.get_balance().await,
             Exchange::Kcex(e) => e.get_balance().await,
             Exchange::Okx(e) => e.get_balance().await,
+            Exchange::Pacifica(e) => e.get_balance().await,
             Exchange::Paradex(e) => e.get_balance().await,
             Exchange::Weex(e) => e.get_balance().await,
             Exchange::Gate(e) => e.get_balance().await,
@@ -305,6 +313,7 @@ impl Exchange {
             Exchange::Lbank(e) => e.get_position(symbol).await,
             Exchange::Kcex(e) => e.get_position(symbol).await,
             Exchange::Okx(e) => e.get_position(symbol).await,
+            Exchange::Pacifica(e) => e.get_position(symbol).await,
             Exchange::Paradex(e) => e.get_position(symbol).await,
             Exchange::Weex(e) => e.get_position(symbol).await,
             Exchange::Gate(e) => e.get_position(symbol).await,
@@ -338,6 +347,7 @@ impl Exchange {
             Exchange::Lbank(e) => e.perfect_symbol(symbol).await,
             Exchange::Kcex(e) => e.perfect_symbol(symbol).await,
             Exchange::Okx(e) => e.perfect_symbol(symbol).await,
+            Exchange::Pacifica(e) => e.perfect_symbol(symbol).await,
             Exchange::Paradex(e) => e.perfect_symbol(symbol).await,
             Exchange::Weex(e) => e.perfect_symbol(symbol).await,
             Exchange::Gate(e) => e.perfect_symbol(symbol).await,
@@ -371,6 +381,7 @@ impl Exchange {
             Exchange::Lbank(e) => e.get_index_price(symbol).await,
             Exchange::Kcex(e) => e.get_index_price(symbol).await,
             Exchange::Okx(e) => e.get_index_price(symbol).await,
+            Exchange::Pacifica(e) => e.get_index_price(symbol).await,
             Exchange::Paradex(e) => e.get_index_price(symbol).await,
             Exchange::Weex(e) => e.get_index_price(symbol).await,
             Exchange::Gate(e) => e.get_index_price(symbol).await,
@@ -404,6 +415,7 @@ impl Exchange {
             Exchange::Lbank(e) => e.get_funding_rate(symbol).await,
             Exchange::Kcex(e) => e.get_funding_rate(symbol).await,
             Exchange::Okx(e) => e.get_funding_rate(symbol).await,
+            Exchange::Pacifica(e) => e.get_funding_rate(symbol).await,
             Exchange::Paradex(e) => e.get_funding_rate(symbol).await,
             Exchange::Weex(e) => e.get_funding_rate(symbol).await,
             Exchange::Gate(e) => e.get_funding_rate(symbol).await,
@@ -437,6 +449,7 @@ impl Exchange {
             Exchange::Lbank(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Kcex(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Okx(e) => e.get_funding_rate_history(symbol, day).await,
+            Exchange::Pacifica(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Paradex(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Weex(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Gate(e) => e.get_funding_rate_history(symbol, day).await,
@@ -470,6 +483,7 @@ impl Exchange {
             Exchange::Lbank(e) => e.get_st_rate(symbol).await,
             Exchange::Kcex(e) => e.get_st_rate(symbol).await,
             Exchange::Okx(e) => e.get_st_rate(symbol).await,
+            Exchange::Pacifica(e) => e.get_st_rate(symbol).await,
             Exchange::Paradex(e) => e.get_st_rate(symbol).await,
             Exchange::Weex(e) => e.get_st_rate(symbol).await,
             Exchange::Gate(e) => e.get_st_rate(symbol).await,
@@ -503,6 +517,7 @@ impl Exchange {
             Exchange::Lbank(e) => e.get_depth(symbol, limit).await,
             Exchange::Kcex(e) => e.get_depth(symbol, limit).await,
             Exchange::Okx(e) => e.get_depth(symbol, limit).await,
+            Exchange::Pacifica(e) => e.get_depth(symbol, limit).await,
             Exchange::Paradex(e) => e.get_depth(symbol, limit).await,
             Exchange::Weex(e) => e.get_depth(symbol, limit).await,
             Exchange::Gate(e) => e.get_depth(symbol, limit).await,
@@ -536,6 +551,7 @@ impl Exchange {
             Exchange::Lbank(e) => e.get_order(id).await,
             Exchange::Kcex(e) => e.get_order(id).await,
             Exchange::Okx(e) => e.get_order(id).await,
+            Exchange::Pacifica(e) => e.get_order(id).await,
             Exchange::Paradex(e) => e.get_order(id).await,
             Exchange::Weex(e) => e.get_order(id).await,
             Exchange::Gate(e) => e.get_order(id).await,
@@ -569,6 +585,7 @@ impl Exchange {
             Exchange::Lbank(e) => e.place_order(symbol, order_req).await,
             Exchange::Kcex(e) => e.place_order(symbol, order_req).await,
             Exchange::Okx(e) => e.place_order(symbol, order_req).await,
+            Exchange::Pacifica(e) => e.place_order(symbol, order_req).await,
             Exchange::Paradex(e) => e.place_order(symbol, order_req).await,
             Exchange::Weex(e) => e.place_order(symbol, order_req).await,
             Exchange::Gate(e) => e.place_order(symbol, order_req).await,
@@ -602,6 +619,7 @@ impl Exchange {
             Exchange::Lbank(e) => e.cancel_order(id).await,
             Exchange::Kcex(e) => e.cancel_order(id).await,
             Exchange::Okx(e) => e.cancel_order(id).await,
+            Exchange::Pacifica(e) => e.cancel_order(id).await,
             Exchange::Paradex(e) => e.cancel_order(id).await,
             Exchange::Weex(e) => e.cancel_order(id).await,
             Exchange::Gate(e) => e.cancel_order(id).await,
