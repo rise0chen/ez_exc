@@ -6,11 +6,16 @@ use exc_util::types::account::{Balance, Position};
 impl Hyperliquid {
     pub async fn get_balance(&mut self) -> Result<Balance, ExchangeError> {
         let resp = self.http.user_balances(self.key.user.parse().unwrap()).await?;
-        let future = resp
-            .iter()
-            .map(|x| if x.coin.contains("USD") { x.total } else { x.entry_ntl }.as_f64())
-            .sum();
-        Ok(Balance::new(0.0, future, 0.0))
+        let (spot, future, finance) = resp.iter().fold((0.0, 0.0, 0.0), |(spot, future, finance), x| {
+            if x.coin == "USDC" {
+                (spot, future + x.total.as_f64(), finance)
+            } else if x.coin == "USDE" {
+                (spot, future, finance + x.entry_ntl.as_f64())
+            } else {
+                (spot + x.entry_ntl.as_f64(), future, finance)
+            }
+        });
+        Ok(Balance::new(spot, future, finance))
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         if symbol.is_spot() {
