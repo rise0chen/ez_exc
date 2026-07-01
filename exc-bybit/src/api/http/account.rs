@@ -28,7 +28,7 @@ pub struct Asset {
 #[serde(rename_all = "camelCase")]
 pub struct Balance {
     #[serde_as(as = "DisplayFromStr")]
-    pub total_available_balance: f64,
+    pub total_equity: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub total_margin_balance: f64,
     pub coin: Vec<Asset>,
@@ -60,21 +60,19 @@ impl Rest for GetBalanceRequest {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct GetEarnRequest {
-    pub category: &'static str,
-}
+pub struct GetAccountBanlnceRequest {}
 
 #[serde_as]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct GetEarnResponse {
-    pub coin: String,
+pub struct GetAccountBanlnceResponse {
+    pub account_type: String,
     #[serde_as(as = "DisplayFromStr")]
-    pub amount: f64,
+    pub total_equity: f64,
 }
 
-impl Rest for GetEarnRequest {
-    type Response = List<GetEarnResponse>;
+impl Rest for GetAccountBanlnceRequest {
+    type Response = List<GetAccountBanlnceResponse>;
 
     fn api_kind(&self) -> ApiKind {
         ApiKind::Common
@@ -83,7 +81,7 @@ impl Rest for GetEarnRequest {
         Method::GET
     }
     fn path(&self) -> String {
-        "/v5/earn/position".to_string()
+        "/v5/asset/asset-overview".to_string()
     }
     fn need_sign(&self) -> bool {
         true

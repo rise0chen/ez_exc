@@ -5,6 +5,44 @@ use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "snake_case")]
+pub struct GetSpotInfoRequest {
+    pub asset_id: i16,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct SpotInfo {
+    #[serde_as(as = "DisplayFromStr")]
+    pub index_price: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub loan_to_value: f64,
+}
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct GetSpotInfoResponse {
+    pub asset_details: Vec<SpotInfo>,
+}
+
+impl Rest for GetSpotInfoRequest {
+    type Response = GetSpotInfoResponse;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::FuturesApi
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/api/v1/assetDetails".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        false
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub struct GetInfoRequest {
     pub market_id: i16,
 }

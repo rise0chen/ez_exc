@@ -11,7 +11,11 @@ impl Binance {
         let resp = self.oneshot(req).await?;
         let req = GetEarnRequest {};
         let earn = self.oneshot(req).await?;
-        Ok(Balance::new(0.0, resp.account_equity, earn.total_amount_in_usdt))
+        Ok(Balance::new(
+            resp.actual_equity - resp.account_equity,
+            resp.account_equity,
+            earn.total_amount_in_usdt,
+        ))
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);

@@ -4,6 +4,46 @@ use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct GetAccountBalanceRequest {
+    pub ccy: Option<String>,
+}
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AccountBalance {
+    #[serde_as(as = "DisplayFromStr")]
+    pub funding: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub trading: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub earn: f64,
+}
+#[serde_as]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetAccountBalanceResponse {
+    pub details: AccountBalance,
+}
+
+impl Rest for GetAccountBalanceRequest {
+    type Response = Vec<GetAccountBalanceResponse>;
+
+    fn api_kind(&self) -> ApiKind {
+        ApiKind::Common
+    }
+    fn method(&self) -> Method {
+        Method::GET
+    }
+    fn path(&self) -> String {
+        "/api/v5/asset/asset-valuation".to_string()
+    }
+    fn need_sign(&self) -> bool {
+        true
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GetBalanceRequest {
     pub ccy: Option<String>,
 }
@@ -25,6 +65,8 @@ pub struct Asset {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GetBalanceResponse {
+    #[serde_as(as = "DisplayFromStr")]
+    pub total_eq: f64,
     #[serde_as(as = "DisplayFromStr")]
     pub adj_eq: f64,
     pub details: Vec<Asset>,

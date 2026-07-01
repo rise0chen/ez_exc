@@ -13,10 +13,11 @@ pub struct GetAccountRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Asset {
-    pub asset_id: u32,
+    pub asset_id: i16,
     pub symbol: String,
     #[serde_as(as = "DisplayFromStr")]
     pub balance: f64,
+    pub margin_mode: String,
     #[serde_as(as = "DisplayFromStr")]
     pub margin_balance: f64,
 }
@@ -37,7 +38,7 @@ pub struct Position {
 #[serde(rename_all = "snake_case")]
 pub struct Account {
     #[serde_as(as = "DisplayFromStr")]
-    pub collateral: f64,
+    pub total_asset_value: f64,
     pub assets: Vec<Asset>,
     pub positions: Vec<Position>,
 }

@@ -12,6 +12,8 @@ pub struct GetBalanceRequest {}
 pub struct GetBalanceResponse {
     #[serde_as(as = "DisplayFromStr")]
     pub total_margin_balance: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub unified_account_total: f64,
 }
 
 impl Rest for GetBalanceRequest {

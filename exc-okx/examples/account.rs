@@ -18,15 +18,18 @@ async fn main() -> anyhow::Result<()> {
     let spot_balance = okx.get_balance().await.unwrap();
     tracing::info!("{:?}", spot_balance);
 
-    let symbol = Symbol::spot(Asset::try_from("DOGE").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::spot(Asset::try_from("DOGE").unwrap(), Asset::usdt());
+    okx.perfect_symbol(&mut symbol).await.unwrap();
     let balance = okx.get_position(&symbol).await.unwrap();
     tracing::info!("{}: {:?}", symbol, balance);
 
-    let symbol = Symbol::derivative(Asset::try_from("DOGE").unwrap(), Asset::usdt());
+    let mut symbol = Symbol::derivative(Asset::try_from("DOGE").unwrap(), Asset::usdt());
+    okx.perfect_symbol(&mut symbol).await.unwrap();
     let balance = okx.get_position(&symbol).await.unwrap();
     tracing::info!("{}: {:?}", symbol, balance);
 
-    let symbol = Symbol::option(Asset::try_from("ETH").unwrap(), Asset::try_from("USD_UM_XPERP-310404").unwrap());
+    let mut symbol = Symbol::option(Asset::try_from("ETH").unwrap(), Asset::try_from("USD_UM_XPERP-310404").unwrap());
+    okx.perfect_symbol(&mut symbol).await.unwrap();
     let balance = okx.get_position(&symbol).await.unwrap();
     tracing::info!("{}: {:?}", symbol, balance);
     Ok(())

@@ -9,7 +9,11 @@ impl Gate {
         use crate::futures_api::http::account::GetBalanceRequest;
         let req = GetBalanceRequest {};
         let resp = self.oneshot(req).await?;
-        Ok(Balance::new(0.0, resp.total_margin_balance, 0.0))
+        Ok(Balance::new(
+            resp.unified_account_total - resp.total_margin_balance,
+            resp.total_margin_balance,
+            0.0,
+        ))
     }
     pub async fn get_position(&mut self, symbol: &Symbol) -> Result<Position, ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);

@@ -11,6 +11,8 @@ pub struct GetBalanceRequest {}
 #[serde(rename_all = "camelCase")]
 pub struct GetBalanceResponse {
     #[serde_as(as = "DisplayFromStr")]
+    pub actual_equity: f64,
+    #[serde_as(as = "DisplayFromStr")]
     pub account_equity: f64,
 }
 

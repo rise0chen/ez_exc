@@ -93,8 +93,10 @@ impl Paradex {
     pub async fn get_index_price(&mut self, symbol: &Symbol) -> Result<f64, ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
         let resp = self.http.markets_summary(symbol_id).await;
-        let resp = resp.map_err(|e| ExchangeError::Other(e.into()))?.pop();
-        resp.map(|resp| symbol.token_price(resp.mark_price)).ok_or(ExchangeError::OrderNotFound)
+        let Some(resp) = resp.map_err(|e| ExchangeError::Other(e.into()))?.pop() else {
+            return Err(ExchangeError::OrderNotFound);
+        };
+        Ok(symbol.token_price(resp.underlying_price.unwrap_or(resp.mark_price)))
     }
 
     pub async fn get_funding_rate(&mut self, symbol: &Symbol) -> Result<FundingRate, ExchangeError> {

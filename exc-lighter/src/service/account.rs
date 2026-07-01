@@ -7,13 +7,26 @@ use tower::ServiceExt;
 impl Lighter {
     pub async fn get_balance(&mut self) -> Result<Balance, ExchangeError> {
         use crate::futures_api::http::account::GetAccountRequest;
+        use crate::futures_api::http::info::GetSpotInfoRequest;
         let req = GetAccountRequest {
             by: "index",
             value: self.key.account_index,
         };
         let resp = self.oneshot(req).await?.accounts.pop();
         let Some(resp) = resp else { return Err(ExchangeError::OrderNotFound) };
-        Ok(Balance::new(0.0, resp.collateral, 0.0))
+        let mut spot = 0.0;
+        let mut future = resp.total_asset_value;
+        for asset in &resp.assets {
+            if asset.symbol == "USDC" {
+                continue;
+            }
+            let Some(info) = self.oneshot(GetSpotInfoRequest { asset_id: asset.asset_id }).await?.asset_details.pop() else {
+                continue;
+            };
+            spot += (1.0 - info.loan_to_value) * info.index_price * asset.margin_balance + info.index_price * asset.balance;
+            future += info.loan_to_value * info.index_price * asset.margin_balance;
+        }
+        Ok(Balance::new(spot, future, 0.0))
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);

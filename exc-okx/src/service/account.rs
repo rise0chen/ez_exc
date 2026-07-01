@@ -6,11 +6,18 @@ use tower::ServiceExt;
 
 impl Okx {
     pub async fn get_balance(&mut self) -> Result<Balance, ExchangeError> {
-        use crate::api::http::account::GetBalanceRequest;
+        use crate::api::http::account::{GetAccountBalanceRequest, GetBalanceRequest};
+        let req = GetAccountBalanceRequest { ccy: Some("USDT".into()) };
+        let resp = self.oneshot(req).await?.pop();
+        let Some(account) = resp else { return Err(ExchangeError::OrderNotFound) };
         let req = GetBalanceRequest { ccy: Some("USDT".into()) };
         let resp = self.oneshot(req).await?.pop();
         let Some(resp) = resp else { return Err(ExchangeError::OrderNotFound) };
-        Ok(Balance::new(0.0, resp.adj_eq, 0.0))
+        Ok(Balance::new(
+            account.details.funding + account.details.trading - resp.adj_eq,
+            resp.adj_eq,
+            account.details.earn,
+        ))
     }
     pub async fn get_positions(&mut self, symbol: &Symbol) -> Result<(Position, Position), ExchangeError> {
         let symbol_id = crate::symnol::symbol_id(symbol);
