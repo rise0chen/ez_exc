@@ -27,6 +27,7 @@ exc-coinw = {path = "../exc-coinw", default-features = false}
 exc-custom = {path = "../exc-custom", default-features = false}
 exc-dex = {path = "../exc-dex", default-features = false}
 exc-dydx = {path = "../exc-dydx", default-features = false}
+exc-extended = {path = "../exc-extended", default-features = false}
 exc-gate = {path = "../exc-gate", default-features = false}
 exc-grvt = {path = "../exc-grvt", default-features = false}
 exc-htx = {path = "../exc-htx", default-features = false}

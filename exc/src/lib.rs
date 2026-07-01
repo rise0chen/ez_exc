@@ -14,6 +14,7 @@ use exc_coinw::{key::Key as CoinwKey, service::Coinw};
 use exc_custom::service::Custom;
 use exc_dex::{key::Key as DexKey, service::Dex};
 use exc_dydx::{key::Key as DydxKey, service::Dydx};
+use exc_extended::{key::Key as ExtendedKey, service::Extended};
 use exc_gate::{key::Key as GateKey, service::Gate};
 use exc_grvt::{key::Key as GrvtKey, service::Grvt};
 use exc_htx::{key::Key as HtxKey, service::Htx};
@@ -134,6 +135,10 @@ pub enum ExchangeConfig {
         #[serde(flatten)]
         key: DydxKey,
     },
+    Extended {
+        #[serde(flatten)]
+        key: ExtendedKey,
+    },
     Coinw {
         #[serde(flatten)]
         key: CoinwKey,
@@ -179,6 +184,7 @@ pub enum Exchange {
     Aden(Aden),
     Dex(Dex),
     Dydx(Dydx),
+    Extended(Extended),
     Coinw(Coinw),
     Standx(Standx),
     Toobit(Toobit),
@@ -253,6 +259,7 @@ impl Exchange {
             ExchangeConfig::Dydx { key } => Self::Dydx(tokio::task::block_in_place(move || {
                 tokio::runtime::Handle::current().block_on(Dydx::new(key))
             })),
+            ExchangeConfig::Extended { key } => Self::Extended(Extended::new(key)),
             ExchangeConfig::Coinw { key } => {
                 let mut exc = Coinw::new(key);
                 exc.run();
@@ -296,6 +303,7 @@ impl Exchange {
             Exchange::Aden(e) => e.get_balance().await,
             Exchange::Dex(e) => e.get_balance().await,
             Exchange::Dydx(e) => e.get_balance().await,
+            Exchange::Extended(e) => e.get_balance().await,
             Exchange::Coinw(e) => e.get_balance().await,
             Exchange::Standx(e) => e.get_balance().await,
             Exchange::Toobit(e) => e.get_balance().await,
@@ -330,6 +338,7 @@ impl Exchange {
             Exchange::Aden(e) => e.get_position(symbol).await,
             Exchange::Dex(e) => e.get_position(symbol).await,
             Exchange::Dydx(e) => e.get_position(symbol).await,
+            Exchange::Extended(e) => e.get_position(symbol).await,
             Exchange::Coinw(e) => e.get_position(symbol).await,
             Exchange::Standx(e) => e.get_position(symbol).await,
             Exchange::Toobit(e) => e.get_position(symbol).await,
@@ -364,6 +373,7 @@ impl Exchange {
             Exchange::Aden(e) => e.perfect_symbol(symbol).await,
             Exchange::Dex(e) => e.perfect_symbol(symbol).await,
             Exchange::Dydx(e) => e.perfect_symbol(symbol).await,
+            Exchange::Extended(e) => e.perfect_symbol(symbol).await,
             Exchange::Coinw(e) => e.perfect_symbol(symbol).await,
             Exchange::Standx(e) => e.perfect_symbol(symbol).await,
             Exchange::Toobit(e) => e.perfect_symbol(symbol).await,
@@ -398,6 +408,7 @@ impl Exchange {
             Exchange::Aden(e) => e.get_index_price(symbol).await,
             Exchange::Dex(e) => e.get_index_price(symbol).await,
             Exchange::Dydx(e) => e.get_index_price(symbol).await,
+            Exchange::Extended(e) => e.get_index_price(symbol).await,
             Exchange::Coinw(e) => e.get_index_price(symbol).await,
             Exchange::Standx(e) => e.get_index_price(symbol).await,
             Exchange::Toobit(e) => e.get_index_price(symbol).await,
@@ -432,6 +443,7 @@ impl Exchange {
             Exchange::Aden(e) => e.get_funding_rate(symbol).await,
             Exchange::Dex(e) => e.get_funding_rate(symbol).await,
             Exchange::Dydx(e) => e.get_funding_rate(symbol).await,
+            Exchange::Extended(e) => e.get_funding_rate(symbol).await,
             Exchange::Coinw(e) => e.get_funding_rate(symbol).await,
             Exchange::Standx(e) => e.get_funding_rate(symbol).await,
             Exchange::Toobit(e) => e.get_funding_rate(symbol).await,
@@ -466,6 +478,7 @@ impl Exchange {
             Exchange::Aden(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Dex(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Dydx(e) => e.get_funding_rate_history(symbol, day).await,
+            Exchange::Extended(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Coinw(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Standx(e) => e.get_funding_rate_history(symbol, day).await,
             Exchange::Toobit(e) => e.get_funding_rate_history(symbol, day).await,
@@ -500,6 +513,7 @@ impl Exchange {
             Exchange::Aden(e) => e.get_st_rate(symbol).await,
             Exchange::Dex(e) => e.get_st_rate(symbol).await,
             Exchange::Dydx(e) => e.get_st_rate(symbol).await,
+            Exchange::Extended(e) => e.get_st_rate(symbol).await,
             Exchange::Coinw(e) => e.get_st_rate(symbol).await,
             Exchange::Standx(e) => e.get_st_rate(symbol).await,
             Exchange::Toobit(e) => e.get_st_rate(symbol).await,
@@ -534,6 +548,7 @@ impl Exchange {
             Exchange::Aden(e) => e.get_depth(symbol, limit).await,
             Exchange::Dex(e) => e.get_depth(symbol, limit).await,
             Exchange::Dydx(e) => e.get_depth(symbol, limit).await,
+            Exchange::Extended(e) => e.get_depth(symbol, limit).await,
             Exchange::Coinw(e) => e.get_depth(symbol, limit).await,
             Exchange::Standx(e) => e.get_depth(symbol, limit).await,
             Exchange::Toobit(e) => e.get_depth(symbol, limit).await,
@@ -568,6 +583,7 @@ impl Exchange {
             Exchange::Aden(e) => e.get_order(id).await,
             Exchange::Dex(e) => e.get_order(id).await,
             Exchange::Dydx(e) => e.get_order(id).await,
+            Exchange::Extended(e) => e.get_order(id).await,
             Exchange::Coinw(e) => e.get_order(id).await,
             Exchange::Standx(e) => e.get_order(id).await,
             Exchange::Toobit(e) => e.get_order(id).await,
@@ -602,6 +618,7 @@ impl Exchange {
             Exchange::Aden(e) => e.place_order(symbol, order_req).await,
             Exchange::Dex(e) => e.place_order(symbol, order_req).await,
             Exchange::Dydx(e) => e.place_order(symbol, order_req).await,
+            Exchange::Extended(e) => e.place_order(symbol, order_req).await,
             Exchange::Coinw(e) => e.place_order(symbol, order_req).await,
             Exchange::Standx(e) => e.place_order(symbol, order_req).await,
             Exchange::Toobit(e) => e.place_order(symbol, order_req).await,
@@ -636,6 +653,7 @@ impl Exchange {
             Exchange::Aden(e) => e.cancel_order(id).await,
             Exchange::Dex(e) => e.cancel_order(id).await,
             Exchange::Dydx(e) => e.cancel_order(id).await,
+            Exchange::Extended(e) => e.cancel_order(id).await,
             Exchange::Coinw(e) => e.cancel_order(id).await,
             Exchange::Standx(e) => e.cancel_order(id).await,
             Exchange::Toobit(e) => e.cancel_order(id).await,

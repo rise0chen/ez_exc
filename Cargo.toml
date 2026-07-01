@@ -12,6 +12,7 @@ members = [
   "exc-custom",
   "exc-dex",
   "exc-dydx",
+  "exc-extended",
   "exc-gate",
   "exc-grvt",
   "exc-htx",

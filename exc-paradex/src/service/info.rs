@@ -50,7 +50,6 @@ impl Paradex {
                         x.kind == "retail" && x.tier_name == a.volume_tiers.retail.tier
                     }
                 });
-                println!("{:?}", tier);
                 if let Some(tier) = tier {
                     fee = tier.fee_rates.taker_rate_rate;
                 }

@@ -125,6 +125,11 @@ pub enum OrderType {
     ImmediateOrCancel = 3,
     FillOrKill = 4,
 }
+impl OrderType {
+    pub fn is_post_only(&self) -> bool {
+        matches!(self, Self::LimitMaker)
+    }
+}
 impl Display for OrderType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.serialize(f)
